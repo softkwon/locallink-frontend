@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 페이지 - 회원 목록</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        .admin-section { padding: 20px; }
+        .styled-table { width:100%; border-collapse: collapse; font-size: 0.9em; margin-top:15px;}
+        .styled-table th, .styled-table td { border: 1px solid #ddd; padding: 10px 12px; text-align:left; }
+        .styled-table th { background-color:#f0f0f0; text-align:center; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo"><a href="main_index.html" style="text-decoration: none;">LocalLink (Admin)</a></div>
+            <nav>
+                <ul>
+                    <li><a href="main_index.html">Locallink로 돌아가기</a></li>
+                    <li><a href="admin_dashboard.html">관리자 대시보드</a></li>
+                </ul>
+            </nav>
+            <div id="userAuthStatus" style="float: right;"></div>
+            <div id="user-menu-container"></div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="admin-section">
+            <h2>회원 목록</h2>
+            <p>전체 회원 목록을 확인하고 관리합니다.</p>
+            <div id="loadingMessage"><p>회원 목록을 불러오는 중입니다...</p></div>
+            <table id="userListTable" class="styled-table hidden">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>이메일</th>
+                        <th>회사명</th>
+                        <th>담당자명</th>
+                        <th>전화번호</th> 
+                        <th>회사 규모</th> <th>역할</th>
+                        <th>가입일</th>
+                        <th>관리</th> 
+                    </tr>
+                </thead>
+                <tbody id="userListTableBody">
+                    </tbody>
+            </table>
+        </section>
+    </main>
+    <footer id="footer-placeholder"></footer>
+    
+    <script src="js/auth.js" defer></script>
+    <script src="js/admin_common.js" defer></script>
+    <script src="js/admin_user_list.js" defer></script>
+</body>
+</html>

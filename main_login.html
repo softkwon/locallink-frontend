@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 - LocalLink</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/auth.js" defer></script></head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <a href="main_index.html">
+                    <img src="${STATIC_BASE_URL}/images/logo.png" alt="LocalLink 로고" class="header-logo-img">
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="form-section login-form-section">
+            <h2>로그인</h2>
+            <p>LocalLink 서비스 이용을 위해 로그인해주세요.</p>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">아이디 (이메일)</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">비밀번호</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="button-primary">로그인</button>
+                </div>
+                <div class="form-links">
+                    <a href="main_login_find-id.html">아이디 찾기</a>
+                    <span>|</span>
+                    <a href="main_login_find-password.html">비밀번호 찾기</a>
+                    <span>|</span>
+                    <a href="main_signup.html">회원가입</a>
+                </div>
+            </form>
+        </section>
+    </main>
+    <footer id="footer-placeholder"></footer>    
+
+    <script>
+    // 로그인 폼(form)이 '제출'될 때 handleLogin 함수를 실행하도록 연결합니다.
+document.addEventListener('DOMContentLoaded', function() {
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        loginForm.addEventListener('submit', handleLogin);
+    }
+});
+
+
+// 로그인 로직을 처리하는 함수
+async function handleLogin(event) {
+    // 폼의 기본 제출 동작(페이지 새로고침)을 막습니다.
+    event.preventDefault(); 
+
+    // 이메일과 비밀번호 입력란에서 값을 가져옵니다.
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    if (!email || !password) {
+        alert('이메일과 비밀번호를 모두 입력해주세요.');
+        return;
+    }
+
+    const formData = {
+        email: email,
+        password: password
+    };
+
+    try {
+        // fetch를 사용하여 백엔드 로그인 API 호출
+        const response = await fetch('${API_BASE_URL}/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            // 1. 서버로부터 받은 토큰을 브라우저의 localStorage에 저장합니다.
+            localStorage.setItem('locallink-token', result.token);
+
+            alert(result.message); // "로그인 성공!" 메시지 표시
+            
+            // 2. 메인 페이지로 이동합니다.
+            window.location.href = 'main_index.html'; 
+
+        } else {
+            // 로그인 실패 시 서버가 보낸 메시지 표시
+            alert(result.message);
+        }
+
+    } catch (error) {
+        console.error('로그인 요청 실패:', error);
+        alert('로그인 중 오류가 발생했습니다.');
+    }
+}
+    </script>    
+</body>
+</html>

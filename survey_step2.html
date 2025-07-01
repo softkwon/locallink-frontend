@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESG 설문 (2단계: ESG 문항 진단) - LocalLink</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        .explanation-box, .info-box { font-size: 0.9em; color: #4A4A4A; background-color: #f0f8ff; padding: 15px; border-left: 5px solid #007bff; border-radius: 4px; margin: 20px 0; line-height: 1.6; }
+        .info-box { background-color: #fffbe6; border-left-color: #ffc107; }
+        .survey-options .radio-group label { display: block; padding: 12px 15px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s ease; }
+        .survey-options label:hover { background-color: #f8f9fa; }
+        .survey-options input[type="radio"] { display: none; }
+        .survey-options label.selected { background-color: #e9f7ff; border-color: #007bff; font-weight: bold; }
+        .survey-options label.selected span::before { content: '✓ '; font-weight: bold; color: #007bff; margin-right: 6px; }
+        .hidden { display: none; }
+        .progress-container { padding: 0 10px; margin: 30px 0; }
+        .progress-bar-background { background-color: #e9ecef; border-radius: 10px; height: 12px; }
+        .progress-bar-foreground { background-color: #007bff; height: 100%; width: 0%; border-radius: 10px; transition: width 0.4s ease-in-out; }
+        .progress-text { text-align: center; font-size: 0.9em; color: #6c757d; margin-top: 8px; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <a href="main_index.html">
+                    <img src="${STATIC_BASE_URL}/images/logo.png" alt="LocalLink 로고" class="header-logo-img">
+                </a>
+            </div>
+            <nav>
+                <ul id="mainNavLinks">
+                    <li><a href="survey_step1.html">1단계: 기본정보</a></li>
+                </ul>
+            </nav>
+            <div id="user-menu-container"></div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="form-section survey-page-section">
+            <h2>ESG 설문 - 2단계: 기업 ESG 현황 정보</h2>
+            <p>귀사의 ESG 현황에 대해 가장 잘 나타내는 항목을 선택하거나, 해당 정보를 입력해주세요.</p>
+            <div id="primaryIndustryDisplay" class="info-box hidden" style="margin-top: 20px; text-align: center; font-weight: bold;"></div>
+            <div class="progress-container">
+                <div class="progress-bar-background"><div class="progress-bar-foreground" id="progressBar"></div></div>
+                <div class="progress-text" id="progressText"></div>
+            </div>
+            
+            <div id="questionContainer" class="hidden">
+                <fieldset>
+                    <legend id="questionLegend"></legend>
+                    <p id="questionText" style="font-size: 1.3em; font-weight: bold; margin-bottom: 20px;"></p>
+                    
+                    <div id="industryAverageInfo" class="info-box hidden"></div>
+                    <div id="questionExplanation" class="explanation-box hidden"></div>
+                    
+                    <div id="optionsContainer" class="survey-options"></div>
+                </fieldset>
+                <div id="navigationContainer" class="form-actions hidden" style="justify-content: space-between; margin-top: 30px;">
+                    <button type="button" id="prevQuestionBtn" class="button-secondary">이전 질문</button>
+                    <button type="button" id="nextQuestionBtn" class="button-primary">다음</button>
+                </div>
+            </div>
+
+            <div id="surveyCompleteMessage" class="hidden" style="text-align:center; padding: 50px;">
+                <h3>모든 설문에 답변하셨습니다.</h3>
+                <p>결과를 확인하시려면 아래 버튼을 눌러주세요.</p>
+                <button type="button" id="submitSurveyBtn" class="button-primary">결과보기</button>
+            </div>
+            <div id="loadingMessage">설문지를 불러오는 중입니다...</div>
+        </section>
+    </main>
+    <footer id="footer-placeholder"></footer>
+
+    <script src="js/auth.js" defer></script>
+    <script src="js/survey_step2.js" defer></script>
+</body>
+</html>

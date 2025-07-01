@@ -1,0 +1,230 @@
+<!-- admin_program_edit.html (2025-06-27 20:00:00) -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>관리자 페이지 - ESG 프로그램 수정</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        /* --- 폼 기본 레이아웃 --- */
+        .form-section {
+            max-width: 900px;
+            margin: auto;
+            padding-bottom: 50px;
+        }
+        .form-fieldset {
+            border: 1px solid #dee2e6;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            background-color: #ffffff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .form-fieldset legend {
+            font-weight: 600; /* 600은 semi-bold */
+            font-size: 1.25em;
+            padding: 0 10px;
+            color: #343a40;
+        }
+
+        /* --- 폼 그룹 및 라벨 --- */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 0.95em;
+            color: #495057;
+        }
+        .form-group-inline {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            align-items: flex-end;
+        }
+
+        /* --- 입력 필드 스타일 (input, textarea, select) --- */
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            font-size: 1em;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            box-sizing: border-box;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+        .form-control:focus {
+            border-color: #80bdff;
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* --- 동적 추가/삭제 섹션 스타일 --- */
+        .content-section, 
+        #opportunity-effects-container .form-fieldset {
+            border: 1px solid #e9ecef;
+            background-color: #f8f9fa;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 5px;
+            position: relative;
+        }
+        .remove-section-btn, .remove-opportunity-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        
+        .image-preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .image-preview-wrapper {
+            position: relative;
+            border: 1px solid #ddd;
+            padding: 4px;
+            border-radius: 4px;
+        }
+        .image-preview-wrapper .remove-preview-btn {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+        }
+
+        /* --- 최종 버튼 --- */
+        .form-actions {
+            text-align: right;
+            margin-top: 30px;
+        }
+        /* --- 서비스 지역 체크박스 그룹 스타일 --- */
+        .checkbox-group {
+            display: grid;
+            /* 3개의 열을 만들고, 각 열이 동일한 공간을 차지하도록 설정 */
+            grid-template-columns: repeat(6, 1fr); 
+            gap: 8px 15px; /* 세로(8px) 및 가로(15px) 간격 */
+            padding: 15px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+        }
+
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 6px; /* 체크박스와 텍스트 사이 간격 */
+            font-weight: 400; /* 라벨 폰트 두께를 보통으로 조정 */
+            cursor: pointer;
+            margin-bottom: 0; /* form-group의 기본 margin-bottom 제거 */
+        }
+
+        /* 체크박스 자체의 크기와 위치 미세 조정 */
+        .checkbox-group input[type="checkbox"] {
+            width: 15px;
+            height: 15px;
+            margin: 0;
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo"><a href="main_index.html">LocalLink (Admin)</a></div>
+            <nav><ul><li><a href="admin_programs.html">← 프로그램 목록으로 돌아가기</a></li></ul></nav>
+            <div id="userAuthStatus" style="float: right;"></div>
+            <div id="user-menu-container"></div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="form-section edit-form-container">
+            <h2>ESG 프로그램 수정</h2>
+            <div id="loadingMessage"><p>프로그램 정보를 불러오는 중입니다...</p></div>
+            
+            <form id="editProgramForm">
+                <fieldset class="form-fieldset"><legend>기본 정보</legend>
+                    <div class="form-group"><label for="title">프로그램 제목 *</label><input type="text" id="title" class="form-control" required></div>
+                    <div class="form-group-inline">
+                        <div class="form-group"><label for="program_code">프로그램 코드 *</label><input type="text" id="program_code" class="form-control" required></div>
+                        <div class="form-group"><label for="esg_category">ESG 카테고리 *</label><select id="esg_category" class="form-control" required><option value="E">E</option><option value="S">S</option><option value="G">G</option></select></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="program_overview">프로그램 개요</label>
+                        <textarea id="program_overview" class="form-control" rows="4" placeholder="프로그램에 대한 간단한 한 줄 요약이나 개요를 입력하세요."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>서비스 지역 (복수 선택 가능)</label>
+                        <div class="checkbox-group" id="service_regions_group">
+                            <label><input type="checkbox" name="service_region" value="전국"> 전국</label>
+                            <label><input type="checkbox" name="service_region" value="서울"> 서울</label>
+                            <label><input type="checkbox" name="service_region" value="부산"> 부산</label>
+                            <label><input type="checkbox" name="service_region" value="대구"> 대구</label>
+                            <label><input type="checkbox" name="service_region" value="인천"> 인천</label>
+                            <label><input type="checkbox" name="service_region" value="광주"> 광주</label>
+                            <label><input type="checkbox" name="service_region" value="대전"> 대전</label>
+                            <label><input type="checkbox" name="service_region" value="울산"> 울산</label>
+                            <label><input type="checkbox" name="service_region" value="세종"> 세종</label>
+                            <label><input type="checkbox" name="service_region" value="경기"> 경기</label>
+                            <label><input type="checkbox" name="service_region" value="강원"> 강원</label>
+                            <label><input type="checkbox" name="service_region" value="충북"> 충북</label>
+                            <label><input type="checkbox" name="service_region" value="충남"> 충남</label>
+                            <label><input type="checkbox" name="service_region" value="전북"> 전북</label>
+                            <label><input type="checkbox" name="service_region" value="전남"> 전남</label>
+                            <label><input type="checkbox" name="service_region" value="경북"> 경북</label>
+                            <label><input type="checkbox" name="service_region" value="경남"> 경남</label>
+                            <label><input type="checkbox" name="service_region" value="제주"> 제주</label>
+                        </div>
+                    </div>
+                </fieldset>
+                
+                <fieldset class="form-fieldset"><legend>콘텐츠 섹션</legend><div id="sections-container"></div><button type="button" id="add-section-btn" class="button-secondary">+ 섹션 추가</button></fieldset>
+
+                <fieldset class="form-fieldset">
+                    <legend>연계 단체</legend>
+                    <div id="organizations-container">
+                        </div>
+                    <button type="button" id="add-organization-btn" class="button-secondary">+ 단체 추가</button>
+                </fieldset>   
+                
+                <!-- ★★★ 아래 '방치 시 리스크 및 개선 효과' 섹션 전체 추가 ★★★ -->
+                <fieldset class="form-fieldset">
+                    <legend>방치 시 리스크 및 개선 효과</legend>
+
+                    <div class="form-group">
+                        <label for="risk_text">방치 시 리스크 (요약)</label>
+                        <input type="text" id="risk_text" class="form-control" placeholder="예: 연간 약 1,200,000 원의 추가 비용 발생">
+                    </div>
+                    <div class="form-group">
+                        <label for="risk_description">방치 시 리스크 (세부 설명)</label>
+                        <textarea id="risk_description" class="form-control" rows="3" placeholder="리스크 발생 원인 및 근거를 상세히 기술합니다."></textarea>
+                    </div>
+
+                    <hr style="margin: 20px 0;">
+
+                    <div id="opportunity-effects-container">
+                        </div>
+                    <button type="button" id="add-opportunity-effect-btn" class="button-secondary">+ 기대효과 추가</button>
+                </fieldset>
+
+                <fieldset class="form-fieldset"><legend>기대 경제 효과 규칙</legend><div id="effects-container"></div><button type="button" id="add-effect-btn" class="button-secondary">+ 규칙 추가</button></fieldset>               
+                
+                <div class="form-actions"><button type="submit" class="button-primary">변경사항 저장</button></div>
+            </form>
+        </section>
+    </main>
+    <footer id="footer-placeholder"></footer>
+
+    <script src="js/auth.js" defer></script>
+    <script src="js/admin_common.js" defer></script>
+    <script src="js/admin_program_edit.js" defer></script>
+</body>
+</html>

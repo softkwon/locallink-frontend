@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 페이지 - 채점 규칙 관리</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        .admin-section { padding: 20px; }
+        .styled-table { width:100%; border-collapse: collapse; font-size: 0.9em; margin-top:15px;}
+        .styled-table th, .styled-table td { border: 1px solid #ddd; padding: 10px 12px; text-align:left; vertical-align: middle;}
+        .styled-table th { background-color:#f0f0f0; text-align:center; font-weight: bold; }
+        .styled-table input[type="number"] { width: 80px; padding: 5px; }
+        .tab-nav {
+    border-bottom: 2px solid #dee2e6;
+    margin-bottom: 20px;
+}
+.tab-button {
+    background-color: transparent;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 1em;
+    margin-bottom: -2px;
+    border-bottom: 2px solid transparent;
+}
+.tab-button.active {
+    font-weight: bold;
+    color: #007bff;
+    border-bottom-color: #007bff;
+}
+
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo"><a href="main_index.html" style="text-decoration: none;">LocalLink (Admin)</a></div>
+            <nav>
+                <ul>
+                    <li><a href="main_index.html">Locallink로 돌아가기</a></li>
+                    <li><a href="admin_dashboard.html">관리자 대시보드</a></li>                    
+                </ul>
+            </nav>
+            <div id="userAuthStatus" style="float: right;"></div>
+            <div id="user-menu-container"></div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="admin-section">
+            <h2>채점 규칙 관리</h2>
+            <p>각 질문 답변에 대한 점수를 수정합니다.</p>
+            <div class="tab-nav">
+                <button class="tab-button active" data-type="simple">간이진단 규칙</button>
+                <button class="tab-button" data-type="advanced">심화진단 규칙</button>
+            </div>
+            <div style="margin-bottom: 15px; text-align: right;">
+                <a href="admin_question_list.html" class="button-primary">질문 리스트 보기</a>
+            </div>
+            <div id="loadingMessage"><p>규칙 목록을 불러오는 중입니다...</p></div>
+            <table id="rulesTable" class="styled-table hidden">
+                <thead>
+                    <tr>
+                        <th style="width: 10%;">질문 코드</th>
+            <th style="width: 40%;">질문 내용</th>
+            <th style="width: 15%;">답변 조건</th>
+            <th style="width: 10%;">현재 점수</th>
+            <th style="width: 15%;">새 점수</th>
+            <th style="width: 10%;">관리</th>
+                    </tr>
+                </thead>
+                <tbody id="rulesTableBody"></tbody>
+            </table>
+        </section>
+    </main>
+    <footer id="footer-placeholder"></footer>
+
+    <script src="js/auth.js" defer></script>
+    <script src="js/admin_common.js" defer></script>
+    <script src="js/admin_scoring_rules.js" defer></script>
+    
+</body>
+</html>

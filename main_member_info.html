@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원 정보 - LocalLink</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css"> 
+
+    <style>
+        .info-section { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        .info-section:last-child { border-bottom: none; }
+        .info-section h3 { color: #007bff; margin-bottom: 15px; }
+        .info-table { width: 100%; border-collapse: collapse; }
+        .info-table th, .info-table td { border: 1px solid #ddd; padding: 12px 15px; text-align: left; font-size: 0.9em; vertical-align: top; }
+        .info-table th { background-color: #f8f9fa; width: 25%; font-weight: bold; }
+        .info-table td { width: 75%; position: relative; }
+        .info-table input[type="text"], 
+        .info-table input[type="tel"], 
+        .info-table select {
+            width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;
+            box-sizing: border-box; font-family: inherit; font-size: 1em; background-color: #fff;
+        }
+        .info-table .readonly-input { background-color: #e9ecef; cursor: default; }
+        .action-buttons { margin-top: 20px; text-align: right; }
+        .action-buttons button { margin-left: 10px; }
+        .hidden { display: none; }
+        .info-icon-member-edit { 
+            display: inline-block; color: #007bff; cursor: pointer; font-weight: bold; 
+            border: 1px solid #007bff; border-radius: 50%; width: 22px; height: 22px;
+            text-align: center; line-height: 20px; font-size: 0.9em; user-select: none;
+            position: absolute; top: 12px; right: 12px;
+        }
+        .info-icon-member-edit:hover { background-color: #007bff; color: white; }
+        .selected-codes-container-member { margin-top: 8px; padding: 8px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; min-height: 30px; }
+        .interest-list, .industry-code-list-display { list-style-type: none; padding-left: 0; margin: 0; }
+        .selected-code-tag-member, .interest-list li, .industry-code-list-display li {
+            display: inline-block; background-color: #007bff; color: white;
+            padding: 4px 8px; border-radius: 12px; margin-right: 5px; margin-bottom: 5px; font-size: 0.9em;
+        }
+        .interest-list li, .industry-code-list-display li { background-color: #e9ecef; color: #333; }
+        .selected-code-tag-member .remove-code { margin-left: 6px; color: #ffdddd; cursor: pointer; font-weight: bold; }
+        .interest-category-edit h5 { margin-top: 10px; margin-bottom: 8px; font-size: 1em; font-weight: bold; color: #333; }
+        .checkbox-group-vertical label { display: block; margin-bottom: 8px; font-weight: normal; cursor: pointer; }
+        .checkbox-group-vertical input[type="checkbox"] { margin-right: 8px; vertical-align: middle; }
+        .modal-footer {
+            text-align: right;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-footnote {
+            font-size: 0.8em;
+            color: #6c757d;
+            margin: 0;
+        }
+        .star-icon {
+            color: #ffc107;
+            font-weight: bold;
+        }
+        .industry-list-container li.selected {
+            background-color: #e9f7ff;
+            font-weight: bold;
+        }
+        /* 모달 전체를 덮는 검은 반투명 배경 */
+        .modal-overlay {
+            display: none; /* 평소에는 숨겨 둠 */
+            position: fixed; /* 화면 기준으로 위치 고정 */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 1000; /* 다른 요소들보다 항상 위에 표시 */
+            
+            /* 자식 요소(모달창)를 화면 중앙에 오도록 설정 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 실제 모달창 콘텐츠 부분 */
+        .modal-content {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+        /* --- 진단 이력 스타일 --- */
+        .diagnosis-history-list, .inquiry-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .history-item, .inquiry-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            font-size: 0.9em;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .history-item:last-child, .inquiry-item:last-child {
+            border-bottom: none;
+        }
+        .history-item-buttons {
+            display: flex;
+            gap: 5px;
+            flex-shrink: 0; /* 버튼이 줄어들지 않도록 설정 */
+        }
+        .history-item-text {
+            margin-right: 10px;
+        }
+
+        /* --- 문의 내역 스타일 --- */
+        .inquiry-item-text {
+            flex-grow: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis; /* 말줄임표(...) 효과 */
+            margin-right: 10px;
+            cursor: default; /* 마우스오버 시 커서 기본 모양 */
+        }
+        .inquiry-status {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+            color: white;
+            flex-shrink: 0;
+        }
+        .status-new { background-color: #007bff; }
+        .status-in_progress { background-color: #ffc107; color: #333; }
+        .status-resolved { background-color: #28a745; }
+        /* ★★★ 반응형 웹 디자인을 위한 미디어 쿼리 ★★★ */
+        @media (max-width: 768px) {
+            .info-table th, 
+            .info-table td {
+                display: block;
+                width: 100%;
+                box-sizing: border-box;
+                text-align: left !important;
+            }
+            .info-table th {
+                background-color: transparent;
+                border: none;
+                border-bottom: 2px solid #007bff;
+                padding-left: 0;
+                font-size: 0.9em;
+                color: #0056b3;
+            }
+            .info-table td {
+                border: none;
+                padding: 8px 0 25px 0;
+            }
+            .info-table tr {
+                border: none;
+            }
+            .action-buttons, .withdrawal-section {
+                flex-direction: column;
+                text-align: center;
+            }
+            .action-buttons button, .withdrawal-section button {
+                width: 100%;
+                margin-left: 0;
+            }
+            .history-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+
+</style>
+</head>
+    
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <a href="main_index.html">
+                    <img src="${STATIC_BASE_URL}/images/logo.png" alt="LocalLink 로고" class="header-logo-img">
+                </a>
+            </div>
+            <nav>
+                <ul id="mainNavLinks"> 
+                    <li class="dropdown">
+                        <a href="#" class="dropbtn">소식</a>
+                        <ul class="dropdown-content">
+                            <li><a href="news_list.html?category=locallink">LocalLink 소식</a></li>
+                            <li><a href="news_list.html?category=trends">ESG market</a></li>
+                        </ul>
+                    </li>                     
+                    <li class="dropdown">
+                        <a href="#" class="dropbtn">ESG 진단하기</a>
+                        <ul class="dropdown-content">
+                            <li><a href="survey_step1.html" id="startSimpleDiagnosisLink">간이진단</a></li>
+                            <li><a href="#" id="startAdvancedDiagnosisLink">심화진단</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="esg_programs_list.html">Locallink ESG프로그램</a></li>
+
+                </ul>
+            </nav>
+            <div id="user-menu-container"></div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="form-section">
+            <h2>회원 정보</h2>
+            <div class="info-section">
+                <h3>기본 정보</h3>
+                <table class="info-table" id="basicInfoTable">
+                    <tbody>
+                        <tr><th>이메일 (아이디)</th><td id="infoEmail"><span>-</span></td></tr>
+                        <tr><th>회사명</th><td data-field="companyName"><span>-</span></td></tr>
+                        <tr><th>산업분류코드 (최대 3개)</th><td data-field="industryCode"><span>-</span></td></tr>
+                        <tr><th>대표자명</th><td data-field="ceoName"><span>-</span></td></tr>
+                        <tr><th>우편번호</th><td data-field="postalCode"><span>-</span></td></tr>
+                        <tr><th>기본 주소</th><td data-field="address"><span>-</span></td></tr>
+                        <tr><th>상세 주소</th><td data-field="addressDetail"><span>-</span></td></tr>
+                        <tr><th>주요사업장 소재지</th><td data-field="mainBusinessLocation"><span>-</span></td></tr>
+                        <tr><th>담당자명</th><td data-field="contactPersonName"><span>-</span></td></tr>
+                        <tr><th>담당자 연락처</th><td data-field="contactPersonPhone"><span>-</span></td></tr>
+                        <tr><th>관심분야</th><td data-field="interests"><span>-</span></td></tr>
+                    </tbody>
+                </table>
+                <div class="action-buttons">
+                    <button type="button" id="withdrawalBtn"    class="button-danger">회원 탈퇴</button> 
+                    <button type="button" id="editInfoBtn" class="button-secondary">정보 수정</button>
+                    <button type="button" id="saveInfoBtn" class="button-primary hidden">저장</button>
+                    <button type="button" id="cancelEditBtn" class="button-secondary hidden">취소</button>
+                </div>                    
+            </div>
+            
+            
+        </div>
+        </section>
+    </main>
+    <footer id="footer-placeholder"></footer>
+ 
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <script src="js/auth.js" defer></script>
+    <script src="js/admin_common.js" defer></script>
+    <script src="js/helpers/postcode_helper.js" defer></script>
+    <script src="js/components/industry_modal.js" defer></script>
+    <script src="js/member_info.js" defer></script>    
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <title>관리자 - 사이트 콘텐츠 관리</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        textarea { min-height: 250px; }
+        .related-site-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
+        .related-site-row input { flex-grow: 1; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo"><a href="main_index.html">LocalLink (Admin)</a></div>
+            <nav>
+                <ul>
+                    <li><a href="main_index.html">Locallink로 돌아가기</a></li>
+                    <li><a href="admin_dashboard.html">관리자 대시보드</a></li>
+                    <li><a href="admin_partners.html">협력사 수정</a></li>
+
+                </ul>
+            </nav>
+            <div id="userAuthStatus" style="float: right;"></div>
+            <div id="user-menu-container"></div>
+        </div>
+    </header>
+    <main class="container">
+        <section class="form-section">
+            <h2>사이트 콘텐츠 관리</h2>
+            <p id="loadingMessage">콘텐츠를 불러오는 중입니다...</p>
+            <form id="siteContentForm" class="hidden">
+                <fieldset class="form-fieldset">
+                    <legend>메인 페이지 콘텐츠</legend>
+                    <div id="main-page-sections-container"></div>
+                    <button type="button" id="add-main-section-btn" class="button-secondary button-sm">+ 섹션 추가</button>
+                </fieldset>
+
+                <fieldset class="form-fieldset">
+                    <legend>푸터 정보</legend>
+                    <div class="form-group"><label for="copyright">Copyright</label><input type="text" id="copyright" class="form-control"></div>
+                    <div class="form-group"><label>회사 정보</label><input type="text" id="company_info" class="form-control"></div>
+                    <div class="form-group"><label>사업자등록번호</label><input type="text" id="brn" class="form-control"></div>
+                    <div class="form-group"><label>주소</label><input type="text" id="address" class="form-control"></div>
+                    <div class="form-group"><label>연락처</label><input type="text" id="contact" class="form-control"></div>
+                </fieldset>
+
+                <fieldset class="form-fieldset">
+                    <legend>관련 사이트 링크</legend>
+                    <div id="related-sites-container"></div>
+                    <button type="button" id="add-site-btn" class="button-secondary button-sm">+ 링크 추가</button>
+                </fieldset>
+
+                <fieldset class="form-fieldset">
+                    <legend>이용약관</legend>
+                    <textarea id="terms_of_service" class="form-control"></textarea>
+                </fieldset>
+
+                <fieldset class="form-fieldset">
+                    <legend>개인정보 처리방침</legend>
+                    <textarea id="privacy_policy" class="form-control"></textarea>
+                </fieldset>
+
+                <fieldset class="form-fieldset">
+                    <legend>마케팅 정보 수신 동의</legend>
+                    <textarea id="marketing_consent_text" class="form-control" rows="5"></textarea>
+                </fieldset>
+
+                <div class="form-actions">
+                    <button type="submit" class="button-primary">모든 변경사항 저장</button>
+                </div>
+            </form>
+        </section>
+    </main>
+    <footer id="footer-placeholder"></footer> 
+    <script src="js/auth.js" defer></script>
+    <script src="js/admin_common.js" defer></script>
+    <script src="js/admin_site_content.js" defer></script>
+</body>
+</html>

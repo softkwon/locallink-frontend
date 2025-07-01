@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>관리자 페이지 - 채점 규칙 관리-답변 추정파트</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        .admin-section { padding: 20px; }
+        .styled-table { width:100%; border-collapse: collapse; font-size: 0.9em; margin-top:15px;}
+        .styled-table th, .styled-table td { border: 1px solid #ddd; padding: 8px; vertical-align: middle; text-align: center;}
+        .styled-table th { background-color:#f0f0f0; font-weight: bold; }
+        .create-form { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px; }
+        .form-group-inline { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .form-group-inline > * { flex: 1; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo"><a href="main_index.html">LocalLink (Admin)</a></div>
+            <nav>
+                <ul>
+                    <li><a href="main_index.html">Locallink로 돌아가기</a></li>
+                    <li><a href="admin_dashboard.html">관리자 대시보드</a></li>
+                </ul>
+            </nav>
+            <div id="userAuthStatus" style="float: right;"></div>
+            <div id="user-menu-container"></div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="admin-section">
+            <h2>채점 규칙 관리-답변 추정파트</h2>
+            <p>'산업 평균 값'을 '설문 답변'으로 변환하는 규칙을 설정합니다.</p>
+
+            <form id="createRuleForm" class="create-form">
+                <h3>새 규칙 추가</h3>
+                <div class="form-group-inline">
+                    <select id="new_metric_name" class="form-control" required title="산업 평균 지표"></select>
+                    <select id="new_question_code" class="form-control" required title="연관 질문"></select>
+                    <input type="number" id="new_lower_bound" placeholder="하한값 (초과)" class="form-control" required>
+                    <input type="number" id="new_upper_bound" placeholder="상한값 (이하)" class="form-control" required>
+                    <input type="text" id="new_resulting_answer_value" placeholder="결과 답변 값" class="form-control" required>
+                    <button type="submit" class="button-primary">추가</button>
+                </div>
+            </form>
+
+            <div id="loadingMessage"><p>규칙 목록을 불러오는 중입니다...</p></div>
+            <table id="rulesTable" class="styled-table hidden">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>평균 지표</th>
+                        <th>연관 질문</th>
+                        <th>범위 (초과 ~ 이하)</th>
+                        <th>결과 답변 값</th>
+                        <th>관리</th>
+                    </tr>
+                </thead>
+                <tbody id="rulesTableBody"></tbody>
+            </table>
+        </section>
+    </main>
+    <footer id="footer-placeholder"></footer>
+    
+    <script src="/js/config.js"></script>
+    <script src="js/auth.js" defer></script>
+    <script src="js/admin_common.js" defer></script>
+    <script src="js/admin_answer_rules.js" defer></script>
+</body>
+</html>

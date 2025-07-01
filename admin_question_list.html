@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 페이지 - 설문 문항 관리</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+    .admin-section { padding: 20px; }
+    
+    /* 가로 스크롤을 위한 컨테이너 */
+    .table-container { 
+        overflow-x: auto;
+    }
+    .styled-table { 
+        width: 100%; 
+        border-collapse: collapse; 
+        font-size: 0.9em; 
+        margin-top: 15px;
+        min-width: 1200px; /* 테이블의 최소 너비를 지정해 스크롤 생성 */
+        table-layout: fixed; /* 컬럼 너비를 고정 */
+    }
+    .styled-table th, .styled-table td { 
+        border: 1px solid #ddd; 
+        padding: 12px; 
+        text-align: left; 
+        vertical-align: middle;
+    }
+    .styled-table th { 
+        background-color:#f0f0f0; 
+        text-align:center; 
+        font-weight: bold; 
+        white-space: nowrap;
+    }
+    /* 테이블 행에 교차로 배경색 적용 */
+    .styled-table tbody tr:nth-child(even) {
+        background-color: #f8f9fa;
+    }
+    .styled-table tbody tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    /* 긴 텍스트를 줄이고 ...으로 표시 */
+    .truncate {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* 관리 버튼 셀 스타일 */
+    .actions-cell {
+        text-align: center;
+        white-space: nowrap;
+    }
+    .actions-cell > * {
+        margin: 0 3px;
+    }
+    .tab-nav {
+    border-bottom: 2px solid #dee2e6;
+    margin-bottom: 20px;
+}
+.tab-button {
+    background-color: transparent;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 1em;
+    margin-bottom: -2px;
+    border-bottom: 2px solid transparent;
+}
+.tab-button.active {
+    font-weight: bold;
+    color: #007bff;
+    border-bottom-color: #007bff;
+}
+</style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo"><a href="main_index.html" style="text-decoration: none;">LocalLink (Admin)</a></div>
+            <nav>
+                <ul>
+                    <li><a href="main_index.html">Locallink로 돌아가기</a></li>
+                    <li><a href="admin_dashboard.html">관리자 대시보드</a></li>
+                </ul>
+            </nav>
+            <div id="userAuthStatus" style="float: right;"></div>
+            <div id="user-menu-container"></div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="admin-section">
+            <h2>설문 문항 관리</h2>
+            <p>전체 설문 문항 목록을 확인하고 관리합니다.</p>
+            <div class="tab-nav">
+                <button class="tab-button active" data-type="simple">간이진단 질문</button>
+                <button class="tab-button" data-type="advanced">심화진단 질문</button>
+            </div>
+            <div style="margin-bottom: 15px; text-align: right;">
+                <a href="admin_scoring_rules.html" class="button-primary">채점 기준 보기</a>
+            </div>
+            <div style="margin-bottom: 15px; text-align: right;">
+                <a href="admin_question_create.html" class="button-primary">새 질문 추가</a>
+            </div>
+
+            <div id="tableContainer" class="table-container">
+        <div id="loadingMessage"><p>질문 목록을 불러오는 중입니다...</p></div>
+        <table id="questionListTable" class="styled-table hidden">
+            <thead>
+                <tr>
+                    <th style="width: 5%;">순서</th>
+                        <th style="width: 15%;">질문</th><th style="width: 10%;">카테고리</th>
+                        <th style="width: 10%;">질문 내용</th>
+                        <th style="width: 55%;">설명</th>
+                        <th style="width: 20%;">관리</th>
+                        <th style="width: 15%;">비고</th> 
+                </tr>
+            </thead>
+            <tbody id="questionListTableBody">
+            </tbody>
+        </table>
+    </div>
+        </section>
+    </main>
+    <footer id="footer-placeholder"></footer>
+    
+    <script src="js/auth.js" defer></script>
+    <script src="js/admin_common.js" defer></script>
+    <script src="js/admin_question_list.js" defer></script>
+</body>
+</html>

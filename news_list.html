@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>소식 - LocalLink</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        .news-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #007bff;
+        }
+        .posts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .post-box {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s ease-in-out;
+        }
+        .post-box:hover {
+            transform: translateY(-5px);
+        }
+        .post-box-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            background-color: #f0f0f0;
+        }
+        .post-box-content {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+        .post-box-content h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.2em;
+        }
+        .post-box-content p {
+            font-size: 0.9em;
+            color: #666;
+            flex-grow: 1;
+            margin: 0 0 10px 0;
+            line-height: 1.5;
+            -webkit-line-clamp: 3; /* 3줄 말줄임 */
+            line-clamp: 3; /* 표준 속성 추가 */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+        }
+        .post-box-date {
+            font-size: 0.8em;
+            color: #999;
+            text-align: right;
+            margin-top: auto; /* 날짜를 맨 아래로 */
+        }
+        /* ★★★ 상단 고정 게시물 카드 스타일 ★★★ */
+        .post-box.pinned-post {
+            background-color: #f0f8ff; /* 강조를 위한 연한 하늘색 배경 */
+            border-color: #91d5ff;
+        }
+
+        /* ★★★ '고정된 소식' 배지 스타일 ★★★ */
+        .post-box.pinned-post::after {
+            content: '📌 고정된 소식';
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: #007bff;
+            color: white;
+            padding: 4px 10px;
+            font-size: 0.75em;
+            border-radius: 12px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <a href="main_index.html">
+                    <img src="${STATIC_BASE_URL}/images/logo.png" alt="LocalLink 로고" class="header-logo-img">
+                </a>
+            </div>
+            <nav>
+                <ul id="mainNavLinks"> 
+                    <li class="dropdown">
+                        <a href="#" class="dropbtn">소식</a>
+                        <ul class="dropdown-content">
+                            <li><a href="news_list.html?category=locallink">LocalLink 소식</a></li>
+                            <li><a href="news_list.html?category=trends">ESG market</a></li>
+                        </ul>
+                    </li>                     
+                    <li class="dropdown">
+                        <a href="#" class="dropbtn">ESG 진단하기</a>
+                        <ul class="dropdown-content">
+                            <li><a href="survey_step1.html" id="startSimpleDiagnosisLink">간이진단</a></li>
+                            <li><a href="#" id="startAdvancedDiagnosisLink">심화진단</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="esg_programs_list.html">Locallink ESG프로그램</a></li>
+
+                </ul>
+            </nav>
+
+            <div id="user-menu-container"></div>
+
+        </div>
+    </header>
+    <main class="container">
+        <div class="news-header">
+            <h1 id="news-title"></h1>
+            <div class="search-bar">
+                <input type="search" id="searchInput" class="form-control" placeholder="제목 또는 내용 검색">
+                <button id="searchBtn" class="button-secondary">검색</button>
+            </div>
+        </div>
+        <div id="postsContainer" class="posts-container"><p>게시물을 불러오는 중입니다...</p></div>
+    </main>
+    <footer id="footer-placeholder"></footer>
+    <script src="js/auth.js" defer></script>
+    <script src="js/news_list.js" defer></script>
+</body>
+</html>

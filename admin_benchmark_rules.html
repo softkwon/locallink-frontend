@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 페이지 - 채점 규칙 관리-벤치마크</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        .admin-section { padding: 20px; }
+        .styled-table { width:100%; border-collapse: collapse; font-size: 0.9em; margin-top:15px;}
+        .styled-table th, .styled-table td { border: 1px solid #ddd; padding: 10px 12px; vertical-align: middle;}
+        .styled-table th { background-color:#f0f0f0; text-align:center; font-weight: bold; }
+        .create-form { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo"><a href="main_index.html" style="text-decoration: none;">LocalLink (Admin)</a></div>
+            <nav>
+                <ul>
+                    <li><a href="main_index.html">Locallink로 돌아가기</a></li>
+                    <li><a href="admin_dashboard.html">관리자 대시보드</a></li>
+                </ul>
+            </nav>
+            <div id="userAuthStatus" style="float: right;"></div>
+            <div id="user-menu-container"></div>
+        </div>
+    </header>
+    <main class="container">
+        <section class="admin-section">
+            <h2>채점 규칙 관리-벤치마크</h2>
+            <p>업종 평균과 비교하여 채점하는 규칙의 기준과 점수를 관리합니다.</p>
+
+            <form id="createRuleForm" class="create-form">
+                <h3>새 규칙 추가</h3>
+                <div class="form-group-inline">
+                    <select id="new_metric_name" class="form-control"></select>
+                    <input type="text" id="new_description" placeholder="설명" class="form-control">
+                    <input type="number" id="new_upper_bound" placeholder="상한값" class="form-control">
+                    <input type="number" id="new_score" placeholder="점수" class="form-control">
+                    <select id="new_is_inverted" class="form-control">
+                        <option value="false">높을수록 좋음</option>
+                        <option value="true">낮을수록 좋음</option>
+                    </select>
+                    <input type="text" id="new_comparison_type" value="percentage" placeholder="비교 타입" class="form-control">
+                    <button type="submit" class="button-primary">추가</button>
+                </div>
+            </form>
+
+            <div id="loadingMessage"><p>규칙 목록을 불러오는 중입니다...</p></div>
+            <table id="rulesTable" class="styled-table hidden">
+                <thead>
+                    <tr>
+                        <th>지표 이름</th>
+                        <th>설명</th>
+                        <th>상한값</th>
+                        <th>점수</th>
+                        <th>관리</th>
+                    </tr>
+                </thead>
+                <tbody id="rulesTableBody"></tbody>
+            </table>
+        </section>
+    </main>
+    <footer id="footer-placeholder"></footer>
+
+    <script src="/js/config.js"></script>
+    <script src="js/auth.js" defer></script>
+    <script src="js/admin_common.js" defer></script>
+    <script src="js/admin_benchmark_rules.js" defer></script>
+</body>
+</html>

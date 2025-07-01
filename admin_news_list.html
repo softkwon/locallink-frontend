@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 페이지 - 소식 관리</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+    .page-section { max-width: 1200px; margin: 20px auto; }
+    .page-header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    
+    /* ★★★ 테이블 UI 개선 스타일 ★★★ */
+    .table-container {
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    #newsListTable {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    #newsListTable th,
+    #newsListTable td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid #dee2e6;
+        white-space: nowrap;
+    }
+    #newsListTable thead tr {
+        background-color: #f8f9fa;
+    }
+    #newsListTable th {
+        font-weight: 600;
+        color: #495057;
+    }
+    #newsListTable tbody tr:last-child td {
+        border-bottom: none;
+    }
+    #newsListTable tbody tr:hover {
+        background-color: #f1f3f5;
+    }
+    #newsListTable td:nth-child(3) { /* 제목 컬럼 */
+        white-space: normal;
+        min-width: 300px;
+    }
+    #newsListTable td:last-child { /* 관리 컬럼 */
+        text-align: center;
+    }
+    .button-group {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+    }
+</style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo"><a href="main_index.html" style="text-decoration: none;">LocalLink (Admin)</a></div>
+            <nav>
+                <ul>
+                    <li><a href="main_index.html">Locallink로 돌아가기</a></li>
+                    <li><a href="admin_dashboard.html">관리자 대시보드</a></li>
+                </ul>
+            </nav>
+            <div id="userAuthStatus" style="float: right;"></div>
+            <div id="user-menu-container"></div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="admin-section">
+            <h2>News 관리</h2>
+            <p>웹사이트에 게시될 소식을 작성하고 관리합니다.</p>
+            <div style="margin-bottom: 15px; text-align: right;">
+                <a href="admin_news_create.html" class="button-primary">새 글 작성</a>
+            </div>
+            <div id="loadingMessage"><p>소식 목록을 불러오는 중입니다...</p></div>
+            <table id="newsListTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>카테고리</th>
+                        <th>제목</th>
+                        <th>상태</th>
+                        <th>고정</th> 
+                        <th>작성일</th>
+                        <th>관리</th>
+                    </tr>
+                </thead>
+                <tbody id="newsListTableBody">
+                    </tbody>
+            </table>
+            <div id="noDataMessage" class="hidden">
+                <p>등록된 소식이 없습니다.</p>
+            </div>
+        </section>
+    </main>
+    <footer id="footer-placeholder"></footer>
+    
+    <script src="js/auth.js" defer></script>
+    <script src="js/admin_common.js" defer></script>
+    <script src="js/admin_news_list.js" defer></script>
+</body>
+</html>

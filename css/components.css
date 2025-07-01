@@ -1,0 +1,129 @@
+/* ==========================================================================
+   공용 컴포넌트 스타일 (모달 등)
+   ========================================================================== */
+
+/* --- 범용 모달 스타일 (공통) --- */
+.modal, .simulator-modal {
+    display: none; 
+    position: fixed;
+    z-index: 1001; 
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto; 
+    background-color: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 5vh 0;
+}
+
+.modal-content, .simulator-modal-content {
+    background-color: #fff;
+    margin: 0 auto;
+    padding: 30px; 
+    border-radius: 8px;
+    width: 90%;
+    box-shadow: 0 7px 20px rgba(0,0,0,0.25);
+    position: relative;
+}
+
+.close-button {
+    color: #aaa;
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+}
+.close-button:hover {
+    color: #000;
+}
+
+
+/* --- 산업분류코드 모달 전용 스타일 --- */
+.modal-content {
+    max-width: 600px;
+}
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+.modal-header h4 {
+    margin: 0;
+    font-size: 1.5em;
+    color: #333;
+}
+.industry-list-container {
+    height: 300px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 5px;
+}
+.industry-list-container li.selected {
+    background-color: #e9f7ff;
+    font-weight: bold;
+    color: #0056b3;
+}
+.modal-footer {
+    text-align: right;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+
+/* --- 예산 시뮬레이터 모달 전용 스타일 --- */
+.simulator-modal-content {
+    max-width: 850px;
+}
+.simulator-modal-content h4 { 
+    margin-top: 0; 
+    color: #007bff; 
+    font-size: 1.5em; 
+    margin-bottom:25px; 
+    text-align: center;
+}
+.simulator-modal-content .form-group {
+    margin-bottom: 15px;
+}
+.simulator-modal-content .input-group {
+    display: flex;
+}
+.simulator-modal-content .input-group-addon {
+    padding: 8px 12px;
+    background-color: #e9ecef;
+    border: 1px solid #ced4da;
+    border-left: 0;
+    border-radius: 0 4px 4px 0;
+}
+
+/* --- 헤더 시간 새로고침 아이콘 --- */
+.button-sm-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 8px;
+    font-size: 0.9em;
+    line-height: 1;
+    border-radius: 4px;
+    margin: 0 5px;
+    vertical-align: middle;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.button-sm-icon:hover {
+    background-color: #e0e0e0;
+}
+

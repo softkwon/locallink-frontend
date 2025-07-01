@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESG 프로그램 상세 - LocalLink</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        body { background-color: #f4f7f9; }
+        .program-detail-wrapper {
+            max-width: 850px;
+            margin: 40px auto;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .program-header {
+            padding: 35px 40px;
+            background: linear-gradient(135deg, #0052D4, #4364F7); /* 기본 파란색 */
+            color: white;
+        }
+        .program-header.category-e {
+            background: linear-gradient(135deg, #237804, #52c41a);
+        }
+        .program-header.category-s {
+            background: linear-gradient(135deg, #d48806, #faad14);
+        }
+        .program-header.category-g {
+            background: linear-gradient(135deg, #a8071a, #f5222d);
+        }
+        .program-header h1 { margin: 0 0 10px 0; font-size: 2.2em; }
+        .program-header p { margin: 0; font-size: 1.1em; opacity: 0.9; }
+        
+        .program-body { padding: 30px 40px; }
+        .detail-section { margin-bottom: 40px; }
+        .detail-section h4 {
+            font-size: 1.3em;
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+            margin: 0 0 20px 0;
+        }
+        .detail-section p, .detail-section ul { margin: 0; padding: 0; list-style-type: none; font-size: 1em; line-height: 1.8; color: #555; }
+        
+        /* ★★★ 콘텐츠 섹션 레이아웃 (최종 수정본) ★★★ */
+        .content-section-body {
+            display: flex;
+            flex-direction: column; /* 항상 세로로 쌓음 (이미지가 위, 텍스트가 아래) */
+            margin: 50px 0;
+        }
+        .text-content {
+            order: 2; /* 텍스트가 항상 두 번째에 오도록 순서 지정 */
+            line-height: 1.8;
+        }
+        .text-content h3 { margin-top: 0; }
+        .image-content {
+            order: 1; /* 이미지가 항상 첫 번째에 오도록 순서 지정 */
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+        .image-content img {
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-width: 100%; /* 부모 요소를 넘지 않도록 */
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="program-detail-container">
+        <p style="text-align:center; padding: 50px;">프로그램 정보를 불러오는 중입니다...</p>
+    </div>
+    <script src="js/auth.js" defer></script>
+    <script src="js/esg_program_detail.js" defer></script>
+</body>
+</html>

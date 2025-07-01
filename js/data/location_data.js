@@ -1,0 +1,20 @@
+const LOCATIONS_DATA = [
+    { value: "", text: "선택하세요" },
+    { value: "서울", text: "서울특별시" },
+    { value: "부산", text: "부산광역시" },
+    { value: "대구", text: "대구광역시" },
+    { value: "인천", text: "인천광역시" },
+    { value: "광주", text: "광주광역시" },
+    { value: "대전", text: "대전광역시" },
+    { value: "울산", text: "울산광역시" },
+    { value: "세종", text: "세종특별자치시" },
+    { value: "경기", text: "경기도" },
+    { value: "강원", text: "강원특별자치도" },
+    { value: "충북", text: "충청북도" },
+    { value: "충남", text: "충청남도" },
+    { value: "전북", text: "전북특별자치도" },
+    { value: "전남", text: "전라남도" },
+    { value: "경북", text: "경상북도" },
+    { value: "경남", text: "경상남도" },
+    { value: "제주", text: "제주특별자치도" }
+];

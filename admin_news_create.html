@@ -1,0 +1,81 @@
+<!-- admin_news_create.html (2025-06-30 23:50:00) -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 - 새 소식 작성</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        .edit-form-container { max-width: 800px; margin: auto; }
+        .form-group textarea { min-height: 250px; }
+        .form-fieldset {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+        }
+        .form-fieldset legend {
+            font-weight: bold;
+            font-size: 1.1em;
+            padding: 0 10px;
+            color: #333;
+        }
+        .form-group-inline {
+            display: flex;
+            gap: 20px;
+        }
+        .form-group-inline .form-group {
+            flex: 1;
+        }
+        /* 섹션 안의 textarea 크기 조정 */
+        .content-section textarea {
+            min-height: 200px;
+            width: 100%; /* ★★★ 이 줄을 추가합니다 ★★★ */
+            box-sizing: border-box; /* 패딩과 테두리를 너비에 포함시켜 깔끔하게 만듭니다. */
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo"><a href="main_index.html">LocalLink (Admin)</a></div>
+            <nav>
+                <ul>
+                    <li><a href="admin_news_list.html">← NEWS 목록으로 돌아가기</a></li>
+                </ul>
+            </nav>
+            <div id="userAuthStatus" style="float: right;"></div>
+            <div id="user-menu-container"></div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="form-section create-form-container">
+            <h2>새 소식 작성</h2>
+            <form id="newsForm">
+                <fieldset class="form-fieldset">
+                    <legend>게시물 정보</legend>
+                    <div class="form-group"><label for="newsTitle">제목 *</label><input type="text" id="newsTitle" class="form-control" required></div>
+                    <div class="form-group"><label for="newsCategory">카테고리 *</label><select id="newsCategory" class="form-control" required><option value="locallink">LocalLink 소식</option><option value="trends">ESG market</option></select></div>
+                </fieldset>
+                <fieldset class="form-fieldset">
+                    <legend>콘텐츠 섹션</legend>
+                    <div id="sections-container"></div>
+                    <button type="button" id="add-section-btn" class="button-secondary">+ 섹션 추가</button>
+                </fieldset>
+                <div class="form-actions">
+                    <button type="submit" class="button-primary">글 저장하기</button>
+                    <a href="admin_news_list.html" class="button-secondary">취소</a>
+                </div>
+            </form>
+        </section>
+    </main>
+    <footer id="footer-placeholder"></footer>
+    
+    <script src="js/auth.js" defer></script>
+    <script src="js/admin_common.js" defer></script>
+    <script src="js/admin_news_create.js" defer></script>
+</body>
+</html>

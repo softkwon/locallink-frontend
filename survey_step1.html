@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESG 설문 (1단계: 기업 기본 정보) - LocalLink</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css"> 
+
+    <style>
+        .info-icon-survey { display: inline-block; margin-left: 5px; color: #007bff; cursor: pointer; font-weight: bold; border: 1px solid #007bff; border-radius: 50%; width: 20px; height: 20px; text-align: center; line-height: 18px; font-size: 0.8em; user-select: none; }
+        .info-icon-survey:hover { background-color: #007bff; color: white; }
+        .selected-codes-container { margin-top: 8px; padding: 8px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; min-height: 30px; }
+        .selected-code-tag { display: inline-block; background-color: #007bff; color: white; padding: 4px 8px; border-radius: 12px; margin-right: 5px; margin-bottom: 5px; font-size: 0.9em; }
+        .selected-code-tag .remove-code { margin-left: 6px; color: #ffdddd; cursor: pointer; font-weight: bold; }
+        .modal-footer {
+            text-align: right;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-footnote {
+            font-size: 0.8em;
+            color: #6c757d;
+            margin: 0;
+        }
+        .star-icon {
+            color: #ffc107;
+            font-weight: bold;
+        }
+        .industry-list-container li.selected {
+            background-color: #e9f7ff;
+            font-weight: bold;
+        }
+        /* 모달 전체를 덮는 검은 반투명 배경 */
+        .modal-overlay {
+            position: fixed; /* 화면 기준으로 위치 고정 */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6); /* 반투명 배경 */
+            z-index: 1000; /* 다른 요소들보다 항상 위에 표시 */
+
+            /* 자식 요소(모달창)를 화면 중앙에 오도록 설정 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 실제 모달창 콘텐츠 부분 */
+        .modal-content {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh; 
+            display: flex;
+            flex-direction: column;
+        }
+        /* 헤더 로그인 상태 표시를 강제로 보이게 하는 스타일 */
+        #userAuthStatus {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            position: static !important;
+            float: right !important; /* 기존 스타일이 덮어쓰여졌을 수 있으므로 다시 한번 지정 */
+        }
+
+</style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <a href="main_index.html">
+                    <img src="${STATIC_BASE_URL}/images/logo.png" alt="LocalLink 로고" class="header-logo-img">
+                </a>
+            </div>
+            <nav>
+                <ul id="mainNavLinks">                        
+                </ul>
+            </nav>
+            <div id="user-menu-container"></div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="form-section survey-form-section">
+            <h2>ESG 설문 - 1단계: 기업 기본 정보</h2>
+            <p>ESG 진단을 위해 아래 기업 기본 정보를 입력해주세요. 이 정보는 진단 결과 분석 및 시뮬레이션에 활용됩니다.</p>
+
+            <form id="surveyStep1Form">
+                <fieldset>
+                    <legend>기본 정보</legend>
+                    <div class="form-group">
+                        <label for="companyNameSurvey">기업명 <span class="required">*</span></label>
+                        <input type="text" id="companyNameSurvey" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="ceoNameSurvey">대표자명 <span class="required">*</span></label>
+                        <input type="text" id="ceoNameSurvey" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="industryCodeDisplaySurvey"> 
+                            산업분류코드 (최대 3개) <span class="required">*</span>
+                            <span class="info-icon-survey" id="industryCodeInfoIconSurveyStep1" title="산업분류코드 검색">ⓘ</span> 
+                        </label>
+                        <input type="text" id="industryCodeDisplaySurvey" readonly style="background-color: #e9ecef; cursor: default;" placeholder="우측 ⓘ 아이콘으로 검색/선택">
+                        <div id="selectedIndustryCodesContainerSurveyStep1" class="selected-codes-container"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="establishmentYear">설립연도 (YYYY) <span class="required">*</span></label>
+                        <input type="number" id="establishmentYear" placeholder="예: 2020" min="1800" max="2099" required style="width: 150px;">
+                    </div>
+                </fieldset>
+                
+                <fieldset>
+                    <legend>기업 현황</legend>
+                    <div class="form-group">
+                        <label for="employeeCount">임직원 수 (총계) <span class="required">*</span></label>
+                        <input type="number" id="employeeCount" name="employeeCount" placeholder="예: 50" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="mainProducts">주요 생산품/서비스 <span class="required">*</span></label>
+                        <input type="text" id="mainProducts" name="mainProducts" placeholder="예: ESG 컨설팅 플랫폼" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="annualRevenue">최근 회계연도 매출액 (단위: 억원) <span class="required">*</span></label>
+                        <input type="number" id="annualRevenue" name="annualRevenue" placeholder="예: 10" min="0" step="0.1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="operatingProfit">최근 회계연도 영업이익 (단위: 억원) <span class="required">*</span></label>
+                        <input type="number" id="operatingProfit" name="operatingProfit" placeholder="예: 2" step="0.1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="exportPercentage">수출 비중 (%) <span class="required">*</span></label>
+                        <select id="exportPercentage" name="exportPercentage" required>
+                            <option value="">선택하세요</option>
+                            <option value="0-10">10% 미만</option>
+                            <option value="10-30">10% - 30% 미만</option>
+                            <option value="30-50">30% - 50% 미만</option>
+                            <option value="50+">50% 이상</option>
+                            <option value="na">해당 없음</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>상장여부 <span class="required">*</span></label>
+                        <div class="radio-group">
+                            <label><input type="radio" id="survey_listed_yes" name="listingStatus" value="listed" required> 상장</label>
+                            <label><input type="radio" id="survey_listed_no" name="listingStatus" value="unlisted"> 비상장</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>기업규모 <span class="required">*</span></label>
+                        <div class="radio-group">
+                            <label><input type="radio" id="survey_size_large" name="companySize" value="large" required> 대기업</label>
+                            <label><input type="radio" id="survey_size_medium" name="companySize" value="medium"> 중견기업</label>
+                            <label><input type="radio" id="survey_size_small_medium" name="companySize" value="small_medium"> 중소기업</label>
+                            <label><input type="radio" id="survey_size_small_micro" name="companySize" value="small_micro"> 소기업/소상공인</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>주요 사업지역 (중복 선택 가능) <span class="required">*</span></label>
+                        <div class="checkbox-group-vertical">
+                            <label><input type="checkbox" name="businessRegions" value="domestic_metro"> 국내</label>
+                            <label><input type="checkbox" name="businessRegions" value="asia"> 아시아</label>
+                            <label><input type="checkbox" name="businessRegions" value="americas"> 미주</label>
+                            <label><input type="checkbox" name="businessRegions" value="europe"> 유럽</label>
+                            <label><input type="checkbox" name="businessRegions" value="etc"> 기타</label>
+                        </div>
+                    </div>
+                </fieldset>
+
+
+                <div class="form-actions">
+                    <button type="button" class="button-primary">저장 후 다음 단계로</button>
+                </div>
+            </form>
+        </section>
+    </main>
+    <footer id="footer-placeholder"></footer>
+  
+    <script src="js/auth.js" defer></script>
+    <script src="js/helpers/postcode_helper.js" defer></script>
+    <script src="js/components/industry_modal.js" defer></script>
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <script src="js/survey_common.js" defer></script> 
+    <script src="js/survey_step1.js" defer></script> 
+    
+
+</body>
+</html>

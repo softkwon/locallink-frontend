@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 페이지 - 지역별 이슈 관리</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        .admin-section { padding: 20px; }
+        .styled-table { table-layout: fixed; width: 100%; min-width: 800px; border-collapse: collapse; font-size: 0.9em; margin-top: 15px;}
+        .styled-table th, .styled-table td { border: 1px solid #ddd; padding: 10px; vertical-align: middle; text-align: center; }
+        .styled-table td:nth-child(4) { text-align: left; } /* 내용 필드만 좌측 정렬 */
+        .styled-table th { background-color: #f0f0f0; font-weight: bold; }
+        .styled-table textarea, .styled-table select { width: 100%; box-sizing: border-box; padding: 5px; }
+        .create-form { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px; }
+        .form-group-inline { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo"><a href="main_index.html">LocalLink (Admin)</a></div>
+            <nav>
+                <ul>
+                    <li><a href="main_index.html">Locallink로 돌아가기</a></li>
+                    <li><a href="admin_dashboard.html">관리자 대시보드</a></li>
+                </ul>
+            </nav>
+            <div id="userAuthStatus" style="float: right;"></div>
+            <div id="user-menu-container"></div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="admin-section">
+            <h2>지역별 ESG 이슈 관리</h2>
+            <form id="createIssueForm" class="create-form">
+                <h3>새 항목 추가</h3>
+                <div class="form-group-inline">
+                    <select id="new_region" class="form-control" required></select>
+                    <select id="new_esg_category" class="form-control"><option value="E">E</option><option value="S">S</option><option value="G">G</option></select>
+                    <input type="text" id="new_content" placeholder="내용" class="form-control" style="flex-grow:1;" required>
+                    <button type="submit" class="button-primary">추가</button>
+                </div>
+            </form>
+
+            <div id="loadingMessage"><p>목록을 불러오는 중입니다...</p></div>
+            <div id="tableContainer" class="table-container hidden">
+                <table id="issuesTable" class="styled-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%;">ID</th>
+                            <th style="width: 15%;">지역</th>
+                            <th style="width: 10%;">ESG</th>
+                            <th style="width: 55%;">내용</th>
+                            <th style="width: 15%;">관리</th>
+                        </tr>
+                    </thead>
+                    <tbody id="issuesTableBody"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+    <footer id="footer-placeholder"></footer>
+    
+    <script src="js/auth.js" defer></script>
+    <script src="js/admin_common.js" defer></script>
+    <script src="js/admin_regional_issues.js" defer></script>
+</body>
+</html>

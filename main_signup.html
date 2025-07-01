@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입 - LocalLink</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css"> 
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <style>
+        .selected-codes-container { margin-top: 8px; padding: 8px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; min-height: 30px; }
+        .selected-code-tag { display: inline-block; background-color: #007bff; color: white; padding: 4px 8px; border-radius: 12px; margin-right: 5px; margin-bottom: 5px; font-size: 0.9em; }
+        .selected-code-tag .remove-code { margin-left: 6px; color: #ffdddd; cursor: pointer; font-weight: bold; }
+        .info-icon { display: inline-block; margin-left: 5px; color: #007bff; cursor: pointer; font-weight: bold; border: 1px solid #007bff; border-radius: 50%; width: 20px; height: 20px; text-align: center; line-height: 18px; font-size: 0.8em; user-select: none; }
+        .info-icon:hover { background-color: #007bff; color: white; }
+        .modal-footer {
+    text-align: right;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.modal-footnote {
+    font-size: 0.8em;
+    color: #6c757d;
+    margin: 0;
+}
+.star-icon {
+    color: #ffc107;
+    font-weight: bold;
+}
+.industry-list-container li.selected {
+    background-color: #e9f7ff;
+    font-weight: bold;
+}
+.agreement-section {
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #fdfdfd;
+    margin-bottom: 20px;
+}
+.agreement-section label {
+    display: block;
+    margin-bottom: 12px;
+    font-size: 1em;
+    cursor: pointer;
+}
+.agreement-section input[type="checkbox"] {
+    margin-right: 10px;
+    vertical-align: middle;
+}
+.agreement-section a {
+    color: #007bff;
+    text-decoration: none;
+    font-size: 0.9em;
+    margin-left: 5px;
+}
+.agreement-section a:hover {
+    text-decoration: underline;
+}
+.agreement-all {
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 15px;
+}
+.agreement-all label {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+/* 모달 전체를 덮는 검은 반투명 배경 */
+.modal-overlay {
+    position: fixed; /* 화면 기준으로 위치 고정 */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* 반투명 배경 */
+    z-index: 1000; /* 다른 요소들보다 항상 위에 표시 */
+
+    /* 자식 요소(모달창)를 화면 중앙에 오도록 설정 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 실제 모달창 콘텐츠 부분 */
+.modal-content {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh; 
+    display: flex;
+    flex-direction: column;
+}
+
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <a href="main_index.html">
+                    <img src="${STATIC_BASE_URL}/images/logo.png" alt="LocalLink 로고" class="header-logo-img">
+                </a>
+            </div>
+    </header>
+
+    <main class="container">
+        <section class="form-section">
+            <h2>LocalLink 회원가입</h2>
+            <p>LocalLink에 오신 것을 환영합니다. 아래 정보를 입력하여 회원가입을 완료해주세요.</p>
+
+            <form id="signupForm" onsubmit="return false;">
+                <fieldset>
+                    <legend>기업 정보 입력</legend>
+                    <div class="form-group">
+                        <label for="companyName">회사명 <span class="required">*</span></label>
+                        <input type="text" id="companyName" name="companyName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="industryCodeDisplay"> 
+                            산업분류코드 (최대 3개) <span class="required">*</span>
+                            <span class="info-icon" id="industryCodeInfoIcon" title="산업분류코드 검색">ⓘ</span>
+                        </label>
+                        <input type="text" id="industryCodeDisplay" name="industryCodeDisplay" placeholder="우측 ⓘ 아이콘으로 검색/선택" readonly style="background-color: #e9ecef; cursor: default;">
+                        <div id="selectedIndustryCodesContainer" class="selected-codes-container"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="ceoName">대표자명 <span class="required">*</span></label>
+                        <input type="text" id="ceoName" name="ceoName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>회사주소 <span class="required">*</span></label> 
+                        <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                            <input type="text" id="companyPostalCode" name="companyPostalCode" placeholder="우편번호" readonly style="width: 120px; margin-right: 10px;">
+                            <button type="button" id="searchPostalCodeBtn" class="button-secondary" style="padding: 10px 15px;">우편번호 검색</button>
+                        </div>
+                        <input type="text" id="companyAddress" name="companyAddress" placeholder="주소 (검색 후 자동 입력)" readonly style="margin-bottom: 8px;">
+                        <input type="text" id="companyAddressDetail" name="companyAddressDetail" placeholder="상세주소 입력">
+                    </div>
+                    <div class="form-group">
+                        <label for="mainBusinessLocation">주요사업장 소재지 <span class="required">*</span></label>
+                        <select id="mainBusinessLocation" name="mainBusinessLocation" required>
+                            <option value="">선택하세요</option>
+                            <option value="서울">서울특별시</option>
+                            <option value="부산">부산광역시</option>
+                            <option value="대구">대구광역시</option>
+                            <option value="인천">인천광역시</option>
+                            <option value="광주">광주광역시</option>
+                            <option value="대전">대전광역시</option>
+                            <option value="울산">울산광역시</option>
+                            <option value="세종">세종특별자치시</option>
+                            <option value="경기">경기도</option>
+                            <option value="강원">강원특별자치도</option>
+                            <option value="충북">충청북도</option>
+                            <option value="충남">충청남도</option>
+                            <option value="전북">전북특별자치도</option>
+                            <option value="전남">전라남도</option>
+                            <option value="경북">경상북도</option>
+                            <option value="경남">경상남도</option>
+                            <option value="제주">제주특별자치도</option>
+                        </select>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>담당자 및 계정 정보 입력</legend>
+                    <div class="form-group">
+                        <label for="contactPersonName">담당자명 <span class="required">*</span></label>
+                        <input type="text" id="contactPersonName" name="contactPersonName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contactPersonPhone">담당자 연락처 <span class="required">*</span></label>
+                        <input type="tel" id="contactPersonPhone" name="contactPersonPhone" placeholder="예: 010-1234-5678" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="contactPersonEmail">담당자 이메일 (아이디로 사용) <span class="required">*</span></label>
+                        
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <input type="email" id="contactPersonEmail" name="contactPersonEmail" required style="flex-grow: 1;">
+                            <button type="button" id="sendVerificationBtn" class="button-secondary">인증번호 발송</button>
+                        </div>
+
+                        <p id="email-message" class="form-message" style="margin-top: 8px;"></p>
+
+                        <div id="verificationCodeSection" style="display: none; margin-top: 10px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="text" id="verificationCode" placeholder="인증번호 6자리 입력" style="flex-grow: 1;">
+                                <span id="timer" style="color: red;">05:00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">비밀번호 <span class="required">*</span></label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="passwordConfirm">비밀번호 확인 <span class="required">*</span></label>
+                        <input type="password" id="passwordConfirm" name="passwordConfirm" required>
+                        <p id="password-message" class="form-message"></p>
+                    </div>
+                </fieldset>
+                
+                <fieldset>
+                    <legend>관심분야 (중복 선택 가능)</legend>
+                    <div class="interest-category">
+                        <h4>환경 (E)</h4>
+                        <div class="checkbox-group-vertical">
+                            <label><input type="checkbox" name="interests" value="E_interest_1"> 온실가스 배출 감축</label>
+                            <label><input type="checkbox" name="interests" value="E_interest_2"> 에너지 사용 효율화</label>
+                            <label><input type="checkbox" name="interests" value="E_interest_3"> 폐기물 및 자원순환 관리</label>
+                            <label><input type="checkbox" name="interests" value="E_interest_4"> 오염물질 저감 및 수질·대기 관리</label>
+                            <label><input type="checkbox" name="interests" value="E_interest_5"> 친환경 인증 및 제품 개발</label>
+                        </div>
+                    </div>
+                    <div class="interest-category">
+                        <h4>사회 (S)</h4>
+                        <div class="checkbox-group-vertical">
+                            <label><input type="checkbox" name="interests" value="S_interest_1"> 근로자 인권 및 복지</label>
+                            <label><input type="checkbox" name="interests" value="S_interest_2"> 안전보건 경영(중대재해예방 등)</label>
+                            <label><input type="checkbox" name="interests" value="S_interest_3"> 지역사회협력(기부,봉사,협업)</label>
+                            <label><input type="checkbox" name="interests" value="S_interest_4"> 공정거래 및 협력사 ESG 평가</label>
+                            <label><input type="checkbox" name="interests" value="S_interest_5"> 고객보호 및 서비스책임</label>
+                        </div>
+                    </div>
+                    <div class="interest-category">
+                        <h4>지배구조 (G)</h4>
+                        <div class="checkbox-group-vertical">
+                            <label><input type="checkbox" name="interests" value="G_interest_1"> 이사회 운영 및 사외이사 구성</label>
+                            <label><input type="checkbox" name="interests" value="G_interest_2"> 윤리경영</label>
+                            <label><input type="checkbox" name="interests" value="G_interest_3"> 임원 보수 및 책임성과 연계</label>
+                            <label><input type="checkbox" name="interests" value="G_interest_4"> 주주권리 보호</label>
+                            <label><input type="checkbox" name="interests" value="G_interest_5"> ESG 리스크 관리 체계 구축</label>
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset class="agreement-section">
+                <legend>약관 동의</legend>
+                <div class="agreement-all">
+                    <label>
+                        <input type="checkbox" id="agreeAll">
+                        <strong>전체 동의 (선택항목 포함)</strong>
+                    </label>
+                </div>
+                <div class="form-group" style="margin-top: 25px;">
+                    <label class="checkbox-label"><input type="checkbox" id="agreeTerms" required><span>(필수) <a href="main_terms.html" target="_blank">이용약관</a> 동의</span></label>
+                    <label class="checkbox-label"><input type="checkbox" id="agreePrivacy" required><span>(필수) <a href="main_privacy.html" target="_blank">개인정보 처리방침</a> 동의</span></label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="agreeMarketing">
+                        <span>(선택) <a href="main_marketing.html" target="_blank">마케팅 정보 수신</a>에 동의합니다.</span>
+                    </label>
+                </div>
+                </fieldset>
+                <div class="form-actions">
+                    <button type="button" class="button-primary" onclick="handleSignup()">회원가입</button>
+                    <button type="button" class="button-secondary" onclick="window.location.href='main_index.html';">취소</button>
+                </div>
+                </form>
+                
+        </section>
+    </main>
+    <footer id="footer-placeholder"></footer>
+
+    <script src="js/helpers/postcode_helper.js" defer></script>
+    <script src="js/components/industry_modal.js" defer></script>
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+
+    <script>
+    // 페이지 전역에서 사용할 변수
+    let selectedIndustryCodes = [];
+    
+    // ★★★ 이 함수를 DOMContentLoaded 바깥으로 이동 ★★★
+    function renderSelectedCodes() {
+        const container = document.getElementById('selectedIndustryCodesContainer');
+        const displayInput = document.getElementById('industryCodeDisplay');
+        if (!container || !displayInput) return;
+
+        container.innerHTML = '';
+        if (selectedIndustryCodes.length === 0) {
+            displayInput.placeholder = '우측 ⓘ 아이콘으로 검색/선택';
+            displayInput.value = '';
+        } else {
+            displayInput.value = `${selectedIndustryCodes.length}개 선택됨`;
+            selectedIndustryCodes.forEach((codeObj, index) => {
+                const tag = document.createElement('span');
+                tag.className = 'selected-code-tag';
+                tag.textContent = `[${codeObj.code}] ${codeObj.name} `;
+                const removeBtn = document.createElement('span');
+                removeBtn.className = 'remove-code';
+                removeBtn.textContent = '×';
+                removeBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    selectedIndustryCodes.splice(index, 1);
+                    renderSelectedCodes();
+                };
+                tag.appendChild(removeBtn);
+                container.appendChild(tag);
+            });
+        }
+    }
+
+    // 모달에서 '선택완료' 시 호출될 함수 (이제 renderSelectedCodes를 찾을 수 있음)
+    window.handleIndustryCodeSelectionForSignup = function(items) {
+        selectedIndustryCodes = items;
+        renderSelectedCodes();
+    }
+    
+
+    // 최종 회원가입 버튼 클릭 시 실행될 함수 (전역으로 선언)
+    async function handleSignup() {
+        // --- 1. 모든 유효성 검사 ---
+        const signupForm = document.getElementById('signupForm');
+        if (!document.getElementById('agreeTerms').checked || !document.getElementById('agreePrivacy').checked) {
+            return alert('필수 약관에 동의해주세요.');
+        }
+        if (!signupForm.checkValidity()) {
+            return signupForm.reportValidity();
+        }
+        if (selectedIndustryCodes.length === 0) {
+            return alert('산업분류코드를 선택해주세요.');
+        }
+        const password = document.getElementById('password').value;
+        const passwordConfirm = document.getElementById('passwordConfirm').value;
+        if (password !== passwordConfirm) {
+            return alert('비밀번호가 일치하지 않습니다.');
+        }
+
+        // --- 2. 백엔드 API로 전송할 데이터 생성 ---
+        const formData = {
+            companyName: document.getElementById('companyName').value.trim(),
+            industryCodes: selectedIndustryCodes.map(item => item.code),
+            representative: document.getElementById('ceoName').value.trim(),
+            address: document.getElementById('companyAddress').value.trim() + ' ' + document.getElementById('companyAddressDetail').value.trim(),
+            businessLocation: document.getElementById('mainBusinessLocation').value,
+            managerName: document.getElementById('contactPersonName').value.trim(),
+            managerPhone: document.getElementById('contactPersonPhone').value.replace(/\D/g, ''),
+            email: document.getElementById('contactPersonEmail').value.trim(),
+            password: password,
+            interests: Array.from(document.querySelectorAll('input[name="interests"]:checked')).map(cb => cb.value),
+            verificationCode: document.getElementById('verificationCode') ? document.getElementById('verificationCode').value : undefined
+        };
+        
+        // --- 3. 백엔드 API 호출 ---
+        try {
+            const response = await fetch('${API_BASE_URL}/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+            const result = await response.json();
+            if (result.success) {
+                alert('회원가입이 성공적으로 완료되었습니다! 로그인 페이지로 이동합니다.');
+                window.location.href = 'main_login.html';
+            } else {
+                alert(result.message);
+            }
+        } catch (error) {
+            console.error('회원가입 요청 실패:', error);
+            alert('회원가입 중 오류가 발생했습니다.');
+        }
+    }
+
+    // --- 페이지의 모든 HTML 요소가 로드된 후, 기능들을 연결 ---
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        // --- 기능 함수들 ---
+        function renderSelectedCodes() {
+            const container = document.getElementById('selectedIndustryCodesContainer');
+            const displayInput = document.getElementById('industryCodeDisplay');
+            container.innerHTML = '';
+            if (selectedIndustryCodes.length === 0) {
+                displayInput.placeholder = '우측 ⓘ 아이콘으로 검색/선택';
+                displayInput.value = '';
+            } else {
+                displayInput.value = `${selectedIndustryCodes.length}개 선택됨`;
+                selectedIndustryCodes.forEach((codeObj, index) => {
+                    const tag = document.createElement('span');
+                    tag.className = 'selected-code-tag';
+                    tag.textContent = `[${codeObj.code}] ${codeObj.name} `;
+                    const removeBtn = document.createElement('span');
+                    removeBtn.className = 'remove-code';
+                    removeBtn.textContent = '×';
+                    removeBtn.onclick = (e) => { e.stopPropagation(); selectedIndustryCodes.splice(index, 1); renderSelectedCodes(); };
+                    tag.appendChild(removeBtn);
+                    container.appendChild(tag);
+                });
+            }
+        }
+
+        // --- 이벤트 리스너(기능) 연결 ---
+        
+        // 산업분류코드 모달 열기 버튼
+        document.getElementById('industryCodeInfoIcon').addEventListener('click', function() {
+            if (typeof initializeIndustryModal === 'function') {
+                initializeIndustryModal({
+                    initialSelection: selectedIndustryCodes,
+                    onConfirm: (confirmedSelection) => {
+                        window.handleIndustryCodeSelectionForSignup(confirmedSelection);
+                    }
+                });
+            } else { console.error("오류: industry_modal.js의 함수를 찾을 수 없습니다."); }
+        });
+
+        // 우편번호 검색 버튼
+        document.getElementById('searchPostalCodeBtn').addEventListener('click', function() {
+            if (typeof openPostcodeSearch === 'function') {
+                openPostcodeSearch({
+                    postcodeFieldId: 'companyPostalCode',
+                    addressFieldId: 'companyAddress',
+                    detailAddressFieldId: 'companyAddressDetail'
+                });
+            } else { console.error("오류: postcode_helper.js의 함수를 찾을 수 없습니다."); }
+        });
+
+        // 약관 전체 동의 체크박스
+        const agreeAllCheckbox = document.getElementById('agreeAll');
+        const individualCheckboxes = document.querySelectorAll('.agreements-individual input[type="checkbox"]');
+        if (agreeAllCheckbox) {
+            agreeAllCheckbox.addEventListener('change', function() {
+                individualCheckboxes.forEach(checkbox => { checkbox.checked = this.checked; });
+            });
+            individualCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    let allChecked = true;
+                    individualCheckboxes.forEach(cb => { if (!cb.checked) allChecked = false; });
+                    agreeAllCheckbox.checked = allChecked;
+                });
+            });
+        }
+        
+        // 이메일 인증번호 발송 버튼
+        const sendBtn = document.getElementById('sendVerificationBtn');
+        const emailInputForVerification = document.getElementById('contactPersonEmail');
+        const verificationSection = document.getElementById('verificationCodeSection');
+        const emailMessageForVerification = document.getElementById('email-message');
+        if (sendBtn) {
+            sendBtn.addEventListener('click', async () => {
+                const email = emailInputForVerification.value;
+                if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                    return alert('올바른 이메일 주소를 입력해주세요.');
+                }
+                emailMessageForVerification.textContent = '';
+                sendBtn.disabled = true;
+                sendBtn.textContent = '발송 중...';
+                try {
+                    const response = await fetch('${API_BASE_URL}/auth/send-verification-email', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email })
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        verificationSection.style.display = 'block';
+                        emailMessageForVerification.textContent = result.message;
+                        emailMessageForVerification.style.color = 'green';
+                        // 타이머 로직은 여기에 추가...
+                    } else {
+                        emailMessageForVerification.textContent = result.message;
+                        emailMessageForVerification.style.color = 'red';
+                        sendBtn.disabled = false;
+                        sendBtn.textContent = '인증번호 발송';
+                    }
+                } catch (error) {
+                    emailMessageForVerification.textContent = '오류가 발생했습니다.';
+                    emailMessageForVerification.style.color = 'red';
+                    sendBtn.disabled = false;
+                    sendBtn.textContent = '인증번호 발송';
+                }
+            });
+        }
+
+        // 비밀번호 유효성 검사
+        const passwordInput = document.getElementById('password');
+        const passwordMessage = document.getElementById('password-message');
+        if (passwordInput && passwordMessage) {
+            passwordInput.addEventListener('keyup', function() {
+                const password = passwordInput.value;
+                const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+                if (password === "") {
+                    passwordMessage.textContent = '';
+                } else if (passwordRegex.test(password)) {
+                    passwordMessage.textContent = '안전한 비밀번호입니다.';
+                    passwordMessage.style.color = 'green';
+                } else {
+                    passwordMessage.textContent = '비밀번호는 8자 이상이며, 대/소문자, 숫자, 특수문자를 모두 포함해야 합니다.';
+                    passwordMessage.style.color = 'red';
+                }
+            });
+        }
+
+    }); // DOMContentLoaded 끝
+</script>
+</body>
+</html>

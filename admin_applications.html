@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 - 프로그램 신청 현황</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        /* ★★★ 테이블 UI 개선 CSS ★★★ */
+        .page-section h2 { margin-bottom: 20px; }
+        .table-container { border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #dee2e6; white-space: nowrap; }
+        thead tr { background-color: #f8f9fa; }
+        th { font-weight: 600; color: #495057; }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover { background-color: #f1f3f5; }
+        
+        /* 상태 변경 UI 스타일 */
+        .status-cell { display: flex; align-items: center; gap: 10px; }
+        .status-select { min-width: 100px; }
+        .status-save-btn { display: none; } /* 기본적으로 숨김 */
+        .status-save-btn.visible { display: inline-block; } /* visible 클래스가 붙으면 보임 */
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo"><a href="main_index.html">LocalLink (Admin)</a></div>
+            <nav>
+                <ul>
+                    <li><a href="main_index.html">Locallink로 돌아가기</a></li>
+                    <li><a href="admin_dashboard.html">관리자 대시보드</a></li>
+                </ul>
+            </nav>
+            <div id="userAuthStatus" style="float: right;"></div>
+            <div id="user-menu-container"></div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="page-section">
+            <div class="page-header-actions">
+                <h2>프로그램 신청 현황</h2>
+                <button id="exportBtn" class="button-primary">CSV로 내보내기</button>
+            </div>
+            <div class="table-container">
+                <table id="applicationsTable">
+                    <thead>
+                        <tr>
+                            <th>회사명</th>
+                            <th>담당자</th>
+                            <th>전화번호</th>
+                            <th>이메일</th>
+                            <th>신청 프로그램</th>
+                            <th>담당 단체</th>
+                            <th>신청일자</th>
+                            <th>상태</th> <th>관리</th>
+                        </tr>
+                    </thead>
+                    <tbody id="applicationsTableBody"></tbody>
+                </table>
+            </div>
+            <div id="loadingMessage"><p>신청 목록을 불러오는 중입니다...</p></div>
+        </section>
+    </main>
+    <footer id="footer-placeholder"></footer>
+    
+    <script src="/js/config.js"></script>
+    <script src="js/auth.js" defer></script>
+    <script src="js/admin_common.js" defer></script>
+    <script src="js/admin_applications.js" defer></script>
+</body>
+</html>

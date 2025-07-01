@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 페이지 - 문의 관리</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        .admin-section { padding: 20px; }
+        .styled-table { width:100%; border-collapse: collapse; font-size: 0.9em; margin-top:15px;}
+        .styled-table th, .styled-table td { border: 1px solid #ddd; padding: 10px 12px; vertical-align: middle;}
+        .styled-table th { background-color:#f0f0f0; text-align:center; font-weight: bold; }
+        .styled-table td:nth-child(6) { white-space: pre-wrap; word-wrap: break-word; } /* 문의내용 줄바꿈 */
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo"><a href="main_index.html">LocalLink (Admin)</a></div>
+            <nav>
+                <ul>
+                    <li><a href="main_index.html">Locallink로 돌아가기</a></li>
+                    <li><a href="admin_dashboard.html">관리자 대시보드</a></li>
+                </ul>
+            </nav>
+            <div id="userAuthStatus" style="float: right;"></div>
+            <div id="user-menu-container"></div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="admin-section">
+            <h2>문의 내역 관리</h2>
+            <p>사용자들이 남긴 문의 내역을 확인하고 처리 상태를 변경합니다.</p>
+            <div class="tab-nav" style="margin-top:20px;">
+                <button class="tab-button active" data-type="all">전체</button>
+                <button class="tab-button" data-type="이용문의">이용문의</button>
+                <button class="tab-button" data-type="프로그램문의">프로그램문의</button>
+                <button class="tab-button" data-type="기타문의">기타문의</button>
+            </div>
+            <div style="margin: 15px 0; text-align: right;">
+                <button type="button" id="exportCsvBtn" class="button-secondary">CSV로 내보내기</button>
+            </div>            
+            <div id="loadingMessage"><p>문의 목록을 불러오는 중입니다...</p></div>
+            <table id="inquiriesTable" class="styled-table hidden">
+                <thead>
+                    <tr>
+                        <th style="width: 5%;">ID</th>
+                        <th style="width: 15%;">회사명 / 담당자</th>
+                        <th style="width: 15%;">연락처 / 이메일</th>
+                        <th style="width: 10%;">구분</th>
+                        <th style="width: 35%;">문의 내용</th>
+                        <th style="width: 10%;">상태</th>
+                        <th style="width: 10%;">관리</th>
+                    </tr>
+                </thead>
+                <tbody id="inquiriesTableBody"></tbody>
+            </table>
+        </section>
+    </main>
+    <footer id="footer-placeholder"></footer>
+
+    <script src="js/auth.js" defer></script>
+    <script src="js/admin_common.js" defer></script>
+    <script src="js/admin_inquiries.js" defer></script>
+</body>
+</html>

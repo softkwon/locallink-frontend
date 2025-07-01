@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 - 규모별 ESG 이슈 관리</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        .form-section { max-width: 1000px; margin: auto; padding-bottom: 50px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: #495057; }
+        .form-control { width: 100%; padding: 10px 12px; border: 1px solid #ced4da; border-radius: 4px; box-sizing: border-box; transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out; }
+        .form-control:focus { border-color: #80bdff; outline: 0; box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); }
+        textarea.form-control { resize: vertical; min-height: 90px; }
+
+        /* ★★★ 새로운 카드 레이아웃 스타일 ★★★ */
+        .issue-card {
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            overflow: hidden; /* 내부 요소가 모서리를 벗어나지 않게 함 */
+        }
+        .issue-card-header {
+            background-color: #f8f9fa;
+            padding: 15px 25px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .issue-card-header h3 {
+            margin: 0;
+            font-size: 1.25em;
+            color: #0056b3;
+        }
+        .issue-card-body {
+            padding: 25px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo"><a href="main_index.html">LocalLink (Admin)</a></div>
+            <nav><ul>
+                <li><a href="main_index.html">Locallink로 돌아가기</a></li>
+                <li><a href="admin_dashboard.html">관리자 대시보드</a></li></ul></nav>
+            <div id="userAuthStatus" style="float: right;"></div>
+            <div id="user-menu-container"></div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="form-section">
+            <h2>회사 규모별 ESG 이슈 관리</h2>
+            <p>사용자의 회사 규모에 따라 Step4 페이지에 표시될 ESG 이슈 내용을 관리합니다.</p>
+            
+            <form id="issuesForm">
+                <div id="form-container">
+                    <p>데이터를 불러오는 중입니다...</p>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="button-primary">모든 변경사항 저장</button>
+                </div>
+            </form>
+        </section>
+    </main>
+    <footer id="footer-placeholder"></footer>
+
+    <script src="/js/config.js"></script>
+    <script src="js/auth.js" defer></script>
+    <script src="js/admin_common.js" defer></script>
+    <script src="js/admin_company_size_issues.js" defer></script>
+</body>
+</html>

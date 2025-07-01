@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 페이지 - 시뮬레이터 규칙 관리</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        .admin-section { padding: 20px; }
+        .category-group { margin-bottom: 40px; }
+        .category-title { font-size: 1.5em; border-bottom: 2px solid #007bff; padding-bottom: 10px; margin-bottom: 20px; color: #0056b3; }
+        .styled-table { width:100%; border-collapse: collapse; font-size: 0.9em; }
+        .styled-table th, .styled-table td { border: 1px solid #ddd; padding: 12px; vertical-align: middle;}
+        .styled-table th { background-color:#f0f0f0; text-align:center; font-weight: bold; }
+        .styled-table td:nth-child(1) { width: 20%; font-weight: 500; }
+        .styled-table td:nth-child(3) { width: 25%; }
+        .styled-table td:nth-child(4) { width: 15%; }
+        .styled-table td:nth-child(5) { width: 10%; text-align: center; }
+        .styled-table input, .styled-table textarea { width: 100%; box-sizing: border-box; padding: 5px; }
+        .styled-table textarea { min-height: 60px; }
+        .styled-table .readonly-input { background-color: #e9ecef; color: #6c757d; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo"><a href="main_index.html">LocalLink (Admin)</a></div>
+            <nav>
+                <ul>
+                    <li><a href="main_index.html">Locallink로 돌아가기</a></li>
+                    <li><a href="admin_dashboard.html">관리자 대시보드</a></li>
+                </ul>
+            </nav>
+            <div id="userAuthStatus" style="float: right;"></div>
+            <div id="user-menu-container"></div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="admin-section">
+            <h2>예산 편성 시뮬레이터 규칙 관리</h2>
+            <p>시뮬레이터의 계산에 사용되는 주요 변수, 공식, 설명 등을 관리합니다. 수정 가능한 항목만 변경할 수 있습니다.</p>
+            
+            <div id="loadingMessage"><p>규칙 목록을 불러오는 중입니다...</p></div>
+            
+            <div id="rulesContainer">
+                </div>
+
+            <div class="form-actions" style="margin-top:30px;">
+                <button type="button" id="saveAllBtn" class="button-primary">모든 변경사항 저장</button>
+            </div>
+        </section>
+    </main>
+    <footer id="footer-placeholder"></footer>
+    
+    <script src="js/auth.js" defer></script>
+    <script src="js/admin_common.js" defer></script>
+    <script src="js/admin_simulator_rules.js" defer></script>
+</body>
+</html>

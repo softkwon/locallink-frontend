@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 페이지 - 산업 평균 관리</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+    .admin-section { padding: 20px; }
+    .table-container { overflow: auto; max-height: 75vh; border: 1px solid #ddd; }
+    .styled-table { width: 100%; border-collapse: collapse; font-size: 0.85em; min-width: 2000px; }
+    .styled-table th, .styled-table td { border: 1px solid #ddd; padding: 8px; text-align: center; vertical-align: middle; white-space: nowrap; }
+    .styled-table th { background-color: #f2f2f2; position: sticky; top: 0; z-index: 2; }
+    .styled-table input[type="number"] { width: 80px; text-align: right; }
+
+    /* ★★★ 틀 고정을 위한 CSS (수정본) ★★★ */
+    .styled-table th:nth-child(1), .styled-table td:nth-child(1) { 
+        position: sticky; 
+        left: 0; 
+        z-index: 1; 
+        background-color: #f9f9f9; 
+    }
+    .styled-table th:nth-child(2), .styled-table td:nth-child(2) { 
+        position: sticky; 
+        left: 0%; /* 이 값은 첫 번째 컬럼의 너비와 일치해야 합니다. */
+        z-index: 1; 
+        background-color: #f9f9f9; 
+    }
+    .styled-table th:nth-child(3), .styled-table td:nth-child(3) { 
+        position: sticky; 
+        left: 25%; /* 이 값은 첫 번째와 두 번째 컬럼 너비의 합과 일치해야 합니다. */
+        z-index: 1; 
+        background-color: #f9f9f9; 
+    }
+    .styled-table thead th:nth-child(1),
+    .styled-table thead th:nth-child(2),
+    .styled-table thead th:nth-child(3) { 
+        z-index: 3; 
+    }
+</style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo"><a href="main_index.html" style="text-decoration: none;">LocalLink (Admin)</a></div>
+            <nav>
+                <ul>
+                    <li><a href="main_index.html">Locallink로 돌아가기</a></li>
+                    <li><a href="admin_dashboard.html">관리자 대시보드</a></li>                    
+                </ul>
+            </nav>
+            <div id="userAuthStatus" style="float: right;"></div>
+            <div id="user-menu-container"></div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="admin-section">
+            <h2>산업 평균 데이터 관리</h2>
+            <p>각 산업별 벤치마크 평균 데이터를 수정합니다. 변경 후 '저장' 버튼을 눌러주세요.</p>
+            <div id="loadingMessage"><p>데이터를 불러오는 중입니다...</p></div>
+            <div id="tableContainer" class="table-container hidden">
+                <table id="averagesTable" class="styled-table">
+                    <thead>
+    <tr>
+        <th style="width: 10%;">산업코드</th>
+        <th style="width: 15%;">산업명</th>
+        <th style="width: 8%;">관리</th> <th>온실가스(avg)</th>
+        <th>에너지(avg)</th>
+        <th>폐기물(avg)</th>
+        <th>비정규직(%)</th>
+        <th>장애인(%)</th>
+        <th>여성직원(%)</th>
+        <th>근속년수</th>
+        <th>사외이사(%)</th>
+        <th>이사회(회)</th>
+        <th>임원보수(%)</th>
+        <th>기부참여율(%)</th>
+        <th>품질경영참여율(%)</th>
+        <th>집중투표채택률(%)</th>
+        <th>배당정책보유율(%)</th>
+        <th>법규위반율(%)</th>
+    </tr>
+</thead>
+                    <tbody id="averagesTableBody"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+    <footer id="footer-placeholder"></footer>
+    
+    <script src="js/auth.js" defer></script>
+    <script src="js/admin_common.js" defer></script>
+    <script src="js/admin_industry_averages.js" defer></script>
+</body>
+</html>

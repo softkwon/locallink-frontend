@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 대시보드 - LocalLink</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .dashboard-card { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 20px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .dashboard-card h3 { margin-top: 0; }
+        .dashboard-card a { display: block; margin-top: 15px; }
+        .button-green { background-color: #28a745; border-color: #28a745; }
+        .button-green:hover { background-color: #218838; border-color: #1e7e34; }
+
+        .button-teal { background-color: #20c997; border-color: #20c997; }
+        .button-teal:hover { background-color: #1baa80; border-color: #179b72; }
+
+        .button-orange { background-color: #fd7e14; border-color: #fd7e14; }
+        .button-orange:hover { background-color: #e66a0a; border-color: #d96208; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo"><a href="main_index.html" style="text-decoration: none;">LocalLink (Admin)</a></div>
+            <nav>
+                <ul>
+                    <li><a href="main_index.html">Locallink로 돌아가기</a></li>
+                </ul>
+            </nav>
+            <div id="userAuthStatus" style="float: right;"></div>
+            <div id="user-menu-container"></div>
+
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="admin-section">
+            <h2>관리자 대시보드</h2>
+            <p>LocalLink 서비스의 데이터를 관리합니다.</p>
+
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <h3>회원 관리</h3>
+                    <p>전체 회원 목록을 보고 역할을 변경</p>
+                    <a href="admin_user_list.html" class="button-primary">바로가기</a>
+                </div>
+                <div class="dashboard-card">
+                    <h3>회원별 ESG진단 통계</h3>
+                    <p>회원별 완료된 진단 상세 데이터를 확인</p>
+                    <a href="admin_statistics.html" class="button-primary">바로가기</a>
+                </div>
+                <div class="dashboard-card">
+                    <h3>사이트 관리</h3>
+                    <p>메인 페이지 등 사이트 주요 콘텐츠 수정</p>
+                    <a href="admin_site_content.html" class="button-primary">바로가기</a>
+                </div>
+                <div class="dashboard-card">
+                    <h3>신청 내역 관리</h3>
+                    <p>사용자들이 남긴 프로그램 신청 내역을 확인</p>
+                    <a href="admin_applications.html" class="button-primary">바로가기</a>
+                </div>
+                <div class="dashboard-card">
+                    <h3>문의 내역 관리</h3>
+                    <p>사용자들이 남긴 문의 내역을 확인하고 처리</p>
+                    <a href="admin_inquiries.html" class="button-primary">바로가기</a>
+                </div>
+                
+                <div class="dashboard-card">
+                    <h3>News 관리</h3>
+                    <p>웹사이트에 게시될 소식을 작성하고 관리</p>
+                    <a href="admin_news_list.html" class="button-teal">바로가기</a>
+                </div>
+                <div class="dashboard-card">
+                    <h3>ESG프로그램 관리</h3>
+                    <p>ESG프로그램 추가 및 관리</p>
+                    <a href="admin_programs.html" class="button-teal">바로가기</a>
+                </div>
+                
+                <div class="dashboard-card">
+                    <h3>ESG프로그램 추천 규칙 관리</h3>
+                    <p>ESG프로그램 추천하는 규칙 설정</p>
+                    <a href="admin_strategy_rules.html" class="button-orange">바로가기</a>
+                </div>
+                <div class="dashboard-card">
+                    <h3>설문 문항 관리</h3>
+                    <p>ESG 진단 설문의 질문과 보기를 관리</p>
+                    <a href="admin_question_list.html" class="button-secondary">바로가기</a>
+                </div>
+                <div class="dashboard-card">
+                    <h3>채점 규칙 관리</h3>
+                    <p>각 질문 답변에 대한 점수를 수정</p>
+                    <a href="admin_scoring_rules.html" class="button-secondary">바로가기</a>
+                </div>
+                <div class="dashboard-card">
+                    <h3>채점 규칙 관리-벤치마크</h3>
+                    <p>업종 평균과 비교하는 채점 규칙을 수정</p>
+                    <a href="admin_benchmark_rules.html" class="button-secondary">바로가기</a>
+                </div>
+                <div class="dashboard-card">
+                    <h3>채점 규칙 관리-답변 추정파트</h3>
+                    <p>산업평균 값을 설문답변으로 변환하는 규칙</p>
+                    <a href="admin_answer_rules.html" class="button-secondary">바로가기</a>
+                </div>                
+                <div class="dashboard-card">
+                    <h3>산업 평균 벤치마크 점수</h3>
+                    <p>각 산업의 질문별 평균 점수를 확인</p>
+                    <a href="admin_industry_benchmarks.html" class="button-secondary">바로가기</a>
+                </div>
+                <div class="dashboard-card">
+                    <h3>시뮬레이터 규칙-예산 편성 계산 관리</h3>
+                    <p>시뮬레이터의 주요 변수와 세율 등을 관리</p>
+                    <a href="admin_simulator_rules.html" class="button-secondary">바로가기</a>
+                </div>
+                <div class="dashboard-card">
+                    <h3>산업 평균 관리</h3>
+                    <p>각 산업별 평균 데이터를 수정</p>
+                    <a href="admin_industry_averages.html" class="button-green">바로가기</a>
+                </div>
+                
+                <div class="dashboard-card">
+                    <h3>산업별 ESG 이슈 관리</h3>
+                    <p>산업별 ESG 기회·위기 등 이슈 요인 관리</p>
+                    <a href="admin_industry_issues.html" class="button-green">바로가기</a>
+                </div>
+                <div class="dashboard-card">
+                    <h3>회사 규모별 ESG 이슈 관리</h3>
+                    <p>사용자의 회사 규모에 따른 ESG 이슈 관리</p>
+                    <a href="admin_company_size_issues.html" class="button-green">바로가기</a>
+                </div>
+                <div class="dashboard-card">
+                    <h3>지역별 ESG 이슈 관리</h3>
+                    <p>사업장 위치에 따른 지역별 ESG 이슈 관리</p>
+                    <a href="admin_regional_issues.html" class="button-green">바로가기</a>
+                </div>
+                
+            </div>
+        </section>
+    </main>
+    <footer id="footer-placeholder"></footer>
+
+    <script src="/js/config.js"></script>
+    <script src="js/auth.js" defer></script>
+</body>
+</html>

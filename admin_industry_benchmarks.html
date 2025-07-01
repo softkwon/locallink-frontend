@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 페이지 - 산업 평균 벤치마크</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        .admin-section { padding: 20px; }
+        .table-container { overflow: auto; max-height: 75vh; border: 1px solid #ddd; }
+        .styled-table { width: 100%; border-collapse: collapse; font-size: 0.85em; min-width: 2000px; }
+        .styled-table th, .styled-table td { border: 1px solid #ddd; padding: 8px; text-align: center; vertical-align: middle; white-space: nowrap; }
+        .styled-table th { background-color: #f2f2f2; position: sticky; top: 0; z-index: 2; }
+        .styled-table td:first-child, .styled-table th:first-child { position: sticky; left: 0; z-index: 1; background-color: #f9f9f9; min-width: 250px; text-align: left; }
+        .styled-table thead th:first-child { z-index: 3; }
+        .styled-table input[type="number"] { width: 60px; text-align: right; padding: 4px; border: 1px solid #ccc; border-radius: 3px; }
+        .styled-table .action-cell { min-width: 100px; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo"><a href="main_index.html">LocalLink (Admin)</a></div>
+            <nav>
+                <ul>
+                    <li><a href="main_index.html">Locallink로 돌아가기</a></li>
+                    <li><a href="admin_dashboard.html">관리자 대시보드</a></li>
+                </ul>
+            </nav>
+            <div id="userAuthStatus" style="float: right;"></div>
+            <div id="user-menu-container"></div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="admin-section">
+            <h2>산업 평균 벤치마크 점수</h2>
+            <p>각 산업의 질문별 평균 점수를 확인하고 수동으로 보정할 수 있습니다.</p>
+            <div style="margin-bottom: 15px; text-align: right;">
+                <button type="button" id="calculateBenchmarksBtn" class="button-primary">산업 평균 점수 전체 계산</button>
+            </div>
+            <div id="loadingMessage"><p>데이터를 불러오는 중입니다...</p></div>
+            <div id="tableContainer" class="table-container hidden">
+                <table id="benchmarksTable" class="styled-table">
+                    <thead id="benchmarksTableHead"></thead>
+                    <tbody id="benchmarksTableBody"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+    <footer id="footer-placeholder"></footer>
+    
+    <script src="js/auth.js" defer></script>
+    <script src="js/admin_common.js" defer></script>
+    <script src="js/admin_industry_benchmarks.js" defer></script>
+</body>
+</html>

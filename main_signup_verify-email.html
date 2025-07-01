@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>이메일 인증 - LocalLink</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo"><a href="main_index.html" style="text-decoration: none; color: #007bff;">LocalLink</a></div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="form-section" style="text-align: center;">
+            <h2 id="message-title">이메일 인증 확인 중...</h2>
+            <p id="message-body" style="margin-top: 15px;"></p>
+            <div id="action-link" style="margin-top: 30px;"></div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p id="footer-copyright">&copy; 2025 LocalLink. All Rights Reserved.</p>
+            <p id="footer-company-info">상호:이에스지표준원 | 대표:권영석</p>
+            <p id="footer-brn">사업자등록번호: 314-86-68179</p>
+            <p id="footer-address">서울특별시 서대문구 통일로484 서대문구창업보육센터 208호</p>
+            <p id="footer-contact">문의: contact@locallink.com</p>
+            <p><a href="#">이용약관</a> | <a href="#">개인정보처리방침</a></p>
+        </div>
+    </footer>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+
+            const titleEl = document.getElementById('message-title');
+            const bodyEl = document.getElementById('message-body');
+            const linkEl = document.getElementById('action-link');
+
+            if (!token) {
+                titleEl.textContent = '인증 실패';
+                bodyEl.textContent = '유효하지 않은 접근입니다.';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/verify-email?token=${token}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    titleEl.textContent = '✅ 인증 완료';
+                    bodyEl.textContent = '이메일 인증이 성공적으로 완료되었습니다. 이제 모든 서비스를 이용하실 수 있습니다.';
+                    linkEl.innerHTML = '<a href="main_login.html" class="button-primary">로그인 페이지로 이동</a>';
+                } else {
+                    titleEl.textContent = '❌ 인증 실패';
+                    bodyEl.textContent = result.message || '유효하지 않거나 만료된 링크입니다. 회원가입을 다시 시도해주세요.';
+                }
+            } catch (error) {
+                console.error('인증 처리 중 에러:', error);
+                titleEl.textContent = '오류 발생';
+                bodyEl.textContent = '인증 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+            }
+        });
+    </script>
+</body>
+</html>

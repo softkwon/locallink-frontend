@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>나의 ESG 활동 - LocalLink</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        .dashboard-container { max-width: 960px; margin: 20px auto; }
+        .program-status-card { background-color: #fff; border: 1px solid #e9ecef; border-radius: 8px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden; }
+        .card-header { padding: 15px 20px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; }
+        .card-header h4 { margin: 0; color: #0056b3; }
+        .card-body { padding: 25px; }
+        .status-stepper { display: flex; align-items: flex-start; justify-content: space-between; margin: 20px 0 30px 0; }
+        .step { display: flex; flex-direction: column; align-items: center; text-align: center; width: 80px; position: relative; }
+        .step-icon { width: 30px; height: 30px; border-radius: 50%; background-color: #e9ecef; color: #adb5bd; display: flex; align-items: center; justify-content: center; font-weight: bold; transition: all 0.3s ease; border: 3px solid #e9ecef; }
+        .step-label { font-size: 0.8em; color: #888; margin-top: 8px; word-break: keep-all; }
+        .step-date { font-size: 0.75em; color: #adb5bd; position: absolute; top: 38px; width: 100%; }
+        .step-line { flex-grow: 1; height: 4px; background-color: #e9ecef; margin: 16px 0; }
+        .step.active .step-icon { border-color: #007bff; background-color: #fff; color: #007bff; }
+        .step.active .step-label { color: #333; font-weight: bold; }
+        .step.active .step-date { color: #666; }
+        .step.active + .step-line { background-color: #007bff; }
+        .step.current .step-icon { background-color: #007bff; color: white; box-shadow: 0 0 0 4px rgba(0,123,255,0.3); }
+        .latest-update { display: flex; gap: 20px; align-items: flex-start; padding: 15px; background-color: #f8f9fa; border-radius: 8px;}
+        .latest-update img { width: 120px; height: 90px; object-fit: cover; border-radius: 4px; }
+        h5 { color: #0056b3; margin-top: 30px; margin-bottom: 15px; }
+        .dashboard-intro-box {
+        background-color: #e6f7ff;
+        border-left: 5px solid #007bff;
+        padding: 20px 25px;
+        margin: 10px 0 30px 0;
+        border-radius: 4px;
+        font-size: 1.05em;
+        color: #004085;
+        }
+    
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <a href="main_index.html">
+                    <img src="${STATIC_BASE_URL}/images/logo.png" alt="LocalLink 로고" class="header-logo-img">
+                </a>
+            </div>
+            <nav>
+                <ul id="mainNavLinks"> 
+                    <li class="dropdown">
+                        <a href="#" class="dropbtn">소식</a>
+                        <ul class="dropdown-content">
+                            <li><a href="news_list.html?category=locallink">LocalLink 소식</a></li>
+                            <li><a href="news_list.html?category=trends">ESG market</a></li>
+                        </ul>
+                    </li>                     
+                    <li class="dropdown">
+                        <a href="#" class="dropbtn">ESG 진단하기</a>
+                        <ul class="dropdown-content">
+                            <li><a href="survey_step1.html" id="startSimpleDiagnosisLink">간이진단</a></li>
+                            <li><a href="#" id="startAdvancedDiagnosisLink">심화진단</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="esg_programs_list.html">Locallink ESG프로그램</a></li>
+
+                </ul>
+            </nav>
+
+            <div id="user-menu-container"></div>
+
+        </div>
+    </header>
+    <main class="container">
+        <h1>나의 ESG 활동 대시보드</h1>
+        <p>참여중인 ESG 프로그램의 진행 상황과 성과를 확인하세요.</p>
+        <div class="dashboard-intro-box">
+            <p style="margin: 0;">진행 단계부터 프로그램의 마일스톤, 활동 내역을 확인할 수 있습니다.</p>
+        </div>
+        <div id="dashboard-container" class="dashboard-container">
+            <p>신청하신 프로그램 현황을 불러오는 중입니다...</p>
+        </div>
+    </main>
+    <footer id="footer-placeholder"></footer>
+
+    <script src="js/auth.js" defer></script>
+    <script src="js/main_my_esg_dashboard.js" defer></script>
+</body>
+</html>

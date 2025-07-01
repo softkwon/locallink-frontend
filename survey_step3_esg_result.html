@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESG 진단 결과 - LocalLink</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        .result-section { padding: 20px; background-color: #f9f9f9; border-radius: 8px; margin-bottom: 20px; }
+        .result-section h3 { margin-top: 0; color: #007bff; border-bottom: 2px solid #007bff; padding-bottom: 10px; margin-bottom: 15px;}
+        .result-summary { text-align: center; margin-bottom: 30px; }
+        .result-summary .score { font-size: 2.5em; font-weight: bold; color: #28a745; }
+        .result-summary .grade { font-size: 1.5em; font-style: italic; margin-top: 5px; }
+        .category-results { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 20px;}
+        .category-results .category { border: 1px solid #eee; padding: 15px; border-radius: 5px; background-color: #fff; text-align: center;}
+        .category-results .category h4 { margin-top: 0; font-size: 1.2em; }
+        .progress-bar-container { background-color: #e9ecef; border-radius: .25rem; height: 20px; margin-bottom:5px; }
+        .progress-bar { background-color: #007bff; height: 100%; text-align: center; color: white; line-height: 20px; border-radius: .25rem; transition: width 0.6s ease; }
+        .styled-table { width:100%; border-collapse: collapse; font-size: 0.9em; margin-top:15px;}
+        .styled-table th, .styled-table td { border: 1px solid #ddd; padding: 8px; text-align:left; }
+        .styled-table th { background-color:#f0f0f0; text-align:center; font-weight: bold; }
+        .styled-table td:nth-child(2) { text-align:center; } 
+        .styled-table td:nth-child(3) { text-align:center; } 
+        .hidden { display: none; }
+
+        /* <style> 태그 안에 추가 */
+        .styled-table .row-e { background-color: #e7f1ff; } /* 환경: 파란색 계열 */
+        .styled-table .row-s { background-color: #e5f8ed; } /* 사회: 녹색 계열 */
+        .styled-table .row-g { background-color: #fef4e5; } /* 지배구조: 주황색 계열 */
+        .page-header-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <a href="main_index.html">
+                    <img src="${STATIC_BASE_URL}/images/logo.png" alt="LocalLink 로고" class="header-logo-img">
+                </a>
+            </div>
+            <nav>
+                <ul id="mainNavLinks">                    
+                    <li><a href="survey_step1.html" id="navSurveyLink">진단 다시하기</a></li> 
+                    <li class="active">
+                        <a href="survey_step4_esg_strategy.html" id="viewStrategyBtn" class="button-primary">다음단계 : AI기반 ESG 전략 수립</a>
+
+                </ul>
+            </nav>
+            <div id="user-menu-container"></div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="page-header-actions">
+            <h1>진단결과 리포트</h1>
+            <button id="downloadPdfBtn" class="button-primary">PDF로 저장 📄</button>
+        </div>
+        <section class="form-section">
+            <div id="loadingMessage" style="text-align: center; padding: 50px;"><h2>결과를 분석하고 있습니다...</h2></div>
+
+            <div id="resultContainer" class="hidden">
+                <h2>ESG 진단 결과</h2>
+                <div id="esgCoreResultSummary" class="result-summary" style="margin-top: 20px; padding-top: 20px;">
+                    <h3>ESG핵심영역 평가</h3>
+                    <p id="companyNameDisplay" style="font-size:1.2em; font-weight:bold;"></p>
+                    <br>
+                    <p style="font-size:0.9em; color:#555; margin-top:-10px; margin-bottom:20px;">본 진단은 KESG, SASB 등 국내외 기준 기반의 ESG핵심영역 간이평가입니다</p>
+                    <p style="font-size:0.9em; color:#555; margin-top:-10px; margin-bottom:20px;">정확한 측정을 위해서는 전문가와 상담이 필요합니다.</p>
+                    
+                    <div class="score"><span id="esgTotalScoreDisplay">-</span> 점</div>
+                    <br>
+                    <div class="grade" id="esgGradeDisplay">-</div>
+                    <p id="esgCoreCommentDisplay" style="margin-top: 10px; color: #333;">-</p>
+                </div>
+
+                <div class="result-section">
+                    <h3>영역별 결과</h3>
+                    <div id="categoryResultsContainer" class="category-results"></div>
+                </div>
+                
+                <div id="evaluationTableSection" class="result-section">
+                    <h3>평가결과표</h3>
+                    <table id="evaluationTable" class="styled-table">
+                        <thead>
+                            <tr>
+                                <th style="width:50%;">설문내용</th>
+                                <th style="width:25%;">나의 답변</th>
+                                <th style="width:10%;">획득점수</th>
+                                <th style="width:15%;">채점기준</th>
+                            </tr>
+                        </thead>
+                        <tbody id="evaluationTableBody"></tbody>
+                    </table>
+                </div>
+
+            </div>
+        </section>
+    </main>
+    <footer id="footer-placeholder"></footer>
+
+    <script src="js/auth.js" defer></script>
+    <script src="js/survey_step3_result.js" defer></script>
+</body>
+</html>

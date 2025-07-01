@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>아이디 찾기 - LocalLink</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <a href="main_index.html">
+                    <img src="${STATIC_BASE_URL}/images/logo.png" alt="LocalLink 로고" class="header-logo-img">
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="form-section login-form-section">
+            <h2>아이디 찾기</h2>
+            <p>가입 시 입력한 담당자명과 연락처를 입력해주세요.</p>
+
+            <form id="findIdForm">
+                <div class="form-group">
+                    <label for="managerName">담당자명</label>
+                    <input type="text" id="managerName" name="managerName" required>
+                </div>
+                <div class="form-group">
+                    <label for="managerPhone">담당자 연락처</label>
+                    <input type="tel" id="managerPhone" name="managerPhone" placeholder="예: 010-1234-5678" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="button-primary">아이디 찾기</button>
+                </div>
+                <div class="form-links">
+                    <a href="main_login.html">로그인 페이지로 돌아가기</a>
+                </div>
+                <div id="result-section" style="margin-top: 20px; text-align: center; display: none;">
+                    <p>회원님의 아이디(이메일)는 아래와 같습니다.</p>
+                    <p id="found-email" style="font-weight: bold; font-size: 1.2em;"></p>
+                    <a href="main_login.html" class="button-secondary" style="margin-top: 10px;">로그인하기</a>
+                </div>
+                 <p id="response-message" class="form-message" style="margin-top: 15px;"></p>
+            </form>
+        </section>
+    </main>
+
+    <footer id="footer-placeholder"></footer>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const findIdForm = document.getElementById('findIdForm');
+            const responseMessage = document.getElementById('response-message');
+            const resultSection = document.getElementById('result-section');
+            const foundEmailEl = document.getElementById('found-email');
+
+            findIdForm.addEventListener('submit', async function(event) {
+                event.preventDefault();
+                
+                const managerName = document.getElementById('managerName').value;
+                const managerPhone = document.getElementById('managerPhone').value;
+
+                if (!managerName || !managerPhone) {
+                    responseMessage.textContent = '모든 정보를 입력해주세요.';
+                    responseMessage.style.color = 'red';
+                    return;
+                }
+
+                try {
+                    const response = await fetch('${API_BASE_URL}/auth/find-id', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ managerName, managerPhone })
+                    });
+                    const result = await response.json();
+
+                    if (result.success) {
+                        // 아이디를 찾았을 경우
+                        responseMessage.textContent = '';
+                        // 보안을 위해 이메일 일부를 마스킹 처리합니다.
+                        const [localPart, domain] = result.email.split('@');
+                        const maskedLocalPart = localPart.length > 3 ? localPart.substring(0, 3) + '*'.repeat(localPart.length - 3) : localPart;
+                        foundEmailEl.textContent = `${maskedLocalPart}@${domain}`;
+                        resultSection.style.display = 'block';
+                    } else {
+                        // 아이디를 찾지 못했을 경우
+                        responseMessage.textContent = result.message;
+                        responseMessage.style.color = 'red';
+                        resultSection.style.display = 'none';
+                    }
+                } catch (error) {
+                    console.error('아이디 찾기 실패:', error);
+                    responseMessage.textContent = '오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+                    responseMessage.style.color = 'red';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
