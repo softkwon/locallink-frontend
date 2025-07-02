@@ -1,7 +1,7 @@
 
-import { API_BASE_URL } from '../config.js';
-import { initializeIndustryModal } from '../components/industry_modal.js';
-import { openPostcodeSearch } from '../helpers/postcode_helper.js';
+import { API_BASE_URL } from '/js/config.js';
+import { initializeIndustryModal } from '/js/components/industry_modal.js';
+import { openPostcodeSearch } from '/js/helpers/postcode_helper.js';
 
 // 2. 페이지의 모든 HTML 요소가 로드된 후에 아래의 모든 코드를 실행합니다.
 document.addEventListener('DOMContentLoaded', function() {
