@@ -2,7 +2,6 @@
 import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
 import { checkAdminPermission } from './admin_common.js'; // ★ 이 줄을 추가하세요!
 
-
 document.addEventListener('DOMContentLoaded', async function() {
     
     // --- 1. 페이지 요소 및 전역 변수 ---
