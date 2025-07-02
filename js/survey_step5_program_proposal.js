@@ -1,4 +1,6 @@
 // js/survey_step5_program_proposal.js (2025-06-29 23:40:00)
+    
+import { API_BASE_URL, STATIC_BASE_URL } from './config.js';  
 
 document.addEventListener('DOMContentLoaded', function() {
     

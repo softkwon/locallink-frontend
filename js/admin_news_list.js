@@ -1,4 +1,5 @@
 // js/admin_news_list.js (2025-07-01 10:40:00)
+import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
 
 document.addEventListener('DOMContentLoaded', function() {
     

@@ -1,4 +1,6 @@
 // js/admin_program_create.js & js/admin_program_edit.js 공통 최종 코드 (2025-06-28 02:25:00)
+import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
+
 
 document.addEventListener('DOMContentLoaded', function() {
     

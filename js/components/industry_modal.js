@@ -1,4 +1,5 @@
 // js/components/industry_modal.js (백엔드 API 연동 최종본)
+import { API_BASE_URL, STATIC_BASE_URL } from '../config.js';
 
 async function initializeIndustryModal(options) {
     // 1. 모달 HTML을 동적으로 불러옵니다.

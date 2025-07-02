@@ -1,4 +1,6 @@
 // js/admin_benchmark_rules.js
+import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
+
 document.addEventListener('DOMContentLoaded', function() {
     
     // --- 1. 페이지 요소 및 변수 초기화 ---

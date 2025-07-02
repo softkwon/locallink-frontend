@@ -1,4 +1,6 @@
 // js/auth.js (2025-07-01 23:55:00) - 최종 완성본
+import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
+
 
 let sessionTimerInterval; // 세션 타이머의 interval ID를 저장하는 전역 변수
 

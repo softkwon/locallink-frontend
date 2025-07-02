@@ -1,4 +1,6 @@
 // js/admin_industry_benchmarks.js (2025-06-25 14:20:00)
+import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
+
 document.addEventListener('DOMContentLoaded', function() {
     
     const token = localStorage.getItem('locallink-token');

@@ -1,4 +1,7 @@
 // js/legal_page_loader.js (2025-07-01 23:35:00)
+import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
+
+
 document.addEventListener('DOMContentLoaded', async () => {
     const path = window.location.pathname;
     let type = '';

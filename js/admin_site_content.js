@@ -1,4 +1,6 @@
 // js/admin_site_content.js (2025-07-01 19:15:00)
+import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
+
 
 document.addEventListener('DOMContentLoaded', function() {
     

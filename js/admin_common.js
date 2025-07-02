@@ -1,4 +1,5 @@
 // js/admin_common.js
+import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
 
 async function checkAdminPermission(allowedRoles) {
     const token = localStorage.getItem('locallink-token');

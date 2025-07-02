@@ -1,4 +1,6 @@
 // js/esg_programs_list.js (2025-06-29 08:00:00)
+import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
+
 
 document.addEventListener('DOMContentLoaded', async function() {
     

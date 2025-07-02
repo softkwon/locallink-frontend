@@ -45,15 +45,16 @@
         </section>
     </main>
     <footer id="footer-placeholder"></footer>    
+    <script type="module" src="js/auth.js" defer></script>
 
     <script>
     // 로그인 폼(form)이 '제출'될 때 handleLogin 함수를 실행하도록 연결합니다.
-document.addEventListener('DOMContentLoaded', function() {
-    const loginForm = document.getElementById('loginForm');
-    if (loginForm) {
-        loginForm.addEventListener('submit', handleLogin);
-    }
-});
+    document.addEventListener('DOMContentLoaded', function() {
+        const loginForm = document.getElementById('loginForm');
+        if (loginForm) {
+            loginForm.addEventListener('submit', handleLogin);
+        }
+    });
 
 
 // 로그인 로직을 처리하는 함수

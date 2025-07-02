@@ -1,4 +1,6 @@
 // js/admin_strategy_rules.js (수정된 코드)
+import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
+
 
 document.addEventListener('DOMContentLoaded', function() {
     

@@ -1,5 +1,7 @@
 // js/admin_question_edit.js
-document.addEventListener('DOMContentLoaded', async function() {
+import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
+
+ocument.addEventListener('DOMContentLoaded', async function() {
     
     // --- 1. 페이지 요소 및 변수 초기화 ---
     const form = document.getElementById('editQuestionForm');

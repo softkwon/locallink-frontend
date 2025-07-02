@@ -1,5 +1,7 @@
 // js/admin_industry_averages.js
-document.addEventListener('DOMContentLoaded', async function() {
+import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
+
+ocument.addEventListener('DOMContentLoaded', async function() {
     const token = localStorage.getItem('locallink-token');
     const loadingEl = document.getElementById('loadingMessage');
     const tableContainerEl = document.getElementById('tableContainer');

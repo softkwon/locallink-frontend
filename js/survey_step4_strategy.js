@@ -1,3 +1,5 @@
+import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
+
 document.addEventListener('DOMContentLoaded', async function() {
     
     // --- 1. 페이지 초기화 및 데이터 로딩 ---

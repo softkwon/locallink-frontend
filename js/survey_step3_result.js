@@ -1,5 +1,7 @@
 // js/survey_step3_result.js (2025-06-29 09:15:00)
 
+import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
+
 document.addEventListener('DOMContentLoaded', async function() {    
     // --- 1. 페이지 변수 및 요소 초기화 ---
     const urlParams = new URLSearchParams(window.location.search);

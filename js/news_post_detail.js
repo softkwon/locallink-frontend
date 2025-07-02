@@ -1,4 +1,6 @@
 // js/news_post_detail.js (2025-07-01 11:30:00)
+import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
+
 document.addEventListener('DOMContentLoaded', async function() {
     const postId = new URLSearchParams(window.location.search).get('id');
     const container = document.getElementById('post-detail-container');

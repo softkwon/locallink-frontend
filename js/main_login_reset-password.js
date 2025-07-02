@@ -1,4 +1,7 @@
 // js/main_login_reset-password.js (2025-07-02 01:10:00)
+import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
+
+
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('resetPasswordForm');
     const newPasswordInput = document.getElementById('newPassword');

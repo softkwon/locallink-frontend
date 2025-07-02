@@ -1,4 +1,6 @@
 // js/admin_question_create.js (최종 완성본)
+import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
+
 document.addEventListener('DOMContentLoaded', async function() {
     
     // --- 1. 권한 확인 ---

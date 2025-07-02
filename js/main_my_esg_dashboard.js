@@ -1,4 +1,6 @@
 // js/main_my_esg_dashboard.js (2025-06-29 18:40:00)
+import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
+
 
 document.addEventListener('DOMContentLoaded', async function() {
     const token = localStorage.getItem('locallink-token');

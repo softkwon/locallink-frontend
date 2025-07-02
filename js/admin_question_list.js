@@ -1,4 +1,6 @@
 // js/admin_question_list.js (최종 완성본)
+import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
+
 
 // HTML 문서가 완전히 로드된 후에 모든 스크립트를 실행합니다.
 document.addEventListener('DOMContentLoaded', function() {

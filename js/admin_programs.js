@@ -1,3 +1,5 @@
+import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
+
 document.addEventListener('DOMContentLoaded', function() {
     
     // --- 페이지 초기화 ---

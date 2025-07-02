@@ -1,4 +1,6 @@
 // js/survey_step2.js (최종 완성본)
+import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
+
 document.addEventListener('DOMContentLoaded', async function() {
     // --- 1. 페이지 변수 및 요소 초기화 ---
     const diagnosisId = sessionStorage.getItem('currentDiagnosisId') || new URLSearchParams(window.location.search).get('diagId');

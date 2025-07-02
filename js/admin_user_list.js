@@ -1,4 +1,6 @@
 // js/admin_user_list.js (2025-07-02 00:25:00)
+import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
+
 
 document.addEventListener('DOMContentLoaded', async function() {
     
