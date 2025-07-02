@@ -1,5 +1,13 @@
-// js/member_info.js (2025-07-01 19:35:00)
+/**
+ * 파일명: js/member_info.js
+ * 기능: 회원 정보 페이지의 모든 기능(정보 조회/수정, 모달/우편번호 연동 등)
+ * 수정 일시: 2025-07-03 03:10
+ */
+
+// 1. 필요한 모듈들을 각 파일에서 가져옵니다.
 import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
+import { openPostcodeSearch } from './helpers/postcode_helper.js';
+import { initializeIndustryModal } from './components/industry_modal.js';
 
 document.addEventListener('DOMContentLoaded', function() {
     const token = localStorage.getItem('locallink-token');
@@ -8,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return window.location.href = 'main_login.html';
     }
 
-    // --- 1. 페이지 요소 및 전역 변수 ---
+    // --- 페이지 요소 및 상태 변수 ---
     const basicInfoTable = document.getElementById('basicInfoTable');
     const historyContainer = document.getElementById('historyListContainer');
     const inquiriesContainer = document.getElementById('myInquiriesContainer');
@@ -18,10 +26,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const withdrawalBtn = document.getElementById('withdrawalBtn');
     
     let currentUserData = null; 
-    let allIndustries = [];
     let selectedIndustryCodesForEdit = []; 
 
-    // --- 2. 페이지 초기화 ---
+    // --- 페이지 초기화 함수 ---
     async function initializePage() {
         try {
             const [meRes, industriesRes] = await Promise.all([
@@ -35,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const industriesResult = await industriesRes.json();
 
             if (result.success) currentUserData = result.user; else throw new Error(result.message);
-            if (industriesResult.success) allIndustries = industriesResult.industries;
+            window.allIndustriesDataForLookup = industriesResult.success ? industriesResult.industries : [];
             
             renderUserInfo(false);
             attachEventListeners();
@@ -49,8 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // --- 3. 기능 함수 정의 ---
-
+    /** 사용자 정보를 화면에 그려주는 함수 (수정 모드 포함) */
     function renderUserInfo(isEditing = false) {
         if (!currentUserData || !basicInfoTable) return;
         const tbody = basicInfoTable.querySelector('tbody');
@@ -71,7 +77,6 @@ document.addEventListener('DOMContentLoaded', function() {
             S: [ { text: "근로자 인권 및 복지", value: "S_interest_1" }, { text: "안전보건 경영", value: "S_interest_2" },{ text: "지역사회협력", value: "S_interest_3" }, { text: "공정거래 및 협력사 ESG 평가", value: "S_interest_4" }, { text: "고객보호 및 서비스책임", value: "S_interest_5" } ],
             G: [ { text: "이사회 운영 및 사외이사 구성", value: "G_interest_1" }, { text: "윤리경영", value: "G_interest_2" },{ text: "임원 보수 및 책임성과 연계", value: "G_interest_3" }, { text: "주주권리 보호", value: "G_interest_4" }, { text: "ESG 리스크 관리 체계 구축", value: "G_interest_5" } ]
         };
-
         const safeInterests = Array.isArray(interests) ? interests : [];
 
         tbody.innerHTML = `
@@ -90,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <tr><th>산업분류코드</th><td>
                 ${isEditing 
                     ? `<div style="position: relative;"><input type="text" id="edit_industry_code_display" class="form-control readonly-input" style="margin-bottom:8px;" readonly placeholder="우측 ⓘ 아이콘으로 검색/선택"><div id="selected_codes_container"></div><span class="info-icon-member-edit" id="edit_industry_btn">ⓘ</span></div>` 
-                    : (industry_codes && industry_codes.length > 0) ? `<ul class="interest-list">${industry_codes.map(code => `<li>[${code}] ${allIndustries.find(i => i.code === code)?.name || ''}</li>`).join('')}</ul>` : "<span>-</span>"}
+                    : (industry_codes && industry_codes.length > 0) ? `<ul class="interest-list">${industry_codes.map(code => `<li>[${code}] ${window.allIndustriesDataForLookup.find(i => i.code === code)?.name || ''}</li>`).join('')}</ul>` : "<span>-</span>"}
             </td></tr>
             <tr><th>대표자명</th><td>${isEditing ? `<input type="text" id="edit_representative" class="form-control" value="${representative || ''}">` : representative || "-"}</td></tr>
             <tr><th>회사주소</th><td>
@@ -110,9 +115,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <th>마케팅 정보 수신</th>
                 <td>
                     ${isEditing 
-                        // 수정 모드일 때, DB에서 가져온 agreed_to_marketing 값으로 checked 상태를 결정합니다.
                         ? `<label class="checkbox-label"><input type="checkbox" id="edit_agree_marketing" ${agreed_to_marketing ? 'checked' : ''}> <span>(선택) <a href="main_marketing.html" target="_blank">마케팅 정보 수신</a>에 동의합니다.</span></label>`
-                        // 보기 모드일 때
                         : (agreed_to_marketing ? '동의' : '미동의')
                     }
                 </td>
@@ -125,15 +128,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    /** 수정 모드에서 선택된 산업 코드를 태그로 그려주는 함수 */
     function renderSelectedEditCodes() {
         const container = document.getElementById('selected_codes_container');
         const displayInput = document.getElementById('edit_industry_code_display');
         if (!container || !displayInput) return;
+        
         container.innerHTML = '';
         if (selectedIndustryCodesForEdit.length > 0) {
             displayInput.value = `${selectedIndustryCodesForEdit.length}개 선택됨`;
             selectedIndustryCodesForEdit.forEach((code, index) => {
-                const industry = allIndustries.find(i => i.code === code);
+                const industry = window.allIndustriesDataForLookup.find(i => i.code === code);
                 const tag = document.createElement('span');
                 tag.className = 'selected-code-tag-member';
                 tag.textContent = `[${code}] ${industry ? industry.name : ''} `;
@@ -244,146 +249,110 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // --- 4. 이벤트 리스너 연결 ---
+    /** 이벤트 리스너(기능) 연결 함수 */
     function attachEventListeners() {
-        if (editInfoBtn) {
-            editInfoBtn.addEventListener('click', () => { 
-                renderUserInfo(true); 
-                editInfoBtn.classList.add('hidden');
-                saveInfoBtn.classList.remove('hidden');
-                cancelEditBtn.classList.remove('hidden');
-            });
-        }
-        if (cancelEditBtn) {
-            cancelEditBtn.addEventListener('click', () => {
-                renderUserInfo(false);
-                editInfoBtn.classList.remove('hidden');
-                saveInfoBtn.classList.add('hidden');
-                cancelEditBtn.classList.add('hidden');
-            });
-        }
-        if (saveInfoBtn) {
-            saveInfoBtn.addEventListener('click', async () => {
-                // ★ 마케팅 동의 여부 값을 수집합니다. ★
-                const agreeMarketing = document.getElementById('edit_agree_marketing')?.checked || false;
-                
-                const updatedData = {
-                    companyName: document.getElementById('edit_company_name').value,
-                    representativeName: document.getElementById('edit_representative').value,
-                    address: `${document.getElementById('edit_address').value} (${document.getElementById('edit_postalCode').value}) ${document.getElementById('edit_address_detail').value}`.trim(),
-                    businessLocation: document.getElementById('edit_business_location').value,
-                    managerName: document.getElementById('edit_manager_name').value,
-                    managerPhone: document.getElementById('edit_manager_phone').value.replace(/\D/g, ''),
-                    industryCodes: selectedIndustryCodesForEdit,
-                    interests: Array.from(document.querySelectorAll('input[name="edit_interests"]:checked')).map(cb => cb.value),
-                    agreed_to_marketing: agreeMarketing // ★ 수집한 값을 전송할 데이터에 포함합니다.
-                };
-
-                try {
-                    const response = await fetch(`${API_BASE_URL}/users/me`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                        body: JSON.stringify(updatedData)
-                    });
-                    const result = await response.json();
-                    if (result.success) {
-                        alert('정보가 성공적으로 수정되었습니다.');
-                        currentUserData = result.user; // 서버로부터 받은 최신 정보로 업데이트
-                        renderUserInfo(false); // 보기 모드로 전환
-                        editInfoBtn.classList.remove('hidden');
-                        saveInfoBtn.classList.add('hidden');
-                        cancelEditBtn.classList.add('hidden');
-                    } else {
-                        alert('정보 수정에 실패했습니다: ' + result.message);
-                    }
-                } catch (error) { alert('오류가 발생했습니다.'); }
-            });
-        }
-        if (basicInfoTable) {
-            basicInfoTable.addEventListener('click', function(event) {
-                if (event.target.id === 'edit_industry_btn') {
-                    if (typeof initializeIndustryModal === 'function') initializeIndustryModal({ initialSelection: selectedIndustryCodesForEdit.map(code => ({code})), onConfirm: (selection) => { document.dispatchEvent(new CustomEvent('updateMemberIndustries', { detail: selection })) } });
-                }
-                if (event.target.id === 'edit_search_post_btn') {
-                    if (typeof openPostcodeSearch === 'function') openPostcodeSearch({ postcodeFieldId: 'edit_postalCode', addressFieldId: 'edit_address', detailAddressFieldId: 'edit_address_detail' });
-                }
-                if (event.target.id === 'uploadProfileImageBtn') {
-                    uploadProfileImage();
-                }
-            });
-        }
-        document.addEventListener('updateMemberIndustries', (e) => {
-            selectedIndustryCodesForEdit = e.detail.map(item => item.code);
-            renderSelectedEditCodes();
+        editInfoBtn.addEventListener('click', () => { 
+            renderUserInfo(true); 
+            editInfoBtn.classList.add('hidden');
+            saveInfoBtn.classList.remove('hidden');
+            cancelEditBtn.classList.remove('hidden');
         });
-        if (historyContainer) {
-            historyContainer.addEventListener('click', async function(event) {
-                const deleteButton = event.target.closest('button.delete-diagnosis-btn');
-                if (deleteButton) {
-                    const diagId = deleteButton.dataset.diagId;
-                    if (confirm(`이 진단 기록을 정말로 삭제하시겠습니까?`)) {
-                        try {
-                            const response = await fetch(`${API_BASE_URL}/diagnoses/${diagId}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
-                            const result = await response.json();
-                            alert(result.message);
-                            if (result.success || response.status === 404) {
-                                loadAndDisplayHistory();
-                            }
-                        } catch (error) { alert('삭제 중 오류가 발생했습니다.'); }
-                    }
-                }
-            });
-        }
-        if (inquiriesContainer) {
-            inquiriesContainer.addEventListener('click', e => {
-                if (e.target.classList.contains('inquiry-content-snippet')) {
-                    const fullContent = e.target.dataset.fullContent;
-                    if (typeof showModal === 'function') {
-                        showModal('문의 상세 내용', `<p style="white-space: pre-wrap; line-height: 1.7;">${fullContent}</p>`);
-                    } else {
-                        alert(fullContent);
-                    }
-                }
-            });
-        }
-        if (withdrawalBtn) {
-            withdrawalBtn.addEventListener('click', async () => {
-                if (!confirm('정말로 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
-                    return;
-                }
-                
-                const password = prompt('계정 삭제를 위해 비밀번호를 입력해주세요.');
-                if (!password) {
-                    alert('비밀번호를 입력해야 합니다.');
-                    return;
-                }
 
-                try {
-                    const response = await fetch(`${API_BASE_URL}/users/me`, {
-                        method: 'DELETE',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        },
-                        body: JSON.stringify({ password })
-                    });
+        cancelEditBtn.addEventListener('click', () => {
+            renderUserInfo(false);
+            editInfoBtn.classList.remove('hidden');
+            saveInfoBtn.classList.add('hidden');
+            cancelEditBtn.classList.add('hidden');
+        });
 
-                    const result = await response.json();
-                    alert(result.message);
+        saveInfoBtn.addEventListener('click', async () => {
+            const agreeMarketing = document.getElementById('edit_agree_marketing')?.checked || false;
+            
+            const updatedData = {
+                companyName: document.getElementById('edit_company_name').value,
+                representativeName: document.getElementById('edit_representative').value,
+                address: `${document.getElementById('edit_address').value} (${document.getElementById('edit_postalCode').value}) ${document.getElementById('edit_address_detail').value}`.trim(),
+                businessLocation: document.getElementById('edit_business_location').value,
+                managerName: document.getElementById('edit_manager_name').value,
+                managerPhone: document.getElementById('edit_manager_phone').value.replace(/\D/g, ''),
+                industryCodes: selectedIndustryCodesForEdit,
+                interests: Array.from(document.querySelectorAll('input[name="edit_interests"]:checked')).map(cb => cb.value),
+                agreed_to_marketing: agreeMarketing
+            };
 
-                    if (result.success) {
-                        // 성공 시 토큰을 지우고 메인 페이지로 이동
-                        localStorage.removeItem('locallink-token');
-                        sessionStorage.clear();
-                        window.location.href = 'index.html';
-                    }
-                } catch (error) {
-                    alert('회원 탈퇴 중 오류가 발생했습니다.');
+            try {
+                const response = await fetch(`${API_BASE_URL}/users/me`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify(updatedData)
+                });
+                const result = await response.json();
+                if (result.success) {
+                    alert('정보가 성공적으로 수정되었습니다.');
+                    currentUserData = result.user;
+                    renderUserInfo(false);
+                    editInfoBtn.classList.remove('hidden');
+                    saveInfoBtn.classList.add('hidden');
+                    cancelEditBtn.classList.add('hidden');
+                } else {
+                    alert('정보 수정에 실패했습니다: ' + result.message);
                 }
-            });
-        }
+            } catch (error) { alert('오류가 발생했습니다.'); }
+        });
+
+        basicInfoTable.addEventListener('click', function(event) {
+            if (event.target.id === 'edit_industry_btn') {
+                initializeIndustryModal({
+                    initialSelection: selectedIndustryCodesForEdit.map(code => ({ 
+                        code: code, 
+                        name: window.allIndustriesDataForLookup.find(i => i.code === code)?.name || ''
+                    })),
+                    onConfirm: (selection) => {
+                        selectedIndustryCodesForEdit = selection.map(item => item.code);
+                        renderSelectedEditCodes();
+                    }
+                });
+            }
+            if (event.target.id === 'edit_search_post_btn') {
+                openPostcodeSearch({ 
+                    postcodeFieldId: 'edit_postalCode', 
+                    addressFieldId: 'edit_address', 
+                    detailAddressFieldId: 'edit_address_detail' 
+                });
+            }
+            if (event.target.id === 'uploadProfileImageBtn') {
+                // uploadProfileImage();
+            }
+        });
+
+        withdrawalBtn.addEventListener('click', async () => {
+            if (!confirm('정말로 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) return;
+            
+            const password = prompt('계정 삭제를 위해 비밀번호를 입력해주세요.');
+            if (!password) {
+                alert('비밀번호를 입력해야 합니다.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/users/me`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ password })
+                });
+                const result = await response.json();
+                alert(result.message);
+
+                if (result.success) {
+                    localStorage.removeItem('locallink-token');
+                    window.location.href = 'index.html';
+                }
+            } catch (error) {
+                alert('회원 탈퇴 중 오류가 발생했습니다.');
+            }
+        });
     }
     
-    // --- 5. 페이지 시작 ---
+    // --- 페이지 시작 ---
     initializePage();
 });
