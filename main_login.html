@@ -78,7 +78,7 @@ async function handleLogin(event) {
 
     try {
         // fetch를 사용하여 백엔드 로그인 API 호출
-        const response = await fetch('${API_BASE_URL}/auth/login', {
+        const response = await fetch(`${API_BASE_URL}/auth/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
