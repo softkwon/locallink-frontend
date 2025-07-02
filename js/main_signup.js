@@ -1,10 +1,4 @@
-/**
- * 파일명: js/pages/main_signup.js
- * 기능: 회원가입 페이지의 모든 기능(DOM 조작, 이벤트 처리, API 연동)을 담당합니다.
- * 수정 일시: 2025-07-03 (수정)
- */
 
-// 1. 필요한 부품(모듈)들을 각 파일에서 가져옵니다.
 import { API_BASE_URL } from '../config.js';
 import { initializeIndustryModal } from '../components/industry_modal.js';
 import { openPostcodeSearch } from '../helpers/postcode_helper.js';
