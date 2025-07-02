@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const hasPermission = await checkAdminPermission(['super_admin', 'content_manager']);
             if (!hasPermission) return;
 
-            const response = await fetch('${API_BASE_URL}/admin/company-size-issues', { headers: { 'Authorization': `Bearer ${token}` } });
+            const response = await fetch(`${API_BASE_URL}/admin/company-size-issues`, { headers: { 'Authorization': `Bearer ${token}` } });
             const result = await response.json();
             if (!result.success) throw new Error(result.message);
 
@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }));
 
         try {
-            const response = await fetch('${API_BASE_URL}/admin/company-size-issues', {
+            const response = await fetch(`${API_BASE_URL}/admin/company-size-issues`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({ issues: updates })

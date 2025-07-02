@@ -17,7 +17,7 @@ ocument.addEventListener('DOMContentLoaded', async function() {
     // 데이터 로드 및 테이블 렌더링 함수
     async function loadAverages() {
     try {
-        const response = await fetch('${API_BASE_URL}/admin/industry-averages', {
+        const response = await fetch(`${API_BASE_URL}/admin/industry-averages`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         const result = await response.json();

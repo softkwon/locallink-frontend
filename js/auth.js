@@ -5,11 +5,10 @@ let sessionTimerInterval; // 세션 타이머의 interval ID를 저장하는 전
 
 // 페이지 DOM이 로드되면, 헤더와 푸터 렌더링 함수를 실행
 document.addEventListener('DOMContentLoaded', function() {
-    
     // 헤더 로고 이미지 경로 설정
     const logoImg = document.getElementById('headerLogoImg');
     if (logoImg) {
-        logoImg.src = `${STATIC_BASE_URL}/public/images/logo.png`;
+        logoImg.src = `images/logo.png`;
     }
     
     // 기존에 있던 함수들 호출

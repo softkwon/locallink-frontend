@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function() {
             calcBtn.disabled = true;
             calcBtn.textContent = '계산 중...';
             try {
-                const response = await fetch('${API_BASE_URL}/admin/benchmarks/calculate', { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } });
+                const response = await fetch(`${API_BASE_URL}/admin/benchmarks/calculate`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } });
                 const result = await response.json();
                 alert(result.message);
                 if(result.success) loadAndRenderData();
