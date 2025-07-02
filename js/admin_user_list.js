@@ -51,6 +51,10 @@ document.addEventListener('DOMContentLoaded', async function() {
             if (!response.ok) throw new Error('회원 목록을 불러오는 데 실패했습니다.');
             
             const result = await response.json();
+            // ★★★ 바로 이 부분에 로그를 추가합니다! ★★★
+            console.log('서버로부터 받은 데이터:', result)
+            // 여기까지 추가 ★★★
+
             if (result.success) {
                 renderUserTable(result.users);
             } else {
