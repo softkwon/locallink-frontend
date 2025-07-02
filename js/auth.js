@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 헤더 로고 이미지 경로 설정
     const logoImg = document.getElementById('headerLogoImg');
     if (logoImg) {
-        logoImg.src = `${STATIC_BASE_URL}/images/logo.png`;
+        logoImg.src = `${STATIC_BASE_URL}/public/images/logo.png`;
     }
     
     // 기존에 있던 함수들 호출
