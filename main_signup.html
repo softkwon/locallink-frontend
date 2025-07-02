@@ -7,97 +7,25 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/components.css"> 
     <style>
+        /* CSS 스타일은 변경사항이 없으므로 생략합니다. */
         .selected-codes-container { margin-top: 8px; padding: 8px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; min-height: 30px; }
         .selected-code-tag { display: inline-block; background-color: #007bff; color: white; padding: 4px 8px; border-radius: 12px; margin-right: 5px; margin-bottom: 5px; font-size: 0.9em; }
         .selected-code-tag .remove-code { margin-left: 6px; color: #ffdddd; cursor: pointer; font-weight: bold; }
         .info-icon { display: inline-block; margin-left: 5px; color: #007bff; cursor: pointer; font-weight: bold; border: 1px solid #007bff; border-radius: 50%; width: 20px; height: 20px; text-align: center; line-height: 18px; font-size: 0.8em; user-select: none; }
         .info-icon:hover { background-color: #007bff; color: white; }
-        .modal-footer {
-        text-align: right;
-        margin-top: 20px;
-        padding-top: 15px;
-        border-top: 1px solid #eee;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        }
-        .modal-footnote {
-            font-size: 0.8em;
-            color: #6c757d;
-            margin: 0;
-        }
-        .star-icon {
-            color: #ffc107;
-            font-weight: bold;
-        }
-        .industry-list-container li.selected {
-            background-color: #e9f7ff;
-            font-weight: bold;
-        }
-        .agreement-section {
-            border: 1px solid #ddd;
-            padding: 20px;
-            border-radius: 8px;
-            background-color: #fdfdfd;
-            margin-bottom: 20px;
-        }
-        .agreement-section label {
-            display: block;
-            margin-bottom: 12px;
-            font-size: 1em;
-            cursor: pointer;
-        }
-        .agreement-section input[type="checkbox"] {
-            margin-right: 10px;
-            vertical-align: middle;
-        }
-        .agreement-section a {
-            color: #007bff;
-            text-decoration: none;
-            font-size: 0.9em;
-            margin-left: 5px;
-        }
-        .agreement-section a:hover {
-            text-decoration: underline;
-        }
-        .agreement-all {
-            padding-bottom: 15px;
-            border-bottom: 1px solid #eee;
-            margin-bottom: 15px;
-        }
-        .agreement-all label {
-            font-weight: bold;
-            font-size: 1.1em;
-        }
-        /* 모달 전체를 덮는 검은 반투명 배경 */
-        .modal-overlay {
-            position: fixed; /* 화면 기준으로 위치 고정 */
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.6); /* 반투명 배경 */
-            z-index: 1000; /* 다른 요소들보다 항상 위에 표시 */
-
-            /* 자식 요소(모달창)를 화면 중앙에 오도록 설정 */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        /* 실제 모달창 콘텐츠 부분 */
-        .modal-content {
-            background-color: #ffffff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            width: 90%;
-            max-width: 600px;
-            max-height: 80vh; 
-            display: flex;
-            flex-direction: column;
-        }
-
+        .modal-footer { text-align: right; margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .modal-footnote { font-size: 0.8em; color: #6c757d; margin: 0; }
+        .star-icon { color: #ffc107; font-weight: bold; }
+        .industry-list-container li.selected { background-color: #e9f7ff; font-weight: bold; }
+        .agreement-section { border: 1px solid #ddd; padding: 20px; border-radius: 8px; background-color: #fdfdfd; margin-bottom: 20px; }
+        .agreement-section label { display: block; margin-bottom: 12px; font-size: 1em; cursor: pointer; }
+        .agreement-section input[type="checkbox"] { margin-right: 10px; vertical-align: middle; }
+        .agreement-section a { color: #007bff; text-decoration: none; font-size: 0.9em; margin-left: 5px; }
+        .agreement-section a:hover { text-decoration: underline; }
+        .agreement-all { padding-bottom: 15px; border-bottom: 1px solid #eee; margin-bottom: 15px; }
+        .agreement-all label { font-weight: bold; font-size: 1.1em; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 1000; display: flex; justify-content: center; align-items: center; }
+        .modal-content { background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); width: 90%; max-width: 600px; max-height: 80vh; display: flex; flex-direction: column; }
     </style>
 </head>
 <body>
@@ -116,7 +44,7 @@
             <h2>LocalLink 회원가입</h2>
             <p>LocalLink에 오신 것을 환영합니다. 아래 정보를 입력하여 회원가입을 완료해주세요.</p>
 
-            <form id="signupForm" onsubmit="return false;">
+            <form id="signupForm">
                 <fieldset>
                     <legend>기업 정보 입력</legend>
                     <div class="form-group">
@@ -179,17 +107,13 @@
                         <label for="contactPersonPhone">담당자 연락처 <span class="required">*</span></label>
                         <input type="tel" id="contactPersonPhone" name="contactPersonPhone" placeholder="예: 010-1234-5678" required>
                     </div>
-                    
                     <div class="form-group">
                         <label for="contactPersonEmail">담당자 이메일 (아이디로 사용) <span class="required">*</span></label>
-                        
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <input type="email" id="contactPersonEmail" name="contactPersonEmail" required style="flex-grow: 1;">
                             <button type="button" id="sendVerificationBtn" class="button-secondary">인증번호 발송</button>
                         </div>
-
                         <p id="email-message" class="form-message" style="margin-top: 8px;"></p>
-
                         <div id="verificationCodeSection" style="display: none; margin-top: 10px;">
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <input type="text" id="verificationCode" placeholder="인증번호 6자리 입력" style="flex-grow: 1;">
@@ -197,7 +121,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="form-group">
                         <label for="password">비밀번호 <span class="required">*</span></label>
                         <input type="password" id="password" name="password" required>
@@ -243,33 +166,39 @@
                     </div>
                 </fieldset>
                 <fieldset class="agreement-section">
-                <legend>약관 동의</legend>
-                <div class="form-group" style="margin-top: 25px;">
-                    <label class="checkbox-label"><input type="checkbox" id="agreeTerms" required><span>(필수) <a href="main_terms.html" target="_blank">이용약관</a> 동의</span></label>
-                    <label class="checkbox-label"><input type="checkbox" id="agreePrivacy" required><span>(필수) <a href="main_privacy.html" target="_blank">개인정보 처리방침</a> 동의</span></label>
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="agreeMarketing">
-                        <span>(선택) <a href="main_marketing.html" target="_blank">마케팅 정보 수신</a>에 동의합니다.</span>
-                    </label>
-                </div>
+                    <legend>약관 동의</legend>
+
+                    <div class="agreement-all">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="agreeAll">
+                            <b>전체 동의 (선택 정보 포함)</b>
+                        </label>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 10px;">
+                        <label class="checkbox-label"><input type="checkbox" id="agreeTerms" required><span>(필수) <a href="main_terms.html" target="_blank">이용약관</a> 동의</span></label>
+                        <label class="checkbox-label"><input type="checkbox" id="agreePrivacy" required><span>(필수) <a href="main_privacy.html" target="_blank">개인정보 처리방침</a> 동의</span></label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="agreeMarketing">
+                            <span>(선택) <a href="main_marketing.html" target="_blank">마케팅 정보 수신</a>에 동의합니다.</span>
+                        </label>
+                    </div>
                 </fieldset>
                 <div class="form-actions">
-                    <button type="button" class="button-primary" onclick="handleSignup()">회원가입</button>
+                    <button type="submit" class="button-primary">회원가입</button>
                     <button type="button" class="button-secondary" onclick="window.location.href='index.html';">취소</button>
                 </div>
-                </form>
-                
+            </form>
+            
         </section>
     </main>
     <footer id="footer-placeholder"></footer>
 
     <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-
-    <script type="module" src="js/auth.js" defer></script>
     
+    <script type="module" src="js/auth.js" defer></script>
     <script type="module" src="js/helpers/postcode_helper.js" defer></script>
     <script type="module" src="js/components/industry_modal.js" defer></script>
-
     <script type="module" src="js/pages/main_signup.js" defer></script> 
 </body>
 </html>

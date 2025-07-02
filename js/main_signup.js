@@ -1,7 +1,7 @@
 /**
  * 파일명: js/pages/main_signup.js
  * 기능: 회원가입 페이지의 모든 기능(DOM 조작, 이벤트 처리, API 연동)을 담당합니다.
- * 수정 일시: 2025-07-03 02:45
+ * 수정 일시: 2025-07-03 (수정)
  */
 
 // 1. 필요한 부품(모듈)들을 각 파일에서 가져옵니다.
@@ -15,6 +15,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- 페이지에서 사용할 상태(데이터) 변수 선언 ---
     let selectedIndustryCodes = []; // 사용자가 선택한 산업 코드를 저장하는 배열
     let emailVerificationTimer; // 이메일 인증 타이머 ID
+
+    // --- 페이지의 HTML 요소들을 변수에 할당 ---
+    const signupForm = document.getElementById('signupForm');
+    const industryCodeInfoIcon = document.getElementById('industryCodeInfoIcon');
+    const searchPostalCodeBtn = document.getElementById('searchPostalCodeBtn');
+    const sendVerificationBtn = document.getElementById('sendVerificationBtn');
+    const agreeAllCheckbox = document.getElementById('agreeAll');
+    const individualCheckboxes = document.querySelectorAll('.agreement-section input[type="checkbox"]');
+    const passwordInput = document.getElementById('password');
+    const passwordConfirmInput = document.getElementById('passwordConfirm');
+    const passwordMessage = document.getElementById('password-message');
 
     // --- 기능 함수 정의 ---
 
@@ -52,26 +63,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
     /** 최종 회원가입 버튼 클릭 시 실행될 함수 */
     async function handleSignup(event) {
+        // ✨ [수정] event.preventDefault()를 맨 위로 옮겨 form의 기본 동작(새로고침)을 먼저 막습니다.
         event.preventDefault();
 
-        const signupForm = document.getElementById('signupForm');
-        
         // --- 1. 모든 유효성 검사 ---
         if (!document.getElementById('agreeTerms').checked || !document.getElementById('agreePrivacy').checked) {
             return alert('필수 약관에 동의해주세요.');
         }
         if (!signupForm.checkValidity()) {
-            return signupForm.reportValidity(); // HTML5 기본 유효성 검사 메시지를 표시합니다.
+            signupForm.reportValidity(); // HTML5 기본 유효성 검사 메시지를 표시합니다.
+            return;
         }
         if (selectedIndustryCodes.length === 0) {
             return alert('산업분류코드를 선택해주세요.');
         }
-        const password = document.getElementById('password').value;
-        const passwordConfirm = document.getElementById('passwordConfirm').value;
+        const password = passwordInput.value;
+        const passwordConfirm = passwordConfirmInput.value;
         if (password !== passwordConfirm) {
             return alert('비밀번호가 일치하지 않습니다.');
         }
-        // 이메일 인증 완료 여부 확인 로직은 필요에 따라 추가...
+        // TODO: 이메일 인증 완료 여부 확인 로직 추가 필요
 
         // --- 2. 백엔드 API로 전송할 데이터 생성 ---
         const formData = {
@@ -109,87 +120,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // --- 4. 이벤트 리스너(기능) 연결 ---
-    
-    // 회원가입 폼 제출 이벤트
-    document.getElementById('signupForm').addEventListener('submit', handleSignup);
-    
-    // 산업분류코드 'ⓘ' 아이콘 클릭 시 모달 열기
-    document.getElementById('industryCodeInfoIcon').addEventListener('click', () => {
-        initializeIndustryModal({
-            initialSelection: selectedIndustryCodes,
-            onConfirm: (confirmedSelection) => {
-                selectedIndustryCodes = confirmedSelection;
-                renderSelectedCodes();
-            }
-        });
-    });
-
-    // 우편번호 검색 버튼
-    document.getElementById('searchPostalCodeBtn').addEventListener('click', () => {
-        openPostcodeSearch({
-            postcodeFieldId: 'companyPostalCode',
-            addressFieldId: 'companyAddress',
-            detailAddressFieldId: 'companyAddressDetail'
-        });
-    });
-
-    // 약관 전체 동의 체크박스
-    const agreeAllCheckbox = document.getElementById('agreeAll');
-    const individualCheckboxes = document.querySelectorAll('.agreement-section input[type="checkbox"]:not(#agreeAll)');
-    if (agreeAllCheckbox) {
-        agreeAllCheckbox.addEventListener('change', function() {
-            individualCheckboxes.forEach(checkbox => { checkbox.checked = this.checked; });
-        });
-    }
-
-    // 이메일 인증번호 발송 버튼
-    document.getElementById('sendVerificationBtn').addEventListener('click', async () => {
-        const emailInput = document.getElementById('contactPersonEmail');
-        const emailMessage = document.getElementById('email-message');
-        const sendBtn = document.getElementById('sendVerificationBtn');
-        const email = emailInput.value;
-
-        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            return alert('올바른 이메일 주소를 입력해주세요.');
-        }
-        
-        emailMessage.textContent = '';
-        sendBtn.disabled = true;
-        sendBtn.textContent = '발송 중...';
-
-        try {
-            const response = await fetch(`${API_BASE_URL}/auth/send-verification-email`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email })
-            });
-            const result = await response.json();
-
-            if (response.ok) {
-                document.getElementById('verificationCodeSection').style.display = 'block';
-                emailMessage.textContent = result.message;
-                emailMessage.style.color = 'green';
-                // 타이머 로직 추가...
-            } else {
-                emailMessage.textContent = result.message;
-                emailMessage.style.color = 'red';
-                sendBtn.disabled = false;
-                sendBtn.textContent = '인증번호 발송';
-            }
-        } catch (error) {
-            emailMessage.textContent = '오류가 발생했습니다.';
-            emailMessage.style.color = 'red';
-            sendBtn.disabled = false;
-            sendBtn.textContent = '인증번호 발송';
-        }
-    });
-
-    // 비밀번호 유효성 및 일치 검사
-    const passwordInput = document.getElementById('password');
-    const passwordConfirmInput = document.getElementById('passwordConfirm');
-    const passwordMessage = document.getElementById('password-message');
-
+    /** 비밀번호 유효성 및 일치 검사 함수 */
     function validatePassword() {
         const password = passwordInput.value;
         const passwordConfirm = passwordConfirmInput.value;
@@ -198,10 +129,13 @@ document.addEventListener('DOMContentLoaded', function() {
              passwordMessage.textContent = '';
              return;
         }
-        if (password !== passwordConfirm) {
+        
+        // 비밀번호 일치 여부 먼저 확인
+        if (passwordConfirm !== "" && password !== passwordConfirm) {
             passwordMessage.textContent = '비밀번호가 일치하지 않습니다.';
             passwordMessage.style.color = 'red';
         } else {
+            // 비밀번호 형식 유효성 검사
             const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
             if (passwordRegex.test(password)) {
                 passwordMessage.textContent = '안전한 비밀번호입니다.';
@@ -210,9 +144,103 @@ document.addEventListener('DOMContentLoaded', function() {
                 passwordMessage.textContent = '비밀번호는 8자 이상이며, 대/소문자, 숫자, 특수문자를 모두 포함해야 합니다.';
                 passwordMessage.style.color = 'red';
             }
+            // 확인 입력란에 입력이 있고, 일치할 때 메시지 변경
+            if (passwordConfirm !== "" && password === passwordConfirm) {
+                 passwordMessage.textContent = '비밀번호가 일치합니다.';
+                 passwordMessage.style.color = 'green';
+            }
         }
     }
-    passwordInput.addEventListener('keyup', validatePassword);
-    passwordConfirmInput.addEventListener('keyup', validatePassword);
+
+    // --- 4. 이벤트 리스너(기능) 연결 ---
+    
+    // ✨ [수정] 폼 자체에 'submit' 이벤트를 연결합니다. 이것이 가장 표준적인 방법입니다.
+    if(signupForm) {
+        signupForm.addEventListener('submit', handleSignup);
+    }
+    
+    // 산업분류코드 'ⓘ' 아이콘 클릭 시 모달 열기
+    if(industryCodeInfoIcon) {
+        industryCodeInfoIcon.addEventListener('click', () => {
+            initializeIndustryModal({
+                initialSelection: selectedIndustryCodes,
+                onConfirm: (confirmedSelection) => {
+                    selectedIndustryCodes = confirmedSelection;
+                    renderSelectedCodes();
+                }
+            });
+        });
+    }
+
+    // 우편번호 검색 버튼
+    if(searchPostalCodeBtn) {
+        searchPostalCodeBtn.addEventListener('click', () => {
+            openPostcodeSearch({
+                postcodeFieldId: 'companyPostalCode',
+                addressFieldId: 'companyAddress',
+                detailAddressFieldId: 'companyAddressDetail'
+            });
+        });
+    }
+
+    // 약관 전체 동의 체크박스
+    if (agreeAllCheckbox) {
+        agreeAllCheckbox.addEventListener('change', function() {
+            // '전체 동의' 체크박스 자신을 제외하고 상태를 변경합니다.
+            individualCheckboxes.forEach(checkbox => {
+                if(checkbox.id !== 'agreeAll') {
+                   checkbox.checked = this.checked;
+                }
+            });
+        });
+    }
+
+    // 이메일 인증번호 발송 버튼
+    if(sendVerificationBtn) {
+        sendVerificationBtn.addEventListener('click', async () => {
+            const emailInput = document.getElementById('contactPersonEmail');
+            const emailMessage = document.getElementById('email-message');
+            const email = emailInput.value;
+
+            if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                return alert('올바른 이메일 주소를 입력해주세요.');
+            }
+            
+            emailMessage.textContent = '';
+            sendVerificationBtn.disabled = true;
+            sendVerificationBtn.textContent = '발송 중...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/send-verification-email`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const result = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('verificationCodeSection').style.display = 'block';
+                    emailMessage.textContent = result.message || "인증번호가 발송되었습니다.";
+                    emailMessage.style.color = 'green';
+                    // TODO: 타이머 로직 시작
+                } else {
+                    emailMessage.textContent = result.message || "인증번호 발송에 실패했습니다.";
+                    emailMessage.style.color = 'red';
+                    sendVerificationBtn.disabled = false;
+                    sendVerificationBtn.textContent = '인증번호 발송';
+                }
+            } catch (error) {
+                console.error("Email verification error:", error);
+                emailMessage.textContent = '오류가 발생했습니다. 다시 시도해주세요.';
+                emailMessage.style.color = 'red';
+                sendVerificationBtn.disabled = false;
+                sendVerificationBtn.textContent = '인증번호 발송';
+            }
+        });
+    }
+
+    // 비밀번호 유효성 및 일치 검사
+    if(passwordInput) passwordInput.addEventListener('keyup', validatePassword);
+    if(passwordConfirmInput) passwordConfirmInput.addEventListener('keyup', validatePassword);
 
 });
