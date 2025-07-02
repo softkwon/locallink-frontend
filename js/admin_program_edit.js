@@ -1,7 +1,6 @@
 // js/admin_program_create.js & js/admin_program_edit.js 공통 최종 코드 (2025-06-28 02:25:00)
 import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
 
-
 document.addEventListener('DOMContentLoaded', function() {
     
     // --- 1. 기본 변수 선언 ---
@@ -204,7 +203,7 @@ document.addEventListener('DOMContentLoaded', function() {
     async function populateAverageDataDropdown(selectElement) {
         if (!selectElement) return;
         try {
-            const response = await fetch('${API_BASE_URL}/admin/industry-average-columns', { headers: { 'Authorization': `Bearer ${token}` } });
+            const response = await fetch(`${API_BASE_URL}/admin/industry-average-columns`, { headers: { 'Authorization': `Bearer ${token}` } });
             const result = await response.json();
             if (result.success && result.columns) {
                 while (selectElement.options.length > 1) { selectElement.remove(1); }
@@ -354,7 +353,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             formData.append('content', JSON.stringify(finalContent));
             
-            const url = isEditMode ? `${API_BASE_URL}/admin/programs/${programId}` : '${API_BASE_URL}/admin/programs';
+            const url = isEditMode ? `${API_BASE_URL}/admin/programs/${programId}` : `${API_BASE_URL}/admin/programs`;
             const method = isEditMode ? 'PUT' : 'POST';
             
             const response = await fetch(url, { method, headers: { 'Authorization': `Bearer ${token}` }, body: formData });

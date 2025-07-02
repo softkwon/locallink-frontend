@@ -1,11 +1,18 @@
 // js/auth.js (2025-07-01 23:55:00) - 최종 완성본
 import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
 
-
 let sessionTimerInterval; // 세션 타이머의 interval ID를 저장하는 전역 변수
 
 // 페이지 DOM이 로드되면, 헤더와 푸터 렌더링 함수를 실행
 document.addEventListener('DOMContentLoaded', function() {
+    
+    // 헤더 로고 이미지 경로 설정
+    const logoImg = document.getElementById('headerLogoImg');
+    if (logoImg) {
+        logoImg.src = `${STATIC_BASE_URL}/images/logo.png`;
+    }
+    
+    // 기존에 있던 함수들 호출
     checkLoginAndRenderHeader();
     loadAndRenderFooter(); 
 });
@@ -28,7 +35,7 @@ async function checkLoginAndRenderHeader() {
 
     // 로그인 상태일 경우
     try {
-        const response = await fetch('${API_BASE_URL}/users/me', { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetch(`${API_BASE_URL}/users/me`, { headers: { 'Authorization': `Bearer ${token}` } });
         if (!response.ok) return logout('세션이 만료되었습니다.');
         
         const result = await response.json();
@@ -37,7 +44,7 @@ async function checkLoginAndRenderHeader() {
         const user = result.user;
         const isAdmin = ['super_admin', 'user_manager', 'content_manager'].includes(user.role);
         const adminLink = isAdmin ? `<a href="admin_dashboard.html">관리자 페이지</a>` : '';
-        const profileImgUrl = user.profile_image_url ? `${STATIC_BASE_URL}${user.profile_image_url}` : '${STATIC_BASE_URL}/images/default_avatar.png';
+        const profileImgUrl = user.profile_image_url ? `${STATIC_BASE_URL}${user.profile_image_url}` : `${STATIC_BASE_URL}/images/default_avatar.png`;
         
         const dropdownHtml = `
             <div class="dropdown-user-info">
@@ -101,7 +108,7 @@ function attachHeaderLinkListeners() {
                 return window.location.href = 'main_login.html';
             }
             try {
-                const response = await fetch('${API_BASE_URL}/diagnoses/count', { headers: { 'Authorization': `Bearer ${token}` } });
+                const response = await fetch(`${API_BASE_URL}/diagnoses/count`, { headers: { 'Authorization': `Bearer ${token}` } });
                 const result = await response.json();
                 if (result.success && result.count < result.limit) {
                     sessionStorage.removeItem('currentDiagnosisId');
@@ -136,7 +143,7 @@ function attachHeaderLinkListeners() {
         e.stopPropagation();
         try {
             const currentToken = localStorage.getItem('locallink-token');
-            const refreshResponse = await fetch('${API_BASE_URL}/auth/refresh', {
+            const refreshResponse = await fetch(`${API_BASE_URL}/auth/refresh`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${currentToken}` }
             });
@@ -224,7 +231,7 @@ function showModal(title, contentHtml, onModalOpen) {
 async function fetchAndShowHistory() {
     try {
         const token = localStorage.getItem('locallink-token');
-        const response = await fetch('${API_BASE_URL}/diagnoses/my-history', { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetch(`${API_BASE_URL}/diagnoses/my-history`, { headers: { 'Authorization': `Bearer ${token}` } });
         const result = await response.json();
         let contentHtml = '';
         if (result.success && result.history.length > 0) {
@@ -266,7 +273,7 @@ async function fetchAndShowHistory() {
 async function fetchAndShowInquiries() {
     try {
         const token = localStorage.getItem('locallink-token');
-        const response = await fetch('${API_BASE_URL}/inquiries/my-inquiries', { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetch(`${API_BASE_URL}/inquiries/my-inquiries`, { headers: { 'Authorization': `Bearer ${token}` } });
         const result = await response.json();
         let contentHtml = '';
         if (result.success && result.inquiries.length > 0) {
@@ -317,7 +324,7 @@ async function loadAndRenderFooter() {
         const html = await response.text();
         placeholder.innerHTML = html;
 
-        const dataRes = await fetch('${API_BASE_URL}/content/footer-data');
+        const dataRes = await fetch(`${API_BASE_URL}/content/footer-data`);
         const dataResult = await dataRes.json();
         if(dataResult.success) {
             const { footerInfo, relatedSites } = dataResult;
@@ -368,7 +375,7 @@ function attachContactModalEvents() {
                 
                 let userInfo = {};
                 try {
-                    const response = await fetch('${API_BASE_URL}/users/me', { headers: { 'Authorization': `Bearer ${token}` } });
+                    const response = await fetch(`${API_BASE_URL}/users/me`, { headers: { 'Authorization': `Bearer ${token}` } });
                     const result = await response.json();
                     if (result.success) userInfo = result.user;
                 } catch (e) { console.error("내 정보 불러오기 실패:", e); }
@@ -432,7 +439,7 @@ function showContactModal(user = {}) {
         };
         
         try {
-            const response = await fetch('${API_BASE_URL}/inquiries', {
+            const response = await fetch(`${API_BASE_URL}/inquiries`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify(formData)

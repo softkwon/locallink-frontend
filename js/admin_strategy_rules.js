@@ -1,7 +1,6 @@
 // js/admin_strategy_rules.js (수정된 코드)
 import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
 
-
 document.addEventListener('DOMContentLoaded', function() {
     
     // --- 1. 페이지 요소 및 전역 변수 ---
@@ -41,8 +40,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         try {
             const [rulesRes, programsRes] = await Promise.all([
-                fetch('${API_BASE_URL}/admin/strategy-rules', { headers: { 'Authorization': `Bearer ${token}` } }),
-                fetch('${API_BASE_URL}/admin/programs', { headers: { 'Authorization': `Bearer ${token}` } })
+                fetch(`${API_BASE_URL}/admin/strategy-rules`, { headers: { 'Authorization': `Bearer ${token}` } }),
+                fetch(`${API_BASE_URL}/admin/programs`, { headers: { 'Authorization': `Bearer ${token}` } })
             ]);
 
             if (!rulesRes.ok || !programsRes.ok) throw new Error('규칙 또는 프로그램 목록을 불러오는 데 실패했습니다.');
@@ -74,13 +73,13 @@ document.addEventListener('DOMContentLoaded', function() {
      */
     async function populateFormDropdowns() {
         try {
-            const programsRes = await fetch('${API_BASE_URL}/admin/programs', { headers: { 'Authorization': `Bearer ${token}` } });
+            const programsRes = await fetch(`${API_BASE_URL}/admin/programs`, { headers: { 'Authorization': `Bearer ${token}` } });
             const programsResult = await programsRes.json();
             if (programsResult.success) {
                 populateProgramsDropdown(programsResult.programs);
             }
 
-            const questionsRes = await fetch('${API_BASE_URL}/admin/questions', { headers: { 'Authorization': `Bearer ${token}` } });
+            const questionsRes = await fetch(`${API_BASE_URL}/admin/questions`, { headers: { 'Authorization': `Bearer ${token}` } });
             const questionsResult = await questionsRes.json();
             if (questionsResult.success) {
                 allQuestions = questionsResult.questions;
@@ -213,7 +212,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 try {
-                    const response = await fetch('${API_BASE_URL}/admin/strategy-rules', {
+                    const response = await fetch(`${API_BASE_URL}/admin/strategy-rules`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                         body: JSON.stringify(newRuleData)

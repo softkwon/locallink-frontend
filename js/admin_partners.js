@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const tableEl = document.getElementById('partnersTable');
         const tableBodyEl = document.getElementById('partnersTableBody');
         try {
-            const response = await fetch('${API_BASE_URL}/admin/partners', { headers: { 'Authorization': `Bearer ${token}` } });
+            const response = await fetch(`${API_BASE_URL}/admin/partners`, { headers: { 'Authorization': `Bearer ${token}` } });
             const result = await response.json();
             if (result.success) {
                 tableBodyEl.innerHTML = '';
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
         formData.append('partnerLogo', file); // 새 업로드 필드명 사용
 
         try {
-            const uploadRes = await fetch('${API_BASE_URL}/admin/upload-partner-logo', { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }, body: formData });
+            const uploadRes = await fetch(`${API_BASE_URL}/admin/upload-partner-logo`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }, body: formData });
             const uploadResult = await uploadRes.json();
             if (!uploadRes.ok) throw new Error(uploadResult.message || '이미지 업로드 실패');
             
@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 logo_url: uploadResult.filename
             };
             
-            const response = await fetch('${API_BASE_URL}/admin/partners', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify(newData) });
+            const response = await fetch(`${API_BASE_URL}/admin/partners`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify(newData) });
             const result = await response.json();
             alert(result.message);
             if(result.success) loadPartners();

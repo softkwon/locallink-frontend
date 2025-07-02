@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (tableBodyEl) tableBodyEl.innerHTML = '';
 
         try {
-            const response = await fetch('${API_BASE_URL}/admin/questions', {
+            const response = await fetch(`${API_BASE_URL}/admin/questions`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (!response.ok) throw new Error('질문 목록을 불러오는 데 실패했습니다.');
@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (button.classList.contains('reorder-btn')) {
                 const direction = button.dataset.direction;
                 try {
-                    const response = await fetch('${API_BASE_URL}/admin/questions/reorder', {
+                    const response = await fetch(`${API_BASE_URL}/admin/questions/reorder`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                         body: JSON.stringify({ questionId, direction })

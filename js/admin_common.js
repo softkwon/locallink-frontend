@@ -10,7 +10,7 @@ async function checkAdminPermission(allowedRoles) {
     }
 
     try {
-        const meRes = await fetch('${API_BASE_URL}/users/me', { headers: { 'Authorization': `Bearer ${token}` } });
+        const meRes = await fetch(`${API_BASE_URL}/users/me`, { headers: { 'Authorization': `Bearer ${token}` } });
         if (!meRes.ok) throw new Error('인증에 실패했습니다.');
 
         const meResult = await meRes.json();

@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 exportBtn.textContent = '생성 중...';
                 exportBtn.disabled = true;
                 try {
-                    const response = await fetch('${API_BASE_URL}/admin/inquiries/export', {
+                    const response = await fetch(`${API_BASE_URL}/admin/inquiries/export`, {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
                     if (!response.ok) throw new Error('데이터를 내보내는 중 오류가 발생했습니다.');

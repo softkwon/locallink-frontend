@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', function() {
             formData.append('content', JSON.stringify(contentData));
             
             // 3. 서버에 한 번에 전송
-            const response = await fetch('${API_BASE_URL}/admin/news', {
+            const response = await fetch(`${API_BASE_URL}/admin/news`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` },
                 body: formData

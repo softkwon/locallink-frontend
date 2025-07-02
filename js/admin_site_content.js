@@ -1,7 +1,6 @@
 // js/admin_site_content.js (2025-07-01 19:15:00)
 import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
 
-
 document.addEventListener('DOMContentLoaded', function() {
     
     // --- 1. 페이지 요소 및 전역 변수 ---
@@ -34,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
      */
     async function loadContent() {
         try {
-            const response = await fetch('${API_BASE_URL}/admin/site-content', { headers: { 'Authorization': `Bearer ${token}` }});
+            const response = await fetch(`${API_BASE_URL}/admin/site-content`, { headers: { 'Authorization': `Bearer ${token}` }});
             const result = await response.json();
             if (!result.success) throw new Error(result.message);
 
@@ -186,7 +185,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             formData.append('main_page_content', JSON.stringify(mainPageContent));
             
-            const response = await fetch('${API_BASE_URL}/admin/site-content', {
+            const response = await fetch(`${API_BASE_URL}/admin/site-content`, {
                 method: 'PUT',
                 headers: { 'Authorization': `Bearer ${token}` },
                 body: formData

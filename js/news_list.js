@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // 관리자일 경우에만 '글쓰기' 버튼 표시
         if (token) {
             try {
-                const meRes = await fetch('${API_BASE_URL}/users/me', { headers: { 'Authorization': `Bearer ${token}` }});
+                const meRes = await fetch(`${API_BASE_URL}/users/me`, { headers: { 'Authorization': `Bearer ${token}` }});
                 if(meRes.ok) {
                     const meResult = await meRes.json();
                     if(meResult.success && ['super_admin', 'content_manager'].includes(meResult.user.role)) {
@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 postBox.classList.add('pinned-post');
             }
             
-            let representativeImage = '${STATIC_BASE_URL}/images/default_news.png';
+            let representativeImage = `${STATIC_BASE_URL}/images/default_news.png`;
             let snippet = '내용을 불러올 수 없습니다.';
             
             try {

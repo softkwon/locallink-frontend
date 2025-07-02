@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const saveBtn = document.getElementById('saveAllBtn');
         
         try {
-            const response = await fetch('${API_BASE_URL}/admin/simulator-parameters', { headers: { 'Authorization': `Bearer ${token}` } });
+            const response = await fetch(`${API_BASE_URL}/admin/simulator-parameters`, { headers: { 'Authorization': `Bearer ${token}` } });
             const result = await response.json();
             
             if (result.success) {

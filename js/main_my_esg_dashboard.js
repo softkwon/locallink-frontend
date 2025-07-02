@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     try {
         // 백엔드에서 나의 신청 현황 데이터를 가져옵니다.
-        const response = await fetch('${API_BASE_URL}/applications/me', {
+        const response = await fetch(`${API_BASE_URL}/applications/me`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         const result = await response.json();

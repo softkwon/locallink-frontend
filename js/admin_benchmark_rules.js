@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // '새 규칙 추가' 폼의 '지표 이름' 드롭다운을 채우는 함수
     async function loadMetricsForDropdown() {
         try {
-            const res = await fetch('${API_BASE_URL}/admin/average-metrics', { headers: { 'Authorization': `Bearer ${token}` }});
+            const res = await fetch(`${API_BASE_URL}/admin/average-metrics`, { headers: { 'Authorization': `Bearer ${token}` }});
             const result = await res.json();
             if(result.success && newMetricSelect) {
                 newMetricSelect.innerHTML = '<option value="">-- 지표 선택 --</option>';
@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 모든 벤치마크 규칙을 불러와 테이블을 그리는 함수
     async function loadRules() {
         try {
-            const response = await fetch('${API_BASE_URL}/admin/benchmark-rules', {
+            const response = await fetch(`${API_BASE_URL}/admin/benchmark-rules`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const result = await response.json();
@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             try {
-                const response = await fetch('${API_BASE_URL}/admin/benchmark-rules', {
+                const response = await fetch(`${API_BASE_URL}/admin/benchmark-rules`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify(newData)

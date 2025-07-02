@@ -1,7 +1,6 @@
 // js/main_index.js (2025-07-01 18:45:00)
 import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
 
-
 document.addEventListener('DOMContentLoaded', function() {
     
     function initializePage() {
@@ -18,8 +17,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const container = document.getElementById('main-content-container');
         if (!container) return;
         try {
-            const response = await fetch('${API_BASE_URL}/content/main_page_sections');
-            const result = await response.json();
+            const response = await fetch(`${API_BASE_URL}/content/main_page_sections`);
+            const result = await response.jon();
 
             if (result.success && Array.isArray(result.content) && result.content.length > 0) {
                 container.innerHTML = '';
@@ -60,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const gridContainer = document.getElementById('partner-grid');
         if(!gridContainer) return;
         try {
-            const response = await fetch('${API_BASE_URL}/content/partners');
+            const response = await fetch(`${API_BASE_URL}/content/partners`);
             const result = await response.json();
             if (result.success && result.partners.length > 0) {
                 gridContainer.innerHTML = '';
@@ -91,14 +90,14 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!container) return;
 
         try {
-            const response = await fetch('${API_BASE_URL}/news?limit=5');
+            const response = await fetch(`${API_BASE_URL}/news?limit=5`);
             const result = await response.json();
 
             if (result.success && result.posts.length > 0) {
                 container.innerHTML = '';
                 
                 const postElements = result.posts.map(post => {
-                    let representativeImage = '${STATIC_BASE_URL}/images/default_news.png';
+                    let representativeImage = `${STATIC_BASE_URL}/images/default_news.png`;
                     let snippet = '내용을 불러올 수 없습니다.';
                     try {
                         const contentData = (typeof post.content === 'string') ? JSON.parse(post.content) : (post.content || []);
@@ -178,7 +177,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     return window.location.href = 'main_login.html';
                 }
                 try {
-                    const response = await fetch('${API_BASE_URL}/diagnoses/count', { headers: { 'Authorization': `Bearer ${token}` } });
+                    const response = await fetch(`${API_BASE_URL}/diagnoses/count`, { headers: { 'Authorization': `Bearer ${token}` } });
                     const result = await response.json();
                     if (result.success && result.count < result.limit) {
                         sessionStorage.removeItem('currentDiagnosisId');

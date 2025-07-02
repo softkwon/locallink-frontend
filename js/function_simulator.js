@@ -43,8 +43,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const myPlan = JSON.parse(localStorage.getItem('esgMyPlan')) || [];
             const planProgramIds = myPlan.map(p => p.id);
             const [paramsRes, programsRes] = await Promise.all([
-                fetch('${API_BASE_URL}/simulator/parameters', { headers: { 'Authorization': `Bearer ${token}` } }),
-                fetch('${API_BASE_URL}/programs/batch-details', {
+                fetch(`${API_BASE_URL}/simulator/parameters`, { headers: { 'Authorization': `Bearer ${token}` } }),
+                fetch(`${API_BASE_URL}/programs/batch-details`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify({ programIds: planProgramIds })

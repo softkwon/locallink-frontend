@@ -24,8 +24,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     async function populateDropdowns() {
         try {
             const [allQuestionsRes, metricsRes] = await Promise.all([
-                fetch('${API_BASE_URL}/admin/questions', { headers: { 'Authorization': `Bearer ${token}` } }),
-                fetch('${API_BASE_URL}/admin/average-metrics', { headers: { 'Authorization': `Bearer ${token}` } })
+                fetch(`${API_BASE_URL}/admin/questions`, { headers: { 'Authorization': `Bearer ${token}` } }),
+                fetch(`${API_BASE_URL}/admin/average-metrics`, { headers: { 'Authorization': `Bearer ${token}` } })
             ]);
 
             const allQuestionsResult = await allQuestionsRes.json();

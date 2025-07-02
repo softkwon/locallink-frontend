@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     try {
         const [programRes, userRes] = await Promise.all([
             fetch(`${API_BASE_URL}/programs/${programId}`),
-            token ? fetch('${API_BASE_URL}/users/me', { headers: { 'Authorization': `Bearer ${token}` }}) : Promise.resolve(null)
+            token ? fetch(`${API_BASE_URL}/users/me`, { headers: { 'Authorization': `Bearer ${token}` }}) : Promise.resolve(null)
         ]);
 
         const programResult = await programRes.json();
@@ -72,7 +72,7 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
         
         // 'section.description' 안의 이미지 경로 수정
         let processedDescription = section.description || '';
-        processedDescription = processedDescription.replace(/src="\/uploads\/programs/g, 'src="${STATIC_BASE_URL}/uploads/programs');
+        processedDescription = processedDescription.replace(/src="\/uploads\/programs/g, `src=${STATIC_BASE_URL}/uploads/programs`);
 
         const textHtml = `
             <div class="text-content">
@@ -161,7 +161,7 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
         if (action === 'apply') {
             if(confirm(`'${program.title}' 프로그램을 신청하시겠습니까?`)){
                 try {
-                    const response = await fetch('${API_BASE_URL}/applications/me', {
+                    const response = await fetch(`${API_BASE_URL}/applications/me`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                         body: JSON.stringify({ programId: program.id })

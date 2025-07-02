@@ -204,7 +204,7 @@ document.addEventListener('DOMContentLoaded', function() {
     async function populateAverageDataDropdown(selectElement) {
         if (!selectElement) return;
         try {
-            const response = await fetch('${API_BASE_URL}/admin/industry-average-columns', { headers: { 'Authorization': `Bearer ${token}` } });
+            const response = await fetch(`${API_BASE_URL}/admin/industry-average-columns`, { headers: { 'Authorization': `Bearer ${token}` } });
             const result = await response.json();
             if (result.success && result.columns) {
                 while (selectElement.options.length > 1) { selectElement.remove(1); }
@@ -354,7 +354,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             formData.append('content', JSON.stringify(finalContent));
             
-            const url = isEditMode ? `${API_BASE_URL}/admin/programs/${programId}` : '${API_BASE_URL}/admin/programs';
+            const url = isEditMode ? `${API_BASE_URL}/admin/programs/${programId}` : `${API_BASE_URL}/admin/programs`;
             const method = isEditMode ? 'PUT' : 'POST';
             
             const response = await fetch(url, { method, headers: { 'Authorization': `Bearer ${token}` }, body: formData });

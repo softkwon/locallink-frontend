@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const tableBodyEl = document.getElementById('programsTableBody');
 
         try {
-            const response = await fetch('${API_BASE_URL}/admin/programs', {
+            const response = await fetch(`${API_BASE_URL}/admin/programs`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 

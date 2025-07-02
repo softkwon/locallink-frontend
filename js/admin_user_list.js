@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
         // 현재 관리자 역할 가져오기 (역할 변경 UI 제어용)
         try {
-            const meRes = await fetch('${API_BASE_URL}/users/me', { headers: { 'Authorization': `Bearer ${token}` }});
+            const meRes = await fetch(`${API_BASE_URL}/users/me`, { headers: { 'Authorization': `Bearer ${token}` }});
             const meResult = await meRes.json();
             if(meResult.success) currentUserRole = meResult.user.role;
         } catch(e) { console.error("관리자 역할 정보 로딩 실패:", e); }
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         tableBodyEl.innerHTML = `<tr><td colspan="8" style="text-align:center;">회원 목록을 불러오는 중입니다...</td></tr>`;
 
         try {
-            const response = await fetch('${API_BASE_URL}/admin/users', {
+            const response = await fetch(`${API_BASE_URL}/admin/users`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (!response.ok) throw new Error('회원 목록을 불러오는 데 실패했습니다.');

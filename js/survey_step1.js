@@ -68,7 +68,7 @@ async function saveAndProceed() {
     const token = localStorage.getItem('locallink-token');
     const diagnosisId = sessionStorage.getItem('currentDiagnosisId');
     const method = diagnosisId ? 'PUT' : 'POST';
-    const apiUrl = diagnosisId ? `${API_BASE_URL}/diagnoses/${diagnosisId}` : '${API_BASE_URL}/diagnoses';
+    const apiUrl = diagnosisId ? `${API_BASE_URL}/diagnoses/${diagnosisId}` : `${API_BASE_URL}/diagnoses`;
 
     try {
         const response = await fetch(apiUrl, {
@@ -145,14 +145,14 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // 산업 코드 목록 미리 불러오기
     try {
-        const industryResponse = await fetch('${API_BASE_URL}/industries', { headers: { 'Authorization': `Bearer ${token}` } });
+        const industryResponse = await fetch(`${API_BASE_URL}/industries`, { headers: { 'Authorization': `Bearer ${token}` } });
         const industryResult = await industryResponse.json();
         if (industryResult.success) allIndustries = industryResult.industries;
     } catch (e) { console.error("산업코드 목록 로딩 실패:", e); }
 
     // 기존 진단 정보 또는 사용자 정보 불러오기
     const diagnosisId = sessionStorage.getItem('currentDiagnosisId');
-    const dataEndpoint = diagnosisId ? `${API_BASE_URL}/diagnoses/${diagnosisId}` : '${API_BASE_URL}/users/me';
+    const dataEndpoint = diagnosisId ? `${API_BASE_URL}/diagnoses/${diagnosisId}` : `${API_BASE_URL}/users/me`;
 
     try {
         const response = await fetch(dataEndpoint, { headers: { 'Authorization': `Bearer ${token}` } });

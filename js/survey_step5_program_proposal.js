@@ -1,5 +1,5 @@
 // js/survey_step5_program_proposal.js (2025-06-29 23:40:00)
-    
+
 import { API_BASE_URL, STATIC_BASE_URL } from './config.js';  
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -34,9 +34,9 @@ document.addEventListener('DOMContentLoaded', function() {
     async function loadAndRenderAll() {
         try {
             const [programsRes, statusRes, applicationsRes] = await Promise.all([
-                fetch('${API_BASE_URL}/programs'),
+                fetch(`${API_BASE_URL}/programs`),
                 fetch(`${API_BASE_URL}/users/me/diagnosis-status?diagId=${diagId}`, { headers: { 'Authorization': `Bearer ${token}` } }),
-                fetch('${API_BASE_URL}/applications/me', { headers: { 'Authorization': `Bearer ${token}` } })
+                fetch(`${API_BASE_URL}/applications/me`, { headers: { 'Authorization': `Bearer ${token}` } })
             ]);
 
             const programsResult = await programsRes.json();
@@ -203,7 +203,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (button.classList.contains('apply-btn')) {
                     if (!confirm(`'${programTitle}' 프로그램을 신청하시겠습니까?`)) return;
                     try {
-                        const response = await fetch('${API_BASE_URL}/applications/me', {
+                        const response = await fetch(`${API_BASE_URL}/applications/me`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                             body: JSON.stringify({ programId: parseInt(programId) })
@@ -211,7 +211,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         const result = await response.json();
                         alert(result.message);
                         if (result.success) {
-                           const appRes = await fetch('${API_BASE_URL}/applications/me', { headers: { 'Authorization': `Bearer ${token}` } });
+                           const appRes = await fetch(`${API_BASE_URL}/applications/me`, { headers: { 'Authorization': `Bearer ${token}` } });
                            const appResult = await appRes.json();
                            if(appResult.success) displayApplicationStatus(appResult.applications);
                         }
@@ -230,7 +230,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         const result = await response.json();
                         alert(result.message);
                         if(result.success){
-                           const appRes = await fetch('${API_BASE_URL}/applications/me', { headers: { 'Authorization': `Bearer ${token}` } });
+                           const appRes = await fetch(`${API_BASE_URL}/applications/me`, { headers: { 'Authorization': `Bearer ${token}` } });
                            const appResult = await appRes.json();
                            if(appResult.success) displayApplicationStatus(appResult.applications);
                         }

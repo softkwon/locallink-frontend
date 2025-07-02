@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (!container) return;
 
         try {
-            const response = await fetch('${API_BASE_URL}/programs');
+            const response = await fetch(`${API_BASE_URL}/programs`);
             const result = await response.json();
 
             if (result.success) {
@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         programs.forEach(program => {
             const representativeImage = (program.content && program.content[0]?.images?.length > 0)
                 ? `${STATIC_BASE_URL}/uploads/programs/${program.content[0].images[0]}`
-                : '${STATIC_BASE_URL}/images/default_program.png';
+                : `${STATIC_BASE_URL}/images/default_program.png`;
 
             const regionsText = (program.service_regions && program.service_regions.length > 0)
                 ? program.service_regions.join(', ')
@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 
                 if (confirm(`'${programTitle}' 프로그램을 신청하시겠습니까?`)) {
                     try {
-                        const response = await fetch('${API_BASE_URL}/applications/me', {
+                        const response = await fetch(`${API_BASE_URL}/applications/me`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                             body: JSON.stringify({ programId: parseInt(programId) })

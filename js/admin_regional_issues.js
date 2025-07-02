@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
         tableContainerEl.classList.add('hidden');
 
         try {
-            const response = await fetch('${API_BASE_URL}/admin/regional-issues', { headers: { 'Authorization': `Bearer ${token}` } });
+            const response = await fetch(`${API_BASE_URL}/admin/regional-issues`, { headers: { 'Authorization': `Bearer ${token}` } });
             if (!response.ok) throw new Error('서버 응답 오류');
             
             const result = await response.json();
@@ -91,7 +91,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if(!newData.region || !newData.esg_category) { alert('지역과 카테고리를 모두 선택해주세요.'); return; }
                 if(!newData.content) { alert('내용을 입력해주세요.'); return; }
                 try {
-                    const response = await fetch('${API_BASE_URL}/admin/regional-issues', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify(newData) });
+                    const response = await fetch(`${API_BASE_URL}/admin/regional-issues`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify(newData) });
                     const result = await response.json();
                     if (!response.ok) throw new Error(result.message);
                     alert(result.message);
@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (target.classList.contains('reorder-btn')) {
                     const direction = target.dataset.direction;
                     try {
-                        const response = await fetch('${API_BASE_URL}/admin/regional-issues/reorder', {
+                        const response = await fetch(`${API_BASE_URL}/admin/regional-issues/reorder`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
                             body: JSON.stringify({ issueId: id, direction: direction })

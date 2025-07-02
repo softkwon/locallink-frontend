@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // '새 항목 추가' 폼의 '산업' 드롭다운을 채우는 함수
     async function loadIndustriesForDropdown() {
         try {
-            const res = await fetch('${API_BASE_URL}/industries');
+            const res = await fetch(`${API_BASE_URL}/industries`);
             const result = await res.json();
             if(result.success) {
                 if(newIndustrySelect) {
@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 모든 산업별 이슈를 불러와 테이블을 그리는 함수
     async function loadIssues() {
         try {
-            const response = await fetch('${API_BASE_URL}/admin/industry-issues', { headers: { 'Authorization': `Bearer ${token}` } });
+            const response = await fetch(`${API_BASE_URL}/admin/industry-issues`, { headers: { 'Authorization': `Bearer ${token}` } });
             const result = await response.json();
             
             if (result.success) {
@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if(!newData.industry_code) { alert('산업을 선택해주세요.'); return; }
 
             try {
-                const response = await fetch('${API_BASE_URL}/admin/industry-issues', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify(newData) });
+                const response = await fetch(`${API_BASE_URL}/admin/industry-issues`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify(newData) });
                 const result = await response.json();
                 if (!response.ok) throw new Error(result.message);
                 alert(result.message);
@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', function() {
             exportBtn.textContent = '생성 중...';
             exportBtn.disabled = true;
             try {
-                const response = await fetch('${API_BASE_URL}/admin/industry-issues/export', {
+                const response = await fetch(`${API_BASE_URL}/admin/industry-issues/export`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (!response.ok) throw new Error('데이터 내보내기 실패');
@@ -193,7 +193,7 @@ document.addEventListener('DOMContentLoaded', function() {
             formData.append('csvFile', file);
 
             try {
-                const response = await fetch('${API_BASE_URL}/admin/industry-issues/import', {
+                const response = await fetch(`${API_BASE_URL}/admin/industry-issues/import`, {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${token}` },
                     body: formData

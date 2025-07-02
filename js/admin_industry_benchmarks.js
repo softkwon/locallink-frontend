@@ -24,8 +24,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         try {
             const [scoresRes, questionsRes] = await Promise.all([
-                fetch('${API_BASE_URL}/admin/benchmark-scores', { headers: { 'Authorization': `Bearer ${token}` } }),
-                fetch('${API_BASE_URL}/survey/simple', { headers: { 'Authorization': `Bearer ${token}` } })
+                fetch(`${API_BASE_URL}/admin/benchmark-scores`, { headers: { 'Authorization': `Bearer ${token}` } }),
+                fetch(`${API_BASE_URL}/survey/simple`, { headers: { 'Authorization': `Bearer ${token}` } })
             ]);
             const scoresResult = await scoresRes.json();
             const questionsResult = await questionsRes.json();

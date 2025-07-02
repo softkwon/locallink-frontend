@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         try {
-            const meRes = await fetch('${API_BASE_URL}/users/me', { headers: { 'Authorization': `Bearer ${token}` }});
+            const meRes = await fetch(`${API_BASE_URL}/users/me`, { headers: { 'Authorization': `Bearer ${token}` }});
             const meResult = await meRes.json();
             if (meResult.success) currentUserRole = meResult.user.role;
         } catch(e) { console.error("역할 정보 로딩 실패"); }
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!tableBody) return;
         tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;">소식 목록을 불러오는 중입니다...</td></tr>`;
         try {
-            const response = await fetch('${API_BASE_URL}/admin/news', { headers: { 'Authorization': `Bearer ${token}` } });
+            const response = await fetch(`${API_BASE_URL}/admin/news`, { headers: { 'Authorization': `Bearer ${token}` } });
             const result = await response.json();
             if (result.success) {
                 renderNewsTable(result.posts);

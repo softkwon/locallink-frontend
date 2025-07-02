@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
     async function populateMetricsDropdown() {
         const select = document.getElementById('new_metric_name');
         try {
-            const res = await fetch('${API_BASE_URL}/admin/average-metrics', { headers: { 'Authorization': `Bearer ${token}` }});
+            const res = await fetch(`${API_BASE_URL}/admin/average-metrics`, { headers: { 'Authorization': `Bearer ${token}` }});
             const result = await res.json();
             if(result.success) {
                 select.innerHTML = '<option value="">-- 평균 지표 선택 --</option>';
@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function() {
     async function populateQuestionsDropdown() {
         const select = document.getElementById('new_question_code');
         try {
-            const res = await fetch('${API_BASE_URL}/survey/simple', { headers: { 'Authorization': `Bearer ${token}` }});
+            const res = await fetch(`${API_BASE_URL}/survey/simple`, { headers: { 'Authorization': `Bearer ${token}` }});
             const result = await res.json();
             if(result.success) {
                 select.innerHTML = '<option value="">-- 연관 질문 선택 --</option>';
@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 모든 규칙을 불러와 테이블 그리기
     async function loadRules() {
         try {
-            const response = await fetch('${API_BASE_URL}/admin/answer-rules', { headers: { 'Authorization': `Bearer ${token}` } });
+            const response = await fetch(`${API_BASE_URL}/admin/answer-rules`, { headers: { 'Authorization': `Bearer ${token}` } });
             const result = await response.json();
             if (result.success) {
                 tableBodyEl.innerHTML = '';
@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 resulting_answer_value: document.getElementById('new_resulting_answer_value').value,
             };
             try {
-                const response = await fetch('${API_BASE_URL}/admin/answer-rules', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify(newData) });
+                const response = await fetch(`${API_BASE_URL}/admin/answer-rules`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify(newData) });
                 const result = await response.json();
                 alert(result.message);
                 if (result.success) { e.target.reset(); loadRules(); }

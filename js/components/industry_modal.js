@@ -36,7 +36,7 @@ async function setupModalLogicWithAPI(options) {
 
     // 백엔드 API에서 데이터를 가져옵니다.
     try {
-        const response = await fetch('${API_BASE_URL}/industries');
+        const response = await fetch(`${API_BASE_URL}/industries`);
         const result = await response.json();
         if (!result.success) {
             throw new Error(result.message);

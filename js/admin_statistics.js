@@ -1,7 +1,6 @@
 // js/admin_statistics.js (2025-06-26 21:30:00)
 import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
 
-
 document.addEventListener('DOMContentLoaded', function() {
     
     // --- 1. 페이지 요소 및 변수 초기화 ---
@@ -28,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
     async function createYearTabs() {
         if (!tabContainer) return;
         try {
-            const response = await fetch('${API_BASE_URL}/admin/statistics/available-years', { headers: { 'Authorization': `Bearer ${token}` } });
+            const response = await fetch(`${API_BASE_URL}/admin/statistics/available-years`, { headers: { 'Authorization': `Bearer ${token}` } });
             const result = await response.json();
             if (result.success) {
                 tabContainer.innerHTML = '<button class="tab-button active" data-year="all">전체</button>';
@@ -75,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function() {
         loadingEl.style.display = 'block';
         tableContainerEl.classList.add('hidden');
         try {
-            let url = '${API_BASE_URL}/admin/statistics/all-diagnoses';
+            let url = `${API_BASE_URL}/admin/statistics/all-diagnoses`;
             if (year !== 'all') {
                 url += `?year=${year}`;
             }
@@ -157,7 +156,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 exportBtn.textContent = '생성 중...';
                 exportBtn.disabled = true;
                 try {
-                    const response = await fetch('${API_BASE_URL}/admin/statistics/all-diagnoses/export', {
+                    const response = await fetch(`${API_BASE_URL}/admin/statistics/all-diagnoses/export`, {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
                     if (!response.ok) throw new Error('데이터를 내보내는 중 오류가 발생했습니다.');

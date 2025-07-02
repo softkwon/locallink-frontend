@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if(tableBody) tableBody.innerHTML = '';
 
         try {
-            const response = await fetch('${API_BASE_URL}/admin/applications', {
+            const response = await fetch(`${API_BASE_URL}/admin/applications`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const result = await response.json();
@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', function() {
             exportBtn.addEventListener('click', async () => {
                 try {
                     // ★★★ 수정: API 경로를 /api/applications/admin/export 로 변경 ★★★
-                    const response = await fetch('${API_BASE_URL}/applications/admin/export', {
+                    const response = await fetch(`${API_BASE_URL}/applications/admin/export`, {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
                     if (!response.ok) throw new Error('파일 다운로드에 실패했습니다.');

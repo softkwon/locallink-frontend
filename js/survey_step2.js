@@ -222,8 +222,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         try {
             const [diagRes, surveyRes, industriesRes] = await Promise.all([
                 fetch(`${API_BASE_URL}/diagnoses/${diagnosisId}`, { headers: { 'Authorization': `Bearer ${token}` }}),
-                fetch('${API_BASE_URL}/survey/simple', { headers: { 'Authorization': `Bearer ${token}` }}),
-                fetch('${API_BASE_URL}/industries', { headers: { 'Authorization': `Bearer ${token}` }})
+                fetch(`${API_BASE_URL}/survey/simple`, { headers: { 'Authorization': `Bearer ${token}` }}),
+                fetch(`${API_BASE_URL}/industries`, { headers: { 'Authorization': `Bearer ${token}` }})
             ]);
 
             if (!diagRes.ok || !surveyRes.ok || !industriesRes.ok) throw new Error("데이터 로딩 오류");

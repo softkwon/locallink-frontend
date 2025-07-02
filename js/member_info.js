@@ -25,8 +25,8 @@ document.addEventListener('DOMContentLoaded', function() {
     async function initializePage() {
         try {
             const [meRes, industriesRes] = await Promise.all([
-                fetch('${API_BASE_URL}/users/me', { headers: { 'Authorization': `Bearer ${token}` } }),
-                fetch('${API_BASE_URL}/industries')
+                fetch(`${API_BASE_URL}/users/me`, { headers: { 'Authorization': `Bearer ${token}` } }),
+                fetch(`${API_BASE_URL}/industries`)
             ]);
             
             if (!meRes.ok) throw new Error('세션이 만료되었거나 유효하지 않습니다.');
@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const postalCode = addressParts[2];
         const detailAddress = addressParts[3];
         
-        const profileImageUrl = profile_image_url ? `${STATIC_BASE_URL}${profile_image_url}` : '${STATIC_BASE_URL}/images/default_avatar.png';
+        const profileImageUrl = profile_image_url ? `${STATIC_BASE_URL}${profile_image_url}` : `${STATIC_BASE_URL}/images/default_avatar.png`;
         
         const locations = [ { value: "", text: "선택하세요" }, { value: "서울", text: "서울특별시" }, { value: "부산", text: "부산광역시" }, { value: "대구", text: "대구광역시" }, { value: "인천", text: "인천광역시" }, { value: "광주", text: "광주광역시" }, { value: "대전", text: "대전광역시" }, { value: "울산", text: "울산광역시" }, { value: "세종", text: "세종특별자치시" }, { value: "경기", text: "경기도" }, { value: "강원", text: "강원특별자치도" }, { value: "충북", text: "충청북도" }, { value: "충남", text: "충청남도" }, { value: "전북", text: "전북특별자치도" }, { value: "전남", text: "전라남도" }, { value: "경북", text: "경상북도" }, { value: "경남", text: "경상남도" }, { value: "제주", text: "제주특별자치도" } ];
         const allInterestOptions = {
@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', function() {
     async function loadAndDisplayHistory() {
         if (!historyContainer) return;
         try {
-            const response = await fetch('${API_BASE_URL}/diagnoses/my-history', { headers: { 'Authorization': `Bearer ${token}` } });
+            const response = await fetch(`${API_BASE_URL}/diagnoses/my-history`, { headers: { 'Authorization': `Bearer ${token}` } });
             const result = await response.json();
             historyContainer.innerHTML = ''; 
             if (result.success && result.history.length > 0) {
@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', function() {
     async function loadMyInquiries() {
         if(!inquiriesContainer) return;
         try {
-            const response = await fetch('${API_BASE_URL}/inquiries/my-inquiries', { headers: { 'Authorization': `Bearer ${token}` } });
+            const response = await fetch(`${API_BASE_URL}/inquiries/my-inquiries`, { headers: { 'Authorization': `Bearer ${token}` } });
             const result = await response.json();
             inquiriesContainer.innerHTML = '';
             if (result.success && result.inquiries.length > 0) {
@@ -223,7 +223,7 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             uploadBtn.textContent = '업로드 중...';
             uploadBtn.disabled = true;
-            const response = await fetch('${API_BASE_URL}/users/me/profile-image', {
+            const response = await fetch(`${API_BASE_URL}/users/me/profile-image`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` },
                 body: formData
@@ -280,7 +280,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 };
 
                 try {
-                    const response = await fetch('${API_BASE_URL}/users/me', {
+                    const response = await fetch(`${API_BASE_URL}/users/me`, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                         body: JSON.stringify(updatedData)
@@ -359,7 +359,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 try {
-                    const response = await fetch('${API_BASE_URL}/users/me', {
+                    const response = await fetch(`${API_BASE_URL}/users/me`, {
                         method: 'DELETE',
                         headers: {
                             'Content-Type': 'application/json',
