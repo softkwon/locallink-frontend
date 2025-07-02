@@ -1,6 +1,6 @@
 // js/admin_user_list.js (2025-07-02 00:25:00)
 import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
-import { checkAdminPermission } from './admin_common.js'; // ★ 이 줄을 추가하세요!
+import { checkAdminPermission, getCompanySizeName } from './admin_common.js';
 
 document.addEventListener('DOMContentLoaded', async function() {
     

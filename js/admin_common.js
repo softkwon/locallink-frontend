@@ -35,7 +35,7 @@ export async function checkAdminPermission(allowedRoles) {
  * @param {string} sizeCode - 'large', 'medium' 등 영문 코드
  * @returns {string} - '대기업', '중견기업' 등 한글명
  */
-function getCompanySizeName(sizeCode) {
+export function getCompanySizeName(sizeCode) {
     const sizeMap = {
         'large': '대기업',
         'medium': '중견기업',
