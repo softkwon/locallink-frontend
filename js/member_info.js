@@ -374,7 +374,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         // 성공 시 토큰을 지우고 메인 페이지로 이동
                         localStorage.removeItem('locallink-token');
                         sessionStorage.clear();
-                        window.location.href = 'main_index.html';
+                        window.location.href = 'index.html';
                     }
                 } catch (error) {
                     alert('회원 탈퇴 중 오류가 발생했습니다.');

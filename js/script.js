@@ -17,7 +17,7 @@ function updateHeaderUI() {
                 logoutButton.onclick = function() {
                     localStorage.clear();
                     alert('로그아웃 되었습니다.');
-                    window.location.href = 'main_index.html'; 
+                    window.location.href = 'index.html'; 
                 };
             }
         } else { 

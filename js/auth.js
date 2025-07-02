@@ -164,7 +164,7 @@ function logout(message = '로그아웃 되었습니다.') {
     sessionStorage.clear();
     if(sessionTimerInterval) clearInterval(sessionTimerInterval);
     alert(message);
-    window.location.href = 'main_index.html';
+    window.location.href = 'index.html';
 }
 
 /**

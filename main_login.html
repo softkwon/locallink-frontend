@@ -10,7 +10,7 @@
     <header>
         <div class="container">
             <div class="logo">
-                <a href="main_index.html">
+                <a href="index.html">
                     <img src="${STATIC_BASE_URL}/images/logo.png" alt="LocalLink 로고" class="header-logo-img">
                 </a>
             </div>
@@ -94,7 +94,7 @@ async function handleLogin(event) {
             alert(result.message); // "로그인 성공!" 메시지 표시
             
             // 2. 메인 페이지로 이동합니다.
-            window.location.href = 'main_index.html'; 
+            window.location.href = 'index.html'; 
 
         } else {
             // 로그인 실패 시 서버가 보낸 메시지 표시
