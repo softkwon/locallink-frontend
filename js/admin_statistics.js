@@ -1,5 +1,6 @@
 // js/admin_statistics.js (2025-06-26 21:30:00)
 import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
+import { checkAdminPermission } from './admin_common.js'
 
 document.addEventListener('DOMContentLoaded', function() {
     
