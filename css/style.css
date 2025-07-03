@@ -1001,7 +1001,7 @@ nav ul li.dropdown:hover .dropdown-content {
 
 /* 로고 이미지 크기 제어 */
 .header-logo-img {
-    height: 100px; /* <<< 여기서 로고 높이를 원하는 대로 조절하세요. */
+    height: 77px; /* <<< 여기서 로고 높이를 원하는 대로 조절하세요. */
     vertical-align: middle; /* 다른 텍스트와 세로 중앙 정렬을 위해 유지 */
 }
 
