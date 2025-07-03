@@ -96,23 +96,25 @@ document.addEventListener('DOMContentLoaded', function() {
     async function loadLatestNews() {
         const container = document.getElementById('latest-news-container');
         if (!container) return;
+
         try {
             const response = await fetch(`${API_BASE_URL}/news?limit=5`);
             const result = await response.json();
 
             if (result.success && result.posts.length > 0) {
                 container.innerHTML = '';
-                result.posts.forEach(post => {
+                
+                // ★★★ 1. 게시물 HTML 요소들을 배열에 먼저 담습니다. ★★★
+                const postElements = result.posts.map(post => {
                     let representativeImage = `${STATIC_BASE_URL}/images/default_news.png`;
                     let snippet = '내용을 불러올 수 없습니다.';
                     try {
                         const contentData = (typeof post.content === 'string') ? JSON.parse(post.content) : (post.content || []);
                         if (contentData[0]?.images?.length > 0) {
                             const firstImage = contentData[0].images[0];
-                            // ★★★ 이미지 URL 처리 로직 수정 ★★★
                             representativeImage = (firstImage && firstImage.startsWith('http'))
-                                ? firstImage // 전체 S3 URL이면 그대로 사용
-                                : `${STATIC_BASE_URL}${firstImage}`; // 아니면 기존 방식
+                                ? firstImage 
+                                : `${STATIC_BASE_URL}${firstImage}`;
                         }
                         const firstSectionText = contentData[0]?.description || '';
                         snippet = firstSectionText.replace(/<[^>]*>?/gm, '').substring(0, 80) + '...';
@@ -131,14 +133,21 @@ document.addEventListener('DOMContentLoaded', function() {
                             <span class="post-box-date">${new Date(post.created_at).toLocaleDateString('ko-KR')}</span>
                         </div>
                     `;
-                    container.appendChild(postLink);
+                    return postLink;
                 });
-                
+
                 const moreLinkBox = document.createElement('a');
                 moreLinkBox.className = 'more-link-box';
                 moreLinkBox.href = 'news_list.html?category=trends';
                 moreLinkBox.innerHTML = `<span class="plus-icon">+</span><span>더보기</span>`;
+
+                // ★★★ 2. 원본 목록과 복제된 목록을 추가하여 무한 회전 효과를 만듭니다. ★★★
+                postElements.forEach(el => container.appendChild(el));
                 container.appendChild(moreLinkBox);
+                // 원본 목록을 한 번 더 복제해서 뒤에 붙입니다.
+                postElements.forEach(el => container.appendChild(el.cloneNode(true))); 
+                container.appendChild(moreLinkBox.cloneNode(true));
+
             } else {
                 container.innerHTML = '<p>최신 소식이 없습니다.</p>';
             }
