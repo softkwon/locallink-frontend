@@ -58,7 +58,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     /**
-     * 협력사 로고 그리드를 초기화하는 함수
+     * 파일명: js/main_index.js
+     * 수정 위치: initializePartnerGrid 함수 전체
+     * 수정 일시: 2025-07-04 03:03
      */
     async function initializePartnerGrid() {
         const gridContainer = document.getElementById('partner-grid');
@@ -71,14 +73,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 result.partners.forEach(p => {
                     // ★★★ 이미지 URL 처리 로직 수정 ★★★
                     const logoUrl = (p.logo_url && p.logo_url.startsWith('http'))
-                        ? p.logo_url // 전체 S3 URL이면 그대로 사용
-                        : `${STATIC_BASE_URL}/uploads/partners/${p.logo_url}`; // 아니면 기존 방식
-                    
+                        ? p.logo_url // S3 전체 주소이면 그대로 사용
+                        : `${STATIC_BASE_URL}${p.logo_url}`; // 아니면 기존 방식
+
                     const partnerDiv = document.createElement('div');
                     partnerDiv.className = 'partner-item';
+                    // 링크가 있을 때만 a 태그로 감싸기
                     partnerDiv.innerHTML = p.link_url
                         ? `<a href="${p.link_url}" target="_blank" title="${p.name}"><img src="${logoUrl}" alt="${p.name}"></a>`
                         : `<img src="${logoUrl}" alt="${p.name}">`;
+                    
                     gridContainer.appendChild(partnerDiv);
                 });
             } else {
