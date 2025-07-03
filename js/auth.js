@@ -7,16 +7,32 @@ let sessionTimerInterval; // 세션 타이머의 interval ID를 저장하는 전
 function initializeMobileMenu() {
     const toggleButton = document.getElementById('mobile-menu-toggle');
     const mobileMenu = document.getElementById('mobile-menu');
+    const overlay = document.getElementById('mobile-menu-overlay'); // 오버레이 요소 추가
     const desktopNav = document.querySelector('.desktop-nav ul');
 
-    if (!toggleButton || !mobileMenu || !desktopNav) return;
+    if (!toggleButton || !mobileMenu || !desktopNav || !overlay) return;
 
-    // 데스크탑 메뉴를 복제해서 모바일 메뉴에 내용 채우기
     mobileMenu.innerHTML = `<ul>${desktopNav.innerHTML}</ul>`;
 
-    toggleButton.addEventListener('click', () => {
-        mobileMenu.classList.toggle('is-open');
+    function openMenu() {
+        mobileMenu.classList.add('is-open');
+        overlay.classList.add('is-active');
+    }
+    function closeMenu() {
+        mobileMenu.classList.remove('is-open');
+        overlay.classList.remove('is-active');
+    }
+
+    toggleButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (mobileMenu.classList.contains('is-open')) {
+            closeMenu();
+        } else {
+            openMenu();
+        }
     });
+
+    overlay.addEventListener('click', closeMenu); // 오버레이 클릭 시 메뉴 닫기
 }
 
 // 페이지 DOM이 로드되면, 헤더와 푸터 렌더링 함수를 실행
