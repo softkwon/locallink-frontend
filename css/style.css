@@ -1232,7 +1232,7 @@ nav ul li.dropdown:hover .dropdown-content {
 
     /* ★★★ 요청사항 1: 로고 크기 조절 ★★★ */
     .header-logo-img {
-        max-height: 35px; /* 기존 40px에서 조금 더 줄임 */
+        max-height: 45px; /* 기존 40px에서 조금 더 줄임 */
     }
 
     /* 헤더 오른쪽 그룹 정렬 */
