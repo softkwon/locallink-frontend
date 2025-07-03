@@ -43,7 +43,7 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
     const container = document.getElementById('program-detail-container');
     document.title = `${program.title} - LocalLink`;
 
-    // 1. 조건에 따라 버튼과 안내 메시지 HTML 생성
+    // 1. 조건에 따라 버튼과 안내 메시지 HTML 생성 (기존과 동일)
     let actionsHtml = '';
     let noticeHtml = '';
     if (source === 'strategy') {
@@ -57,22 +57,30 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
         }
     }
 
+
     // 2. 프로그램 상세 내용 섹션들의 HTML 생성
     const serviceRegionsHtml = (program.service_regions && program.service_regions.length > 0) ? program.service_regions.join(', ') : '전국';
     
     const contentSections = (typeof program.content === 'string') ? JSON.parse(program.content) : (program.content || []);
     const contentHtml = contentSections.map(section => {
-        // 'section.images' 배열의 이미지 경로 수정
+        
+        // ★★★ 1. section.images의 URL 처리 수정 ★★★
         const imagesHtml = (section.images || [])
             .filter(url => url && typeof url === 'string')
-            .map(imgFilename => {
-                const finalImageUrl = `${STATIC_BASE_URL}/uploads/programs/${imgFilename}`;
+            .map(imgUrl => {
+                const finalImageUrl = (imgUrl && imgUrl.startsWith('http'))
+                    ? imgUrl // S3 전체 주소이면 그대로 사용
+                    : `${STATIC_BASE_URL}${imgUrl}`; // 아니면 기존 방식
                 return `<img src="${finalImageUrl}" alt="프로그램 이미지" style="width: ${section.image_width || 400}px;">`;
             }).join('');
         
-        // 'section.description' 안의 이미지 경로 수정
+        // ★★★ 2. section.description 내부의 이미지 URL 처리 수정 ★★★
         let processedDescription = section.description || '';
-        processedDescription = processedDescription.replace(/src="\/uploads\/programs/g, `src=${STATIC_BASE_URL}/uploads/programs`);
+        processedDescription = processedDescription.replace(/src="(\/uploads\/.*?)"/g, (match, p1) => {
+            // 정규표현식으로 /uploads/로 시작하는 상대 경로를 찾아 S3 전체 주소로 변경
+            const fullUrl = (p1 && p1.startsWith('http')) ? p1 : `${STATIC_BASE_URL}${p1}`;
+            return `src="${fullUrl}"`;
+        });
 
         const textHtml = `
             <div class="text-content">

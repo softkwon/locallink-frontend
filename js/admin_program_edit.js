@@ -1,6 +1,10 @@
-// js/admin_program_create.js & js/admin_program_edit.js 공통 최종 코드 (2025-06-28 02:25:00)
+/**
+ * 파일명: js/admin_program_edit.js
+ * 수정 위치: 파일 최상단 import 구문
+ * 수정 일시: 2025-07-04 01:28
+ */
 import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
-import { checkAdminPermission } from './admin_common.js';
+import { checkAdminPermission, getCompanySizeName } from './admin_common.js';
 
 document.addEventListener('DOMContentLoaded', function() {
     

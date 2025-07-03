@@ -1,6 +1,10 @@
-// js/admin_company_size_issues.js (2025-06-29 03:25:00)
+/**
+ * 파일명: js/admin_company_size_issues.js
+ * 수정 위치: 파일 최상단 import 구문
+ * 수정 일시: 2025-07-04 00:57
+ */
 import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
-import { checkAdminPermission } from './admin_common.js';
+import { checkAdminPermission, getCompanySizeName } from './admin_common.js';
 
 document.addEventListener('DOMContentLoaded', function() {
     const token = localStorage.getItem('locallink-token');

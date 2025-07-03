@@ -133,24 +133,41 @@ document.addEventListener('DOMContentLoaded', function() {
         renderPreviews(sectionId);
     }
     
-    /** 이미지 미리보기 렌더링 함수 (기존+신규) */
+    /**
+     * 파일명: js/admin_news_edit.js
+     * 수정 위치: renderPreviews 함수 전체
+     * 수정 일시: 2025-07-04 01:21
+     */
     function renderPreviews(sectionId) {
         const sectionDiv = document.getElementById(sectionId);
         if(!sectionDiv) return;
+
         const previewContainer = sectionDiv.querySelector('.image-preview-container');
         const hiddenInput = sectionDiv.querySelector('.kept-image-urls');
+        
+        // 안전장치: 필요한 요소가 없으면 함수를 중단합니다.
+        if (!previewContainer || !hiddenInput) return;
+
         const existingUrls = hiddenInput.value ? hiddenInput.value.split(',').filter(Boolean) : [];
         const newFiles = sectionFiles[sectionId] || [];
 
-        previewContainer.innerHTML = '';
+        previewContainer.innerHTML = ''; // 기존 미리보기를 모두 지웁니다.
         
+        // 1. 이미 서버에 저장된 이미지들의 미리보기를 그립니다.
         existingUrls.forEach((url, index) => {
             const wrapper = document.createElement('div');
             wrapper.className = 'image-preview-wrapper';
-            wrapper.innerHTML = `<img src="${STATIC_BASE_URL}${url}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px;"><button type="button" class="remove-preview-btn" data-type="existing" data-index="${index}">×</button>`;
+            
+            // ★★★ 이미지 URL이 http로 시작하는 전체 주소인지 확인하고 처리합니다. ★★★
+            const imageUrl = (url && url.startsWith('http'))
+                ? url // S3 전체 주소이면 그대로 사용
+                : `${STATIC_BASE_URL}${url}`; // 아니면 기존 방식 (옛날 데이터 호환용)
+
+            wrapper.innerHTML = `<img src="${imageUrl}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px;"><button type="button" class="remove-preview-btn" data-type="existing" data-index="${index}">×</button>`;
             previewContainer.appendChild(wrapper);
         });
         
+        // 2. 새로 추가한 파일들의 미리보기를 그립니다.
         newFiles.forEach((file, index) => {
             const reader = new FileReader();
             reader.onload = (event) => {

@@ -21,12 +21,16 @@ document.addEventListener('DOMContentLoaded', async function() {
         const contentSections = (typeof post.content === 'string') ? JSON.parse(post.content) : (post.content || []);
         
         contentSections.forEach(section => {
-            // ★ 3. 이미지 HTML 생성 시, 관리자 페이지에서 설정한 image_width 값을 적용합니다. ★
-            const imagesHtml = (section.images || []).map(imgUrl => 
-                `<img src="${STATIC_BASE_URL}${imgUrl}" alt="게시물 이미지" style="width: ${section.image_width || 400}px;">`
-            ).join('');
+            // ★★★ 이 부분에서 이미지 주소를 처리합니다. ★★★
+            const imagesHtml = (section.images || []).map(imgUrl => {
+                const imageUrl = (imgUrl && imgUrl.startsWith('http'))
+                    ? imgUrl // S3 전체 주소이면 그대로 사용
+                    : `${STATIC_BASE_URL}${imgUrl}`; // 아니면 기존 방식
+                
+                return `<img src="${imageUrl}" alt="게시물 이미지" style="width: ${section.image_width || 400}px;">`;
+            }).join('');
 
-            // 레이아웃과 정렬 클래스 적용 부분을 제거하고, 고정된 구조로 변경합니다.
+            // 기존과 동일한 HTML 생성 로직
             sectionsHtml += `
                 <div class="content-section">
                     ${imagesHtml ? `<div class="image-content">${imagesHtml}</div>` : ''}
