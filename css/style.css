@@ -1001,7 +1001,7 @@ nav ul li.dropdown:hover .dropdown-content {
 
 /* 로고 이미지 크기 제어 */
 .header-logo-img {
-    height: 60px; /* <<< 여기서 로고 높이를 원하는 대로 조절하세요. */
+    height: 100px; /* <<< 여기서 로고 높이를 원하는 대로 조절하세요. */
     vertical-align: middle; /* 다른 텍스트와 세로 중앙 정렬을 위해 유지 */
 }
 
@@ -1158,8 +1158,8 @@ nav ul li.dropdown:hover .dropdown-content {
     display: none;
     flex-direction: column;
     justify-content: space-around;
-    width: 35px;
-    height: 35px;
+    width: 30px;
+    height: 30px;
     background: transparent;
     border: none;
     cursor: pointer;
