@@ -8,6 +8,7 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.6;
     color: #333;
+    overflow-x: hidden;
 }
 
 /* 전체 컨테이너 */
@@ -1217,7 +1218,7 @@ nav ul li.dropdown:hover .dropdown-content {
 
 
 /* --- 화면 너비가 768px 이하일 때 (모바일) --- */
-@media (max-width: 768px) {
+@media (max-width: 992px) {
     /* 헤더 컨테이너 정렬 */
     header .container {
         display: flex;
@@ -1256,5 +1257,109 @@ nav ul li.dropdown:hover .dropdown-content {
     #user-menu-container #user-menu-button {
         width: 35px;
         height: 35px;
+    }
+}
+
+/* --- ▼▼▼ 모든 페이지 공통 푸터 스타일 (최종본) ▼▼▼ --- */
+
+/* 푸터 전체 영역 */
+footer {
+    background-color: #343a40;
+    color: #adb5bd;
+    padding: 40px 0;
+    font-size: 0.85em;
+    line-height: 1.8;
+}
+
+/* 푸터 내부 컨테이너 - Flexbox로 양쪽 정렬 */
+footer .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 30px;
+}
+
+/* 왼쪽 정보 텍스트 */
+.footer-info p {
+    margin: 0 0 5px 0;
+}
+.footer-info p:last-child {
+    margin-bottom: 0;
+}
+
+/* 오른쪽 버튼들을 감싸는 영역 */
+.footer-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* 버튼 사이 간격 */
+    flex-shrink: 0;
+}
+
+/* '문의하기'와 '관련 사이트' 버튼 공통 스타일 */
+.footer-contact-btn,
+.related-sites-dropdown .dropbtn {
+    background-color: transparent;
+    color: #f8f9fa;
+    border: 1px solid #6c757d;
+    padding: 8px 20px;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.2s, color 0.2s;
+    font-weight: bold;
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: inherit;
+    font-size: 1em;
+}
+
+.footer-contact-btn:hover,
+.related-sites-dropdown .dropbtn:hover {
+    background-color: #f8f9fa;
+    color: #343a40;
+}
+
+/* '관련 사이트' 드롭다운 스타일 */
+.related-sites-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.related-sites-dropdown .dropdown-content {
+    display: none;
+    position: absolute;
+    bottom: 100%; /* 버튼 위로 펼쳐짐 */
+    right: 0;
+    background-color: #f1f1f1;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    border-radius: 4px;
+    margin-bottom: 5px;
+}
+
+.related-sites-dropdown .dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.related-sites-dropdown .dropdown-content a:hover {
+    background-color: #ddd;
+}
+
+/* 드롭다운 버튼에 호버 시 메뉴 표시 */
+.related-sites-dropdown:hover .dropdown-content {
+    display: block;
+}
+
+
+/* --- 모바일 화면 대응 (768px 이하) --- */
+@media (max-width: 768px) {
+    footer .container {
+        flex-direction: column; /* 세로로 쌓기 */
+        align-items: flex-start; /* 왼쪽 정렬 */
+        gap: 25px;
     }
 }

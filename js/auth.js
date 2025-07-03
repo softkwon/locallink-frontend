@@ -4,16 +4,37 @@ import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
 let sessionTimerInterval; // 세션 타이머의 interval ID를 저장하는 전역 변수
 
 // --- 모바일 햄버거 메뉴 기능 ---
+/**
+ * 파일명: js/auth.js
+ * 수정 위치: initializeMobileMenu 함수 전체
+ * 수정 일시: 2025-07-04 03:50
+ */
 function initializeMobileMenu() {
     const toggleButton = document.getElementById('mobile-menu-toggle');
     const mobileMenu = document.getElementById('mobile-menu');
-    const overlay = document.getElementById('mobile-menu-overlay'); // 오버레이 요소 추가
-    const desktopNav = document.querySelector('.desktop-nav ul');
+    const overlay = document.getElementById('mobile-menu-overlay');
+    const desktopNavList = document.querySelector('.desktop-nav > ul'); // 복사할 원본 메뉴 리스트
 
-    if (!toggleButton || !mobileMenu || !desktopNav || !overlay) return;
+    if (!toggleButton || !mobileMenu || !desktopNavList || !overlay) return;
 
-    mobileMenu.innerHTML = `<ul>${desktopNav.innerHTML}</ul>`;
+    // --- ★★★ 메뉴 복제 로직 수정 ★★★ ---
+    // 기존 innerHTML 복사 대신, 각 메뉴 항목을 순회하며 '현재 href 속성'을 복사합니다.
+    const mobileNavList = document.createElement('ul');
+    
+    // 데스크탑 메뉴의 모든 li 항목을 가져옵니다.
+    const desktopListItems = desktopNavList.querySelectorAll(':scope > li');
 
+    desktopListItems.forEach(item => {
+        // 각 항목을 그대로 복제합니다. 이렇게 하면 이벤트 리스너는 복제되지 않지만,
+        // href나 class 같은 속성은 그대로 복사됩니다.
+        const clonedItem = item.cloneNode(true);
+        mobileNavList.appendChild(clonedItem);
+    });
+
+    mobileMenu.innerHTML = ''; // 기존 내용을 비우고
+    mobileMenu.appendChild(mobileNavList); // 새로 만든 리스트를 추가합니다.
+
+    // --- (이하 메뉴 열고 닫는 기능은 기존과 동일) ---
     function openMenu() {
         mobileMenu.classList.add('is-open');
         overlay.classList.add('is-active');
@@ -25,14 +46,21 @@ function initializeMobileMenu() {
 
     toggleButton.addEventListener('click', (e) => {
         e.stopPropagation();
-        if (mobileMenu.classList.contains('is-open')) {
-            closeMenu();
-        } else {
-            openMenu();
+        // ★★★ 다른 페이지의 스크립트가 링크를 업데이트할 시간을 벌기 위해, 메뉴를 열 때마다 내용을 다시 복제합니다. ★★★
+        if (!mobileMenu.classList.contains('is-open')) {
+            const currentDesktopListItems = desktopNavList.querySelectorAll(':scope > li');
+            const newMobileNavList = document.createElement('ul');
+            currentDesktopListItems.forEach(item => {
+                newMobileNavList.appendChild(item.cloneNode(true));
+            });
+            mobileMenu.innerHTML = '';
+            mobileMenu.appendChild(newMobileNavList);
         }
+        
+        mobileMenu.classList.contains('is-open') ? closeMenu() : openMenu();
     });
 
-    overlay.addEventListener('click', closeMenu); // 오버레이 클릭 시 메뉴 닫기
+    overlay.addEventListener('click', closeMenu);
 }
 
 // 페이지 DOM이 로드되면, 헤더와 푸터 렌더링 함수를 실행
