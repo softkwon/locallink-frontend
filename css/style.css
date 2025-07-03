@@ -1238,3 +1238,35 @@ nav ul li.dropdown:hover .dropdown-content {
         display: flex;
     }
 }
+
+/* 모바일 화면일 때만 적용 */
+@media (max-width: 768px) {
+    /* 1. 로고와 오른쪽 영역을 양 끝으로 정렬 */
+    header .container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .header-right-group {
+        display: flex;
+        align-items: center;
+        gap: 15px; /* 버튼과 로그인 상태 사이의 간격 */
+    }
+
+    /* 2. 로그인 상태 크기 약 30% 축소 및 세부 조정 */
+    #user-menu-container .user-level-badge {
+        /* transform: scale(0.7); 원래 크기에서 70%로 줄임 */
+        font-size: 0.7em; /* 폰트 크기 직접 조절 */
+        padding: 4px 8px;
+    }
+    #user-menu-container #user-menu-button {
+        width: 35px;  /* 호랑이 아이콘 크기 조절 */
+        height: 35px;
+    }
+
+    /* 3. 햄버거 버튼을 로그인 상태 왼쪽에 배치 (순서 변경) */
+    .mobile-menu-toggle {
+        order: -1; /* flex 아이템 순서를 맨 앞으로 보냄 */
+    }
+}
