@@ -1,13 +1,21 @@
 /* 기본 스타일 초기화 */
-body, h1, h2, h3, p, ul, li, button {
+html, body, h1, h2, h3, p, ul, li, button {
     margin: 0;
     padding: 0;
+    border: 0;
     box-sizing: border-box;
 }
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.6;
     color: #333;
+    /* body뿐만 아니라 html에도 적용하기 위해, 
+       아래 코드를 body가 아닌 html, body에 함께 적용합니다. */
+}
+
+/* ★★★ html과 body에 모두 가로 스크롤 숨김 처리 ★★★ */
+html, body {
     overflow-x: hidden;
 }
 
