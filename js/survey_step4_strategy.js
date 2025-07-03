@@ -1,4 +1,10 @@
+/**
+ * 파일명: js/survey_step4_strategy.js
+ * 수정 위치: import 구문 추가
+ * 수정 일시: 2025-07-03 11:51
+ */
 import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
+import { getCompanySizeName } from './admin_common.js'; 
 
 document.addEventListener('DOMContentLoaded', async function() {
     

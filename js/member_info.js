@@ -321,7 +321,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
             if (event.target.id === 'uploadProfileImageBtn') {
-                // uploadProfileImage();
+                uploadProfileImage();
             }
         });
 
