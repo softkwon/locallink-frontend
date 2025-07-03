@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', function() {
     /**
      * 파일명: js/admin_news_edit.js
      * 수정 위치: renderPreviews 함수 전체
-     * 수정 일시: 2025-07-04 01:21
+     * 수정 일시: 2025-07-04 02:02
      */
     function renderPreviews(sectionId) {
         const sectionDiv = document.getElementById(sectionId);
@@ -145,29 +145,28 @@ document.addEventListener('DOMContentLoaded', function() {
         const previewContainer = sectionDiv.querySelector('.image-preview-container');
         const hiddenInput = sectionDiv.querySelector('.kept-image-urls');
         
-        // 안전장치: 필요한 요소가 없으면 함수를 중단합니다.
         if (!previewContainer || !hiddenInput) return;
 
         const existingUrls = hiddenInput.value ? hiddenInput.value.split(',').filter(Boolean) : [];
         const newFiles = sectionFiles[sectionId] || [];
 
-        previewContainer.innerHTML = ''; // 기존 미리보기를 모두 지웁니다.
+        previewContainer.innerHTML = ''; 
         
-        // 1. 이미 서버에 저장된 이미지들의 미리보기를 그립니다.
+        // 이미 서버에 저장된 이미지들의 미리보기를 그립니다.
         existingUrls.forEach((url, index) => {
             const wrapper = document.createElement('div');
             wrapper.className = 'image-preview-wrapper';
             
             // ★★★ 이미지 URL이 http로 시작하는 전체 주소인지 확인하고 처리합니다. ★★★
             const imageUrl = (url && url.startsWith('http'))
-                ? url // S3 전체 주소이면 그대로 사용
-                : `${STATIC_BASE_URL}${url}`; // 아니면 기존 방식 (옛날 데이터 호환용)
+                ? url 
+                : `${STATIC_BASE_URL}${url}`;
 
             wrapper.innerHTML = `<img src="${imageUrl}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px;"><button type="button" class="remove-preview-btn" data-type="existing" data-index="${index}">×</button>`;
             previewContainer.appendChild(wrapper);
         });
         
-        // 2. 새로 추가한 파일들의 미리보기를 그립니다.
+        // 새로 추가한 파일들의 미리보기를 그립니다.
         newFiles.forEach((file, index) => {
             const reader = new FileReader();
             reader.onload = (event) => {
@@ -191,24 +190,39 @@ document.addEventListener('DOMContentLoaded', function() {
             const formData = new FormData();
             formData.append('title', document.getElementById('newsTitle').value);
             formData.append('category', document.getElementById('newsCategory').value);
+            formData.append('status', 'published'); // 상태도 함께 전송 (필요시)
 
             const contentData = [];
-            document.querySelectorAll('.content-section').forEach(section => {
-                const newFiles = sectionFiles[section.id] || [];
-                newFiles.forEach(file => formData.append('newImages', file));
+            let imageCounter = 0; // ★★★ 새 이미지에 고유 이름을 붙이기 위한 카운터 ★★★
 
+            document.querySelectorAll('.content-section').forEach(section => {
+                const sectionId = section.id;
+                const newFiles = sectionFiles[sectionId] || [];
+                
+                // ★★★ 기존 이미지 URL 목록을 가져옵니다. ★★★
                 const keptImages = section.querySelector('.kept-image-urls').value.split(',').filter(Boolean);
+
+                const imagePlaceholders = [];
+                
+                // ★★★ 새 파일들을 FormData에 추가하고, 고유 placeholder를 생성합니다. ★★★
+                newFiles.forEach(file => {
+                    const placeholder = `new_image_${imageCounter++}`;
+                    formData.append(placeholder, file, file.name);
+                    imagePlaceholders.push(placeholder);
+                });
                 
                 contentData.push({
                     subheading: section.querySelector('.section-subheading').value,
                     subheading_size: parseInt(section.querySelector('.section-subheading-size').value, 10),
                     description: section.querySelector('.section-description').value,
                     description_size: parseInt(section.querySelector('.section-description-size').value, 10),
-                    images: [...keptImages, ...Array(newFiles.length).fill('placeholder')],
+                    // ★★★ 기존 이미지 URL과 새 이미지 placeholder를 합쳐서 전송합니다. ★★★
+                    images: [...keptImages, ...imagePlaceholders],
                     image_width: parseInt(section.querySelector('.section-image-width').value, 10),
                     layout: section.querySelector('.section-layout').value,
                 });
             });
+            
             formData.append('content', JSON.stringify(contentData));
             
             const response = await fetch(`${API_BASE_URL}/admin/news/${postId}`, {

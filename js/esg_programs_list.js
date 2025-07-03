@@ -36,20 +36,31 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // --- 3. 렌더링 함수 ---
     /**
-     * 전체 프로그램 목록을 그리는 함수
-     * @param {Array} programs - 모든 프로그램 데이터
+     * 파일명: js/esg_programs_list.js
+     * 수정 위치: displayAllPrograms 함수 전체
+     * 수정 일시: 2025-07-04 02:13
      */
     function displayAllPrograms(programs) {
         const container = document.getElementById('program-list-container');
         const diagId = new URLSearchParams(window.location.search).get('diagId');
-        const hasDiagnosisContext = !!diagId; // diagId가 있으면 true
+        const hasDiagnosisContext = !!diagId;
 
         container.innerHTML = '';
         programs.forEach(program => {
-            const representativeImage = (program.content && program.content[0]?.images?.length > 0)
-                ? `${STATIC_BASE_URL}/uploads/programs/${program.content[0].images[0]}`
-                : `${STATIC_BASE_URL}/images/default_program.png`;
+            let representativeImage;
+            const firstImage = program.content && program.content[0]?.images?.length > 0 
+                ? program.content[0].images[0] 
+                : null;
 
+            // ★★★ 이미지 URL 처리 로직 수정 ★★★
+            if (firstImage && firstImage.startsWith('http')) {
+                representativeImage = firstImage; // S3 전체 주소이면 그대로 사용
+            } else if (firstImage) {
+                representativeImage = `${STATIC_BASE_URL}/uploads/programs/${firstImage}`; // 옛날 방식
+            } else {
+                representativeImage = `${STATIC_BASE_URL}/images/default_program.png`; // 기본 이미지
+            }
+            
             const regionsText = (program.service_regions && program.service_regions.length > 0)
                 ? program.service_regions.join(', ')
                 : '전국';
@@ -57,19 +68,15 @@ document.addEventListener('DOMContentLoaded', async function() {
             const cardWrapper = document.createElement('div');
             cardWrapper.className = 'program-card';
             
-            // 상세 페이지로 이동할 때도 diagId를 계속 전달
             const detailUrl = `esg_program_detail.html?id=${program.id}${diagId ? '&diagId='+diagId : ''}`;
 
-            // ★★★ 조건부 버튼 HTML 생성 ★★★
             let actionsHtml = '';
             if (hasDiagnosisContext) {
-                // 진단 경로로 들어온 경우: 모든 버튼 표시
                 actionsHtml = `
                     <button type="button" class="button-secondary button-sm add-to-plan-btn" data-program-id="${program.id}" data-program-title="${program.title}">내 플랜에 담기</button>
                     <button type="button" class="button-primary button-sm apply-btn" data-program-id="${program.id}" data-program-title="${program.title}">신청하기</button>
                 `;
             } else {
-                // 메인 페이지 등 일반 경로로 들어온 경우: '신청하기' 버튼만 표시
                 actionsHtml = `
                     <button type="button" class="button-primary button-sm apply-btn" data-program-id="${program.id}" data-program-title="${program.title}">신청하기</button>
                 `;

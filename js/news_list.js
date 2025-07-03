@@ -76,7 +76,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     /**
-     * 받아온 데이터로 게시물 카드를 화면에 그리는 함수
+     * 파일명: js/news_list.js
+     * 수정 위치: renderPosts 함수 전체
+     * 수정 일시: 2025-07-04 02:09
      */
     function renderPosts(posts) {
         if (!postsContainer) return;
@@ -91,7 +93,6 @@ document.addEventListener('DOMContentLoaded', function() {
             postBox.className = 'post-box';
             postBox.href = `news_post_detail.html?id=${post.id}`;
             
-            // ★★★ is_pinned가 true이면, 'pinned-post' 클래스를 추가합니다. ★★★
             if (post.is_pinned) {
                 postBox.classList.add('pinned-post');
             }
@@ -102,8 +103,13 @@ document.addEventListener('DOMContentLoaded', function() {
             try {
                 const contentData = (typeof post.content === 'string') ? JSON.parse(post.content) : (post.content || []);
                 
+                // ★★★ 이미지 URL 처리 로직 수정 ★★★
                 if (contentData[0]?.images && contentData[0].images.length > 0) {
-                    representativeImage = `${STATIC_BASE_URL}${contentData[0].images[0]}`;
+                    const firstImage = contentData[0].images[0];
+                    // S3 전체 주소인지 확인 후, 맞으면 그대로 사용하고 아니면 기존 방식을 사용합니다.
+                    representativeImage = (firstImage && firstImage.startsWith('http'))
+                        ? firstImage
+                        : `${STATIC_BASE_URL}${firstImage}`;
                 }
                 
                 const firstSectionText = contentData[0]?.description || '';
