@@ -37,26 +37,39 @@
     }
     </style>
 </head>
-<body>
-    <header>
+<body><header>
         <div class="container">
             <div class="logo">
                 <a href="index.html">
-                    <img id="headerLogoImg" src="" alt="LocalLink 로고" class="header-logo-img">
+                    <img id="headerLogoImg" src="/images/logo.png" alt="LocalLink 로고" class="header-logo-img">
                 </a>
             </div>
-            <nav>
-                <ul id="mainNavLinks">                    
+            
+            <nav class="desktop-nav">
+                <ul id="mainNavLinks"> 
                     <li><a href="survey_step1.html" id="navSurveyLink">진단 다시하기</a></li> 
                     <li class="active">
                         <a href="survey_step4_esg_strategy.html" id="viewStrategyBtn" class="button-primary">다음단계 : AI기반 ESG 전략 수립</a>
-
                 </ul>
             </nav>
-            <div id="user-menu-container"></div>
+            <div class="header-right-group">
+                <div id="user-menu-container">
+                    </div>
+        
+                <button id="mobile-menu-toggle" class="mobile-menu-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
         </div>
-    </header>
 
+        <div id="mobile-menu-overlay" class="mobile-menu-overlay"></div>
+        
+        <div id="mobile-menu" class="mobile-menu">
+            </div>
+    </header>
+    
     <main class="container">
         <div class="page-header-actions">
             <h1>진단결과 리포트</h1>
