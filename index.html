@@ -346,15 +346,15 @@
     </style>
 </head>
 <body>
-
     <header>
         <div class="container">
             <div class="logo">
                 <a href="index.html">
-                    <img id="headerLogoImg" src="" alt="LocalLink 로고" class="header-logo-img">
+                    <img id="headerLogoImg" src="/images/logo.png" alt="LocalLink 로고" class="header-logo-img">
                 </a>
             </div>
-            <nav>
+            
+            <nav class="desktop-nav">
                 <ul id="mainNavLinks"> 
                     <li class="dropdown">
                         <a href="#" class="dropbtn">소식</a>
@@ -362,7 +362,7 @@
                             <li><a href="news_list.html?category=locallink">LocalLink 소식</a></li>
                             <li><a href="news_list.html?category=trends">ESG market</a></li>
                         </ul>
-                    </li>                
+                    </li>                
                     <li class="dropdown">
                         <a href="#" class="dropbtn">ESG 진단하기</a>
                         <ul class="dropdown-content">
@@ -373,8 +373,19 @@
                     <li><a href="esg_programs_list.html">Locallink ESG프로그램</a></li>
                 </ul>
             </nav>
-            <div id="user-menu-container"></div>
+
+            <div id="user-menu-container">
+                </div>
+
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </div>
+
+        <div id="mobile-menu" class="mobile-menu">
+            </div>
     </header>
 
     <section class="hero">

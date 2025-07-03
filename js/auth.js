@@ -3,6 +3,22 @@ import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
 
 let sessionTimerInterval; // 세션 타이머의 interval ID를 저장하는 전역 변수
 
+// --- 모바일 햄버거 메뉴 기능 ---
+function initializeMobileMenu() {
+    const toggleButton = document.getElementById('mobile-menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const desktopNav = document.querySelector('.desktop-nav ul');
+
+    if (!toggleButton || !mobileMenu || !desktopNav) return;
+
+    // 데스크탑 메뉴를 복제해서 모바일 메뉴에 내용 채우기
+    mobileMenu.innerHTML = `<ul>${desktopNav.innerHTML}</ul>`;
+
+    toggleButton.addEventListener('click', () => {
+        mobileMenu.classList.toggle('is-open');
+    });
+}
+
 // 페이지 DOM이 로드되면, 헤더와 푸터 렌더링 함수를 실행
 document.addEventListener('DOMContentLoaded', function() {
     // 헤더 로고 이미지 경로 설정
@@ -14,6 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 기존에 있던 함수들 호출
     checkLoginAndRenderHeader();
     loadAndRenderFooter(); 
+    initializeMobileMenu(); 
 });
 
 /**
