@@ -1,893 +1,102 @@
-/* 기본 스타일 초기화 */
-html, body, h1, h2, h3, p, ul, li, button {
+/* === 1. 기본 스타일 초기화 (Reset) === */
+html, body, h1, h2, h3, h4, h5, h6, p, ul, li, button, a, nav, header, main, footer, section, div, fieldset, legend, form, input, textarea, select {
     margin: 0;
     padding: 0;
     border: 0;
     box-sizing: border-box;
+    font-family: inherit; /* 폰트를 body에서 한 번만 설정하도록 상속 */
 }
-
+html, body {
+    width: 100%;
+    overflow-x: clip; /* 가로 스크롤 및 의도치 않은 여백 방지 */
+}
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.6;
     color: #333;
-    /* body뿐만 아니라 html에도 적용하기 위해, 
-       아래 코드를 body가 아닌 html, body에 함께 적용합니다. */
+}
+a {
+    color: inherit;
+    text-decoration: none;
+}
+ul {
+    list-style: none;
+}
+.hidden {
+    display: none !important;
 }
 
-/* ★★★ html과 body에 모두 가로 스크롤 숨김 처리 ★★★ */
-html, body {
-    overflow-x: hidden;
-}
 
-/* 전체 컨테이너 */
+/* === 2. 공통 레이아웃 === */
 .container {
     width: 90%;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 20px 0;
 }
 
-/* 헤더 */
+
+/* === 3. 헤더 (Header) === */
 header {
-    background-color: #f8f9fa;
-    padding: 20px 0;
-    border-bottom: 1px solid #e7e7e7;
+    position: sticky;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background-color: #ffffff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    padding: 15px 0;
 }
 header .container {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
-header .logo {
-    font-size: 1.8em;
-    font-weight: bold;
-    color: #007bff;
-}
-header nav ul {
-    list-style: none;
-    display: flex;
-}
-header nav li {
-    margin-left: 20px;
-}
-header nav a {
-    text-decoration: none;
-    color: #333;
-    font-weight: 500;
-}
-header nav a:hover {
-    color: #007bff;
-}
-
-/* --- 히어로 섹션 (메인 슬로건/카피) --- */
-.hero {
-    background-color: #4A90E2; /* 부드러운 파란색으로 변경 */
-    color: white;
-    padding: 100px 20px; /* PC에서의 상하 여백을 늘려 시원하게 */
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 50vh; /* 화면 높이의 절반 정도를 차지하도록 */
-}
-
-.hero .container {
-    max-width: 800px;
-}
-
-.hero h1 {
-    font-size: 3.5em; /* PC에서 글자 크기를 키워 주목도 상승 */
-    font-weight: 700; /* 조금 더 굵게 */
-    margin-bottom: 20px;
-    line-height: 1.3;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.1); /* 텍스트에 부드러운 그림자 효과 */
-}
-
-.hero p {
-    font-size: 1.2em;
-    margin-bottom: 40px;
-    opacity: 0.9; /* 부제목은 살짝 투명하게 */
-}
-
-.hero .cta-button {
-    background-color: #FFA500; /* 눈에 띄는 계열 버튼 추천*/
-    color: white;
-    padding: 15px 35px;
-    text-decoration: none;
-    font-size: 1.1em;
-    font-weight: bold;
-    border-radius: 50px; /* 버튼을 알약 형태로 */
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-}
-
-.hero .cta-button:hover {
-    background-color: #E69500;  /* 호버 시 약간 어두운 색으로 변경 */
-    transform: translateY(-2px); /* 호버 시 살짝 위로 이동하는 효과 */
-    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
-}
-
-/* --- 모바일 화면 대응 --- */
-@media (max-width: 768px) {
-    .hero {
-        padding: 80px 20px; /* 모바일 상하 여백 조정 */
-        min-height: 40vh;
-    }
-
-    /* ★★★ 요청사항 1: 모바일에서 폰트 크기 줄이기 ★★★ */
-    .hero h1 {
-        font-size: 2.2em; 
-    }
-    .hero p {
-        font-size: 1.0em;
-    }
-    .hero .cta-button {
-        font-size: 1.0em;
-        padding: 12px 28px;
-    }
-}
-
-/* 섹션 공통 스타일 */
-.section {
-    padding: 60px 0;
-    text-align: center;
-}
-.section h2 {
-    font-size: 2.2em;
-    margin-bottom: 40px;
-    color: #333;
-}
-
-/* 서비스 소개 */
-.service-introduction .content {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-around;
-    align-items: center;
-    text-align: left;
-}
-.service-introduction .text-content {
-    flex-basis: 50%;
-    padding-right: 20px; /* 오른쪽 이미지와의 간격 */
-}
-.service-introduction .text-content h3 {
-    font-size: 1.8em;
-    margin-bottom: 15px;
-    color: #007bff;
-}
-.service-introduction .image-content {
-    flex-basis: 40%;
-}
-.service-introduction .image-content img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-/* 기대 효과 */
-.expected-benefits .benefits-grid {
-    display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap; /* 화면 작아지면 아래로 떨어지도록 */
-}
-.expected-benefits .benefit-item {
-    flex-basis: calc(33.333% - 20px); /* 3개씩 배치, 간격 고려 */
-    min-width: 280px; /* 너무 작아지지 않도록 */
-    background-color: #f8f9fa;
-    padding: 30px;
-    margin: 10px; /* 아이템 간 간격 */
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-.expected-benefits .benefit-item .icon {
-    font-size: 2.5em; /* 아이콘 크기 */
-    margin-bottom: 15px;
-    color: #007bff;
-}
-.expected-benefits .benefit-item h3 {
-    font-size: 1.5em;
-    margin-bottom: 10px;
-}
-
-/* CTA 섹션 */
-.cta-section {
-    background-color: #f0f0f0; /* 이전과 동일하게 유지 또는 변경 가능 */
-}
-.cta-section .cta-buttons button {
-    background-color: #007bff;
-    color: white;
-    padding: 12px 25px;
-    border: none;
-    border-radius: 5px;
-    font-size: 1em;
-    cursor: pointer;
-    margin: 0 10px;
-    transition: background-color 0.3s ease;
-}
-.cta-section .cta-buttons button:hover {
-    background-color: #0056b3;
-}
-.cta-section .cta-buttons .signup-button {
-    background-color: #28a745;
-}
- .cta-section .cta-buttons .signup-button:hover {
-    background-color: #218838;
-}
-
-/* 푸터 */
-/* --- 신규 푸터 스타일 --- */
-footer {
-    background-color: #343a40;
-    color: #adb5bd;
-    padding: 30px 0;
-    font-size: 0.9em;
-}
-.footer-grid {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 20px;
-}
-.footer-info p {
-    margin: 5px 0;
-    line-height: 1.6;
-}
-.footer-info a {
-    color: #dee2e6;
-    text-decoration: none;
-}
-.footer-info a:hover {
-    text-decoration: underline;
-}
-
-.footer-actions {
-    display: flex;
-    gap: 15px;
-    align-items: center;
-}
-.footer-contact-btn {
-    background-color: transparent;
-    border: 1px solid #6c757d;
-    color: #f8f9fa;
-    padding: 8px 15px;
-    border-radius: 4px;
-    text-decoration: none;
-    transition: all 0.2s ease;
-}
-.footer-contact-btn:hover {
-    background-color: #fff;
-    color: #343a40;
-}
-
-/* 관련 사이트 드롭다운 */
-.related-sites-dropdown {
-    position: relative;
-    display: inline-block;
-}
-.related-sites-dropdown .dropbtn {
-    background-color: transparent;
-    border: 1px solid #6c757d;
-    color: #f8f9fa;
-    padding: 8px 15px;
-    border-radius: 4px;
-    cursor: pointer;
-}
-.related-sites-dropdown .dropdown-content {
-    display: none;
-    position: absolute;
-    bottom: 100%; /* 버튼 위로 펼쳐짐 */
-    right: 0;
-    background-color: #fff;
-    min-width: 180px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
-    border-radius: 4px;
-    padding: 5px 0;
-}
-.related-sites-dropdown .dropdown-content a {
-    color: black;
-    padding: 10px 15px;
-    text-decoration: none;
-    display: block;
-}
-.related-sites-dropdown .dropdown-content a:hover { background-color: #f1f1f1; }
-.related-sites-dropdown:hover .dropdown-content { display: block; }
-.related-sites-dropdown:hover .dropbtn { background-color: #495057; }
-
-/* ============================
-   Form Styles
-   ============================ */
-.form-section {
-    background-color: #fff;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    margin-top: 30px;
-    margin-bottom: 30px;
-}
-
-.form-section h2 {
-    text-align: center;
-    margin-bottom: 15px;
-    font-size: 2em;
-    color: #333;
-}
-
-.form-section p {
-    text-align: center;
-    margin-bottom: 30px;
-    color: #666;
-}
-
-#signupForm fieldset {
-    border: 1px solid #e0e0e0;
-    border-radius: 5px;
-    padding: 20px;
-    margin-bottom: 25px;
-}
-
-#signupForm legend {
-    font-size: 1.2em;
-    font-weight: bold;
-    color: #007bff;
-    padding: 0 10px;
-}
-
-.form-group {
-    margin-bottom: 20px;
-}
-
-.form-group label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: #555;
-}
-
-.form-group input[type="text"],
-.form-group input[type="email"],
-.form-group input[type="password"],
-.form-group input[type="tel"] {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 1em;
-    transition: border-color 0.3s ease;
-}
-
-.form-group input[type="text"]:focus,
-.form-group input[type="email"]:focus,
-.form-group input[type="password"]:focus,
-.form-group input[type="tel"]:focus {
-    border-color: #007bff;
-    outline: none;
-    box-shadow: 0 0 5px rgba(0,123,255,0.25);
-}
-
-.form-group .required {
-    color: red;
-    margin-left: 4px;
-}
-
-.form-group small {
-    display: block;
-    font-size: 0.85em;
-    color: #777;
-    margin-top: 5px;
-}
-
-.checkbox-group {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
-.checkbox-group input[type="checkbox"] {
-    margin-right: 10px;
-    width: auto; /* 기본 너비 사용 */
-    accent-color: #007bff; /* 체크박스 색상 (최신 브라우저 지원) */
-}
-.checkbox-group label {
-    margin-bottom: 0; /* 기본 form-group label 마진 제거 */
-    font-weight: normal;
-}
-.view-terms {
-    margin-left: auto; /* 오른쪽으로 밀기 */
-    font-size: 0.9em;
-    color: #007bff;
-    text-decoration: none;
-}
-.view-terms:hover {
-    text-decoration: underline;
-}
-
-
-.form-actions {
-    text-align: center;
-    margin-top: 30px;
-}
-
-.form-actions button {
-    padding: 12px 30px;
-    font-size: 1.1em;
-    border-radius: 5px;
-    cursor: pointer;
-    border: none;
-    transition: background-color 0.3s ease;
-    margin: 0 10px;
-}
-
-.button-primary {
-    background-color: #007bff;
-    color: white;
-}
-.button-primary:hover {
-    background-color: #0056b3;
-}
-
-.button-secondary {
-    background-color: #6c757d;
-    color: white;
-}
-.button-secondary:hover {
-    background-color: #545b62;
-}
-/* ============================
-   Info Icon & Modal Styles
-   ============================ */
-.info-icon {
-    display: inline-block;
-    margin-left: 5px;
-    color: #007bff;
-    cursor: pointer;
-    font-weight: bold;
-    border: 1px solid #007bff;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    text-align: center;
-    line-height: 18px; /* 수직 정렬 */
-    font-size: 0.8em;
-}
-.info-icon:hover {
-    background-color: #007bff;
-    color: white;
-}
-
-/* Modal (팝업) 기본 스타일 */
-.modal {
-    display: none; /* 기본적으로 숨김 */
-    position: fixed; /* 화면에 고정 */
-    z-index: 1000; /* 다른 요소들 위에 표시 */
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto; /* 스크롤 가능하도록 */
-    background-color: rgba(0,0,0,0.5); /* 반투명 배경 */
-    justify-content: center; /* 수평 가운데 정렬 (flexbox 사용 시) */
-    align-items: center;   /* 수직 가운데 정렬 (flexbox 사용 시) */
-}
-
-.modal-content {
-    background-color: #fefefe;
-    margin: auto; /* display:flex 없을 때 가운데 정렬용, flex와 함께면 불필요 */
-    padding: 25px;
-    border: 1px solid #888;
-    border-radius: 8px;
-    width: 80%;
-    max-width: 500px; /* 최대 너비 설정 */
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    position: relative; /* 닫기 버튼 위치 기준 */
-}
-
-.close-button {
-    color: #aaa;
-    float: right; /* 오른쪽 상단으로 이동 */
-    font-size: 28px;
-    font-weight: bold;
-}
-
-.close-button:hover,
-.close-button:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-.modal-content h3 {
-    margin-top: 0;
-    margin-bottom: 20px;
-    color: #333;
-    text-align: center;
-}
-
-#industryCodeSearchInput {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 1em;
-}
-
-.modal-results {
-    max-height: 200px; /* 결과 많을 시 스크롤 */
-    overflow-y: auto;
-    border: 1px solid #eee;
-    padding: 10px;
-    background-color: #f9f9f9;
-}
-/* style.css 파일의 .modal-results 관련 스타일 아래 또는 근처에 추가 */
-.modal-results ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-}
-.modal-results li {
-    padding: 8px 12px;
-    border-bottom: 1px solid #e0e0e0;
-    cursor: pointer;
-    font-size: 0.95em;
-}
-.modal-results li:last-child {
-    border-bottom: none;
-}
-.modal-results li:hover {
-    background-color: #007bff;
-    color: white;
-}
-.modal-results p { /* 초기 안내 메시지 스타일 */
-    color: #777;
-    text-align: center;
-    padding: 20px 0;
-}
-/* ============================
-   Login Page Specific Styles (Optional)
-   ============================ */
-.login-form-section { /* 로그인 폼 섹션의 최대 너비를 좀 더 좁게 설정할 수 있습니다. */
-    max-width: 500px; /* 예시: 회원가입 폼보다 조금 작게 */
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.form-links {
-    text-align: center;
-    margin-top: 25px;
-    font-size: 0.9em;
-}
-
-.form-links a {
-    color: #007bff;
-    text-decoration: none;
-    margin: 0 10px;
-}
-
-.form-links a:hover {
-    text-decoration: underline;
-}
-
-.form-links span {
-    color: #ccc;
-}
-/* ============================
-   Survey Form Specific Styles (Optional)
-   ============================ */
-.survey-form-section legend { /* 설문 섹션 제목을 좀 더 강조 */
-    font-size: 1.3em;
-    padding-bottom: 5px; /* 아래쪽 여백 추가 */
-    border-bottom: 2px solid #007bff; /* 밑줄 강조 */
-    margin-bottom: 15px; /* 필드셋 내부의 첫번째 form-group과의 간격 */
-}
-
-.radio-group label,
-.checkbox-group-vertical label {
-    display: block; /* 각 옵션을 한 줄씩 차지하도록 */
-    margin-bottom: 8px;
-    font-weight: normal; /* 기본 레이블보다 가볍게 */
-}
-
-.radio-group input[type="radio"],
-.checkbox-group-vertical input[type="checkbox"] {
-    margin-right: 8px;
-    accent-color: #007bff;
-}
-
-.checkbox-group-vertical { /* 세로형 체크박스 그룹 정렬 */
-    display: flex;
-    flex-direction: column;
-}
-/* ============================
-   Edit Trigger Icon & Button Styles
-   ============================ */
-.edit-trigger-icon {
-    display: inline-block;
-    margin-left: 8px;
-    color: #ffc107; /* 노란색 계열 경고/알림 느낌 */
-    cursor: pointer;
-    font-weight: bold;
-    /* border: 1px solid #ffc107; */ /* 테두리 제거 또는 조정 가능 */
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    text-align: center;
-    line-height: 20px; /* 아이콘 수직 정렬 */
-    font-size: 1em; /* 느낌표 아이콘 크기 조정 */
-    user-select: none; /* 텍스트 선택 방지 */
-}
-.edit-trigger-icon:hover {
-    color: #e0a800;
-}
-
-.button-edit {
-    background-color: #6c757d; /* 회색 계열 */
-    color: white;
-    padding: 5px 10px; /* 작은 버튼 */
-    font-size: 0.8em;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-left: 10px; /* 입력 필드와의 간격 */
-    transition: background-color 0.3s ease;
-}
-.button-edit:hover {
-    background-color: #545b62;
-}
-
-.hidden { /* 이미 있을 수 있지만, 없으면 추가 */
-    display: none !important; /* 확실하게 숨기기 위해 !important 사용 (필요시) */
-}
-/* ============================
-   Survey Page Specific Styles
-   ============================ */
-.survey-page-section h2 {
-    text-align: center;
-    margin-bottom: 25px;
-}
-
-.survey-options .survey-option-button {
-    display: block;
-    width: 100%;
-    margin-bottom: 10px;
-    padding: 12px;
-    text-align: left; /* YN 버튼 텍스트 정렬 */
-}
-/* .survey-options .button-primary {  YN '예' 버튼 - 기본 .button-primary 스타일 사용 또는 약간의 조정 } */
-.survey-options .button-secondary { /* YN '아니오' 버튼 */
-    background-color: #f8f9fa; /* 약간 다른 배경 */
-    color: #333;
-    border: 1px solid #ddd;
-}
-.survey-options .button-secondary:hover {
-    background-color: #e2e6ea;
-}
-
-.survey-radio-group label { /* 객관식 선택지 레이블 */
-    display: block;
-    padding: 10px;
-    border: 1px solid #eee;
-    margin-bottom: 8px;
-    border-radius: 4px;
-    cursor: pointer;
-}
-.survey-radio-group label:hover {
-    background-color: #f9f9f9;
-}
-.survey-radio-group input[type="radio"] {
-    margin-right: 10px;
+.header-logo-img {
+    height: 45px;
     vertical-align: middle;
 }
 
-.survey-progress {
-    font-size: 0.9em;
-    color: #666;
-    padding: 10px;
-    background-color: #f8f9fa;
-    border-radius: 4px;
+/* 데스크탑 내비게이션 */
+.desktop-nav ul {
+    display: flex;
+    align-items: center;
+    gap: 30px;
 }
-
-/* ============================
-   Survey INPUT Type Styles
-   ============================ */
-.survey-options input[type="text"].form-control,
-.survey-options input[type="number"].form-control {
-    width: calc(100% - 24px); /* 패딩 고려한 너비 */
-    padding: 12px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 1em;
-    margin-bottom: 10px; /* 다음 요소와의 간격 */
+.desktop-nav a {
+    font-weight: 500;
 }
+.desktop-nav .dropdown { position: relative; }
+.desktop-nav .dropdown-content { visibility: hidden; opacity: 0; position: absolute; background-color: #f9f9f9; min-width: 160px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 1; margin-top: 5px; border-radius: 4px; transition: all 0.3s ease-in-out; }
+.desktop-nav .dropdown-content a { color: black; padding: 12px 10px; display: block; text-align: left; }
+.desktop-nav .dropdown-content a:hover { background-color: #f1f1f1; }
+.desktop-nav .dropdown:hover .dropdown-content { visibility: visible; opacity: 1; }
 
-.survey-note {
-    display: block; /* input 아래에 오도록 */
-    font-size: 0.85em;
-    color: #666;
-    margin-top: -5px; /* input 바로 아래 붙도록 */
-    margin-bottom: 15px;
-}
-
-.survey-input-submit {
-    /* .button-primary 스타일을 기본으로 사용하나, 필요시 추가/변경 */
-    display: block; /* 버튼을 한 줄 전체 차지하도록 하거나, 인라인으로 둘 수 있음 */
-    width: auto; /* 내용에 맞게 너비 조정 */
-    margin-top: 10px; /* note 또는 input과의 간격 */
-}
-/* ============================
-   Survey INPUT Type Styles
-   ============================ */
-.survey-options input[type="text"].form-control,
-.survey-options input[type="number"].form-control {
-    width: calc(100% - 24px); /* 패딩 고려한 너비 */
-    padding: 12px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 1em;
-    margin-bottom: 10px; /* 다음 요소와의 간격 */
-}
-
-.survey-note {
-    display: block; /* input 아래에 오도록 */
-    font-size: 0.85em;
-    color: #666;
-    margin-top: -5px; /* input 바로 아래 붙도록 */
-    margin-bottom: 15px;
-}
-
-.survey-input-submit {
-    /* .button-primary 스타일을 기본으로 사용하나, 필요시 추가/변경 */
-    display: block; /* 버튼을 한 줄 전체 차지하도록 하거나, 인라인으로 둘 수 있음 */
-    width: auto; /* 내용에 맞게 너비 조정 */
-    margin-top: 10px; /* note 또는 input과의 간격 */
-}
-/* css/style.css 파일 맨 아래 추가 */
-#userAuthStatus {
-    /* 예시 스타일 */
-    float: right; /* 헤더 오른쪽에 표시 */
-    margin-top: 5px; /* 로고와의 간격 등 조정 */
-    font-size: 0.9em;
-    color: #333;
-}
-#userAuthStatus span {
-   margin-right: 10px;
-}
-
-.button-logout {
-    background-color: #dc3545;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9em;
-}
-.button-logout:hover {
-    background-color: #c82333;
-}
-
-/* 산업분류코드 검색 모달 결과 리스트 아이템 스타일 */
-#industryCodeResults ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-}
-
-#industryCodeResults li {
-    padding: 8px 12px; /* 안쪽 여백 */
-    border-bottom: 1px solid #e0e0e0; /* 항목 구분선 */
-    cursor: pointer; /* 마우스 올리면 손가락 모양 */
-    font-size: 0.95em; /* 글자 크기 */
-    color: #333333; /* <<<--- 글자색을 어두운 색으로 명시! ---<<< */
-    background-color: #ffffff; /* <<<--- 배경색을 흰색으로 명시 ---<<< */
-                               /* 모달의 .modal-results 배경이 #f9f9f9 이므로 대비됨 */
-}
-
-#industryCodeResults li:last-child {
-    border-bottom: none; /* 마지막 항목은 구분선 없음 */
-}
-
-#industryCodeResults li:hover {
-    background-color: #007bff; /* 마우스 올렸을 때 배경색 */
-    color: #ffffff; /* 마우스 올렸을 때 글자색 */
-}
-
-/* 모달 내부의 기본 안내 텍스트 (예: '검색 결과가 없습니다.') 스타일 */
-#industryCodeResults p {
-    color: #555555; /* 기본 안내 메시지 글자색 */
-    padding: 15px;
-    text-align: center;
-}
-
-/* survey.html의 YN 버튼 이전 답변 시각적 표시용 (예시) */
-.survey-option-button.selected-answer-visual-cue {
-    border: 2px solid #007bff; /* 예시: 파란색 테두리 */
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* 예시: 그림자 효과 */
-}
-
-/* 고정 헤더 (Sticky Header) 스타일 */
-header {
-    position: sticky;   /* 스크롤 시 특정 위치에 도달하면 고정됩니다. */
-    top: 0;             /* 화면 맨 위에 붙어서 고정됩니다. */
-    left: 0;
-    right: 0;
-    z-index: 1000;      /* 다른 모든 요소들보다 항상 위에 있도록 설정합니다. */
-    background-color: #ffffff; /* 스크롤 시 내용이 비치지 않도록 배경색을 지정합니다. */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); /* 입체감을 위한 부드러운 그림자 효과 */
-}
-
-/* 진행 상태를 보여주는 스텝퍼 UI 스타일 */
-.status-stepper { display: flex; align-items: flex-start; justify-content: space-between; margin: 20px 0; }
-.step { display: flex; flex-direction: column; align-items: center; text-align: center; width: 80px; }
-.step-icon { width: 30px; height: 30px; border-radius: 50%; background-color: #e9ecef; color: #adb5bd; display: flex; align-items: center; justify-content: center; font-weight: bold; transition: all 0.3s ease; }
-.step-label { font-size: 0.8em; color: #888; margin-top: 8px; }
-.step-line { flex-grow: 1; height: 2px; background-color: #e9ecef; margin: 14px 0; }
-
-/* 진행된 단계를 위한 스타일 */
-.step.active .step-icon { background-color: #007bff; color: white; }
-.step.active .step-label { color: #333; font-weight: bold; }
-.step.active + .step-line { background-color: #007bff; }
-
-/* 현재 단계를 강조하는 스타일 */
-.step.current .step-icon { box-shadow: 0 0 0 4px rgba(0,123,255,0.3); }
-
-/* 네비게이션 드롭다운 스타일 */
-nav ul li.dropdown {
-    position: relative;
-    display: inline-block;
-}
-
-nav ul li.dropdown .dropdown-content {
-    visibility: hidden; /* 기본적으로 보이지 않고 공간도 차지하지 않음 */
-    opacity: 0;         /* 완전히 투명하게 */
-
-    position: absolute;
-    background-color: #f9f9f9;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
-    list-style-type: none; /* li의 점 제거 */
-    padding: 0;
-    margin-top: 5px;
-    border-radius: 4px; /* 살짝 둥글게 */
-    transition: all 0.3s ease-in-out; /* ★★★ 부드러운 효과를 위한 transition 속성 추가 ★★★ */
-}
-
-nav ul li.dropdown .dropdown-content a {
-    color: black;
-    padding: 12px 10px;
-    text-decoration: none;
-    display: block;
-    text-align: left;
-}
-
-nav ul li.dropdown .dropdown-content a:hover {
-    background-color: #f1f1f1;
-}
-
-nav ul li.dropdown:hover .dropdown-content {
-    display: block;
-    visibility: visible; /* 보이도록 변경 */
-    opacity: 1;          /* 불투명하게 변경 */
-}
-
-/* ★★★ G-Style 사용자 메뉴 최종 스타일 ★★★ */
-/* 메뉴 전체를 감싸는 컨테이너 */
+/* 사용자 메뉴 (G-Style) */
 #user-menu-container {
     position: relative;
     display: flex;
     align-items: center;
 }
+.user-level-badge {
+    margin-right: 10px; /* 아이콘과의 간격 */
+    padding: 3px 8px;
+    font-size: 0.8em;
+    font-weight: bold;
+    border-radius: 10px;
+    color: white;
+    background-color: #6c757d;
+}
+.user-level-badge.level-2 { background-color: #007bff; }
+.user-level-badge.level-3,
+.user-level-badge.level-4,
+.user-level-badge.level-5 { background-color: #28a745; }
 
-/* 원형 프로필 아이콘 버튼 */
 #user-menu-button {
-    width: 50px;  /* 3. 아이콘 크기 키움 */
-    height: 50px; /* 3. 아이콘 크기 키움 */
+    width: 45px;
+    height: 45px;
     border-radius: 50%;
     border: 2px solid transparent;
     cursor: pointer;
-    background-color: #5b63be; /* 이미지가 없을 경우를 대비한 배경색 */
     background-size: cover;
     background-position: center;
     transition: border-color 0.2s;
@@ -896,414 +105,85 @@ nav ul li.dropdown:hover .dropdown-content {
     border-color: #007bff;
 }
 
-/* 클릭 시 나타나는 드롭다운 메뉴 */
-#user-menu-dropdown {
-    display: none;
-    position: absolute;
-    top: 55px; /* 헤더와의 간격 */
-    right: 0;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 5px 25px rgba(0,0,0,0.15);
-    min-width: 240px; /* 드롭다운 최소 너비 */
-    z-index: 1000;
-    border: 1px solid #eee;
-    overflow: hidden; /* 내부 요소가 모서리를 벗어나지 않도록 */
-}
 
-/* 드롭다운 상단의 사용자 정보 영역 */
-.dropdown-user-info {
-    padding: 15px 20px;
-    border-bottom: 1px solid #f0f0f0;
-    text-align: center;
-}
-.dropdown-user-info strong {
-    font-size: 1.1em;
-    color: #333;
-}
-.dropdown-user-info small {
-    color: #666;
-}
-
-/* 드롭다운 내부의 각 메뉴 링크 */
-#user-menu-dropdown a {
-    display: block; /* 2. 각 기능이 한 줄씩 표시되도록 함 */
-    padding: 12px 20px;
-    color: #333;
-    text-decoration: none;
-    font-size: 0.95em;
-}
-#user-menu-dropdown a:hover {
-    background-color: #f8f9fa;
-}
-
-/* 드롭다운 내부의 구분선 */
-.dropdown-divider {
-    height: 1px;
-    margin: 8px 0;
-    overflow: hidden;
-    background-color: #e9ecef;
-}
-
-/* ★★★ 1. 드롭다운 하단의 세션 정보 영역 ★★★ */
-.dropdown-session-info {
-    padding: 10px 20px;
-    background-color: #f8f9fa;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+/* === 4. 푸터 (Footer) === */
+footer {
+    background-color: #343a40;
+    color: #adb5bd;
+    padding: 40px 0;
     font-size: 0.85em;
+    line-height: 1.8;
 }
-#session-timer {
-    color: #666;
-}
-
-/* ★★★ G-Style 사용자 메뉴 레벨 표시 스타일 ★★★ */
-.user-level-badge {
-    margin-left: 10px;
-    padding: 3px 8px;
-    font-size: 0.8em;
-    font-weight: bold;
-    border-radius: 10px;
-    color: white;
-    background-color: #6c757d; /* 기본 레벨 색상 (LV.1) */
-}
-.user-level-badge.level-2 {
-    background-color: #007bff; /* 진단 완료자 색상 (LV.2) */
-}
-.user-level-badge.level-3 {
-    background-color: #28a745; /* 프로그램 신청자 색상 (LV.3) */
-}
-
-/* ★★★ 헤더 메뉴용 모달 스타일 ★★★ */
-
-/* 모달을 화면 전체에 띄우기 위한 반투명 배경 */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
-    z-index: 1000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-/* 실제 콘텐츠가 담길 모달 창 */
-.modal-content {
-    background-color: white;
-    padding: 25px 30px;
-    border-radius: 8px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.25);
-    width: 90%;
-    max-width: 600px;
-    max-height: 80vh;
-    display: flex;
-    flex-direction: column;
-}
-
-/* 모달 제목과 닫기 버튼 영역 */
-.modal-header {
+footer .container {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid #dee2e6;
-    padding-bottom: 15px;
-    margin-bottom: 20px;
-}
-.modal-header h3 {
-    margin: 0;
-    font-size: 1.3em;
-    color: #333;
-}
-.modal-close-btn {
-    font-size: 2em;
-    font-weight: bold;
-    color: #aaa;
-    cursor: pointer;
-    background: none;
-    border: none;
-}
-.modal-close-btn:hover {
-    color: #333;
-}
-
-/* 모달 내용 영역 (스크롤 가능) */
-.modal-body {
-    overflow-y: auto;
-}
-
-/* 모달에 표시될 이력/문의 목록 아이템 스타일 */
-.modal-list-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 0;
-    border-bottom: 1px solid #f0f0f0;
-    font-size: 0.95em;
-}
-.modal-list-item:last-child {
-    border-bottom: none;
-}
-
-/* 로고 이미지 크기 제어 */
-.header-logo-img {
-    height: 77px; /* <<< 여기서 로고 높이를 원하는 대로 조절하세요. */
-    vertical-align: middle; /* 다른 텍스트와 세로 중앙 정렬을 위해 유지 */
-}
-
-
-/* news_detail 콘텐츠 섹션 스타일 */
-.content-section-body {
-    display: flex;
     gap: 30px;
-    align-items: center; /* 세로 중앙 정렬 */
-    margin: 40px 0;
 }
-.content-section-body .text-content { flex: 1; }
-.content-section-body .image-content { flex: 1; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
-.content-section-body .image-content img { border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-
-/* --- ★★★ 레이아웃 옵션별 스타일 ★★★ --- */
-/* 글 좌, 이미지 우 */
-.layout-text-left { flex-direction: row; }
-/* 이미지 좌, 글 우 */
-.layout-text-right { flex-direction: row-reverse; }
-/* 이미지 상, 글 하 */
-.layout-img-top { flex-direction: column; }
-/* 글 상, 이미지 하 */
-.layout-img-bottom { flex-direction: column; }
-
-/* --- ★★★ 텍스트 정렬 스타일 ★★★ --- */
-.text-align-left { text-align: left; }
-.text-align-center { text-align: center; }
-
-
-/* --- 메인 페이지 최신 소식 자동 스크롤 스타일 --- */
-.scroll-wrapper {
-    overflow: hidden;
-    position: relative;
-    width: 100%;
+.footer-info p {
+    margin: 0 0 5px 0;
 }
-.horizontal-scroll-container {
+.footer-actions {
     display: flex;
-    /* (카드 5개 + 더보기 1개) * 2세트 = 12개. (320+20)*12 = 4080px */
-    width: 4080px; 
-    animation: scroll 35s linear infinite;
-}
-.horizontal-scroll-container:hover {
-    animation-play-state: paused;
-}
-
-/* 스크롤 컨테이너 안의 카드 너비 고정 */
-.horizontal-scroll-container .post-box {
-    flex-shrink: 0;
-    width: 400px; /* 카드 너비 */
-    margin-right: 20px;
-}
-
-/* ★★★ '+더보기' 카드 스타일 수정 ★★★ */
-.more-link-box {
-    flex-shrink: 0;
-    width: 100px;
-    height: 333px; /* .post-box 높이와 일치시킴 */
-    /* 2. 더보기 뒤에 여백을 주기 위해 margin-right 값을 키웁니다. */
-    margin-right: 60px; 
-    border: 2px dashed #dee2e6;
-    border-radius: 8px;
-    display: flex;
-    /* 1. 내용을 가로로 배치하기 위해 row로 변경 */
-    flex-direction: row; 
-    justify-content: center;
     align-items: center;
-    text-decoration: none;
-    color: #495057;
-    font-weight: bold;
-    font-size: 1.2em;
-    transition: all 0.2s ease;
+    gap: 10px;
+    flex-shrink: 0;
 }
-.more-link-box:hover {
-    border-color: #007bff;
+.footer-actions .button-outline { /* 이전 코드의 .footer-contact-btn, .dropbtn 등을 통합 */
+    background-color: transparent;
+    color: #f8f9fa;
+    border: 1px solid #6c757d;
+    padding: 8px 20px;
+    border-radius: 4px;
+    transition: background-color 0.2s, color 0.2s;
+    font-weight: bold;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 1em;
+}
+.footer-actions .button-outline:hover {
     background-color: #f8f9fa;
-    color: #007bff;
-}
-.more-link-box .plus-icon {
-    font-size: 0.7em; /* 아이콘 크기 조정 */
-    margin-right: 15px; /* 텍스트와의 간격 */
-    margin-bottom: 0;
+    color: #343a40;
 }
 
-/* 스크롤 애니메이션 정의 (이동 거리 수정) */
-@keyframes scroll {
-    0% {
-        transform: translateX(0);
-    }
-    100% {
-        /* (카드 5개 * 340px) + (더보기 1개 * (320px + 60px)) = 1700 + 380 = -2080px */
-        transform: translateX(-2480px); 
-    }
-}
+/* === 5. 반응형 (Mobile & Tablet) === */
 
-
-/* --- news_list.html 페이지를 위한 그리드 스타일 --- */
-.posts-container {
-    display: grid;
-    gap: 30px;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-}
-
-/* 이하 post-box 관련 스타일은 모든 페이지에서 공통으로 사용됩니다. */
-.post-box {
-    background-color: #fff;
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    display: flex;
-    flex-direction: column;
-    text-decoration: none;
-    color: inherit;
-    overflow: hidden;
-    transition: transform 0.2s ease-in-out;
-}
-.post-box:hover {
-    transform: translateY(-5px);
-}
-.post-box-image {
-    width: 100%;
-    height: 180px;
-    object-fit: cover;
-}
-.post-box-content {
-    padding: 20px;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-}
-.post-box-content h3 {
-    margin: 0 0 10px 0;
-    font-size: 1.2em;
-}
-.post-box-content p {
-    font-size: 0.9em;
-    color: #6c757d;
-    line-height: 1.6;
-    flex-grow: 1;
-}
-.post-box-date {
-    font-size: 0.8em;
-    color: #999;
-    text-align: right;
-    margin-top: 15px;
-}
-
-/* ----------------------------------------- */
-/* --- 반응형 디자인: 폼 페이지 (Form Pages) --- */
-/* ----------------------------------------- */
-
-/* 평소에는 햄버거 버튼과 모바일 메뉴를 숨깁니다. */
-.mobile-menu-toggle {
-    display: none;
-    flex-direction: column;
-    justify-content: space-around;
-    width: 30px;
-    height: 30px;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    z-index: 1011;
-}
-.mobile-menu-toggle span {
-    width: 100%;
-    height: 3px;
-    background-color: #333;
-    border-radius: 10px;
-    transition: all 0.3s linear;
-}
-
-/* 모바일 슬라이드 메뉴의 기본 스타일 */
-.mobile-menu {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 66.66%;
-    height: 100%;
-    background-color: #ffffff;
-    z-index: 1020;
-    padding: 60px 20px 20px 20px;
-    box-shadow: 4px 0 15px rgba(0,0,0,0.1);
-    overflow-y: auto;
-    
-    /* ★★★ 숨김 방식을 transform으로 변경하고, visibility를 추가합니다. ★★★ */
-    transform: translateX(-100%); /* x축으로 자기 너비의 100%만큼 왼쪽으로 이동 */
-    visibility: hidden;           /* 보이지 않을 땐 없는 것처럼 처리 */
-    transition: transform 0.3s ease-in-out, visibility 0.3s ease-in-out;
-}
-
-/* is-open 클래스가 붙으면 원래 위치로 돌아오며 보이게 됩니다. */
-.mobile-menu.is-open {
-    transform: translateX(0);
-    visibility: visible;
-}
-
-/* 메뉴가 열렸을 때 뒷배경 오버레이 */
-.mobile-menu-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1015;
-}
-.mobile-menu-overlay.is-active {
-    display: block;
-}
-
-/* 모바일 메뉴 내부 콘텐츠 스타일 */
-.mobile-menu ul { list-style: none; padding: 0; margin: 0; text-align: left; }
+/* --- 모바일 메뉴 기본 스타일 (화면 크기와 무관) --- */
+.mobile-menu-toggle { display: none; flex-direction: column; justify-content: space-around; width: 35px; height: 35px; background: transparent; border: none; cursor: pointer; z-index: 1011; }
+.mobile-menu-toggle span { width: 100%; height: 3px; background-color: #333; border-radius: 10px; }
+.mobile-menu { position: fixed; top: 0; left: 0; width: 66.66%; height: 100%; background-color: #ffffff; z-index: 1020; padding: 60px 20px 20px 20px; box-shadow: 4px 0 15px rgba(0,0,0,0.1); overflow-y: auto; visibility: hidden; transform: translateX(-100%); transition: transform 0.3s ease-in-out, visibility 0.3s ease-in-out; }
+.mobile-menu.is-open { visibility: visible; transform: translateX(0); }
+.mobile-menu-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1015; }
+.mobile-menu-overlay.is-active { display: block; }
+.mobile-menu ul { text-align: left; }
 .mobile-menu li { margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0; }
-.mobile-menu > ul > li > a { font-size: 1.2rem; font-weight: bold; color: #333; }
+.mobile-menu > ul > li > a { font-size: 1.2rem; font-weight: bold; }
 .mobile-menu .dropdown-content { display: block; position: static; background-color: transparent; box-shadow: none; padding-top: 10px; }
 .mobile-menu .dropdown-content a { font-size: 1rem; font-weight: normal; color: #555; padding: 8px 0 8px 15px; display: block; }
 
-
-/* --- 화면 너비가 768px 이하일 때 (모바일) --- */
+/* --- 태블릿 & 모바일 분기점 (992px 이하) --- */
 @media (max-width: 992px) {
-    /* 헤더 컨테이너 정렬 */
-    header .container {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    /* PC용 내비게이션 숨기기 */
     .desktop-nav {
         display: none;
     }
-
-    /* ★★★ 요청사항 1: 로고 크기 조절 ★★★ */
-    .header-logo-img {
-        max-height: 45px; /* 기존 40px에서 조금 더 줄임 */
+    .mobile-menu-toggle {
+        display: flex;
     }
+}
 
-    /* 헤더 오른쪽 그룹 정렬 */
+/* --- 모바일 전용 분기점 (768px 이하) --- */
+@media (max-width: 768px) {
+    .header-logo-img {
+        max-height: 35px;
+    }
     .header-right-group {
         display: flex;
         align-items: center;
         gap: 15px;
     }
-    
-    /* ★★★ 요청사항 3: 햄버거 버튼 보이기 및 위치 조정 ★★★ */
     .mobile-menu-toggle {
-        display: flex;
-        order: -1; /* 로그인 상태보다 왼쪽으로 순서 변경 */
+        order: -1;
     }
-
-    /* ★★★ 요청사항 2: 로그인 상태 크기 조절 ★★★ */
     #user-menu-container .user-level-badge {
         font-size: 0.7em;
         padding: 4px 8px;
@@ -1312,108 +192,15 @@ nav ul li.dropdown:hover .dropdown-content {
         width: 35px;
         height: 35px;
     }
-}
-
-/* --- ▼▼▼ 모든 페이지 공통 푸터 스타일 (최종본) ▼▼▼ --- */
-
-/* 푸터 전체 영역 */
-footer {
-    background-color: #343a40;
-    color: #adb5bd;
-    padding: 40px 0;
-    font-size: 0.85em;
-    line-height: 1.8;
-}
-
-/* 푸터 내부 컨테이너 - Flexbox로 양쪽 정렬 */
-footer .container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 30px;
-}
-
-/* 왼쪽 정보 텍스트 */
-.footer-info p {
-    margin: 0 0 5px 0;
-}
-.footer-info p:last-child {
-    margin-bottom: 0;
-}
-
-/* 오른쪽 버튼들을 감싸는 영역 */
-.footer-actions {
-    display: flex;
-    align-items: center;
-    gap: 10px; /* 버튼 사이 간격 */
-    flex-shrink: 0;
-}
-
-/* '문의하기'와 '관련 사이트' 버튼 공통 스타일 */
-.footer-contact-btn,
-.related-sites-dropdown .dropbtn {
-    background-color: transparent;
-    color: #f8f9fa;
-    border: 1px solid #6c757d;
-    padding: 8px 20px;
-    text-align: center;
-    text-decoration: none;
-    border-radius: 4px;
-    transition: background-color 0.2s, color 0.2s;
-    font-weight: bold;
-    cursor: pointer;
-    white-space: nowrap;
-    font-family: inherit;
-    font-size: 1em;
-}
-
-.footer-contact-btn:hover,
-.related-sites-dropdown .dropbtn:hover {
-    background-color: #f8f9fa;
-    color: #343a40;
-}
-
-/* '관련 사이트' 드롭다운 스타일 */
-.related-sites-dropdown {
-    position: relative;
-    display: inline-block;
-}
-
-.related-sites-dropdown .dropdown-content {
-    display: none;
-    position: absolute;
-    bottom: 100%; /* 버튼 위로 펼쳐짐 */
-    right: 0;
-    background-color: #f1f1f1;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
-    border-radius: 4px;
-    margin-bottom: 5px;
-}
-
-.related-sites-dropdown .dropdown-content a {
-    color: black;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-}
-
-.related-sites-dropdown .dropdown-content a:hover {
-    background-color: #ddd;
-}
-
-/* 드롭다운 버튼에 호버 시 메뉴 표시 */
-.related-sites-dropdown:hover .dropdown-content {
-    display: block;
-}
-
-
-/* --- 모바일 화면 대응 (768px 이하) --- */
-@media (max-width: 768px) {
+    .hero {
+        padding: 80px 20px;
+    }
+    .hero h1 {
+        font-size: 2.2em; 
+    }
     footer .container {
-        flex-direction: column; /* 세로로 쌓기 */
-        align-items: flex-start; /* 왼쪽 정렬 */
+        flex-direction: column;
+        align-items: flex-start;
         gap: 25px;
     }
 }
