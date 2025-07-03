@@ -1187,19 +1187,25 @@ nav ul li.dropdown:hover .dropdown-content {
 .mobile-menu {
     position: fixed;
     top: 0;
-    left: -70%; /* 평소에는 화면 왼쪽에 숨어있음 */
+    left: 0;
     width: 66.66%;
     height: 100%;
     background-color: #ffffff;
     z-index: 1020;
     padding: 60px 20px 20px 20px;
     box-shadow: 4px 0 15px rgba(0,0,0,0.1);
-    transition: left 0.3s ease-in-out;
-    display: block;
     overflow-y: auto;
+    
+    /* ★★★ 숨김 방식을 transform으로 변경하고, visibility를 추가합니다. ★★★ */
+    transform: translateX(-100%); /* x축으로 자기 너비의 100%만큼 왼쪽으로 이동 */
+    visibility: hidden;           /* 보이지 않을 땐 없는 것처럼 처리 */
+    transition: transform 0.3s ease-in-out, visibility 0.3s ease-in-out;
 }
+
+/* is-open 클래스가 붙으면 원래 위치로 돌아오며 보이게 됩니다. */
 .mobile-menu.is-open {
-    left: 0; /* is-open 클래스가 붙으면 나타남 */
+    transform: translateX(0);
+    visibility: visible;
 }
 
 /* 메뉴가 열렸을 때 뒷배경 오버레이 */
