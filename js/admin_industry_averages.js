@@ -1,5 +1,6 @@
 // js/admin_industry_averages.js
 import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
+import { checkAdminPermission } from './admin_common.js';
 
 ocument.addEventListener('DOMContentLoaded', async function() {
     const token = localStorage.getItem('locallink-token');

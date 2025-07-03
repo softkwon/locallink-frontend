@@ -1,5 +1,6 @@
 // js/admin_simulator_rules.js (2025-06-27 16:10:00)
 import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
+import { checkAdminPermission } from './admin_common.js';
 
 document.addEventListener('DOMContentLoaded', function() {
     const token = localStorage.getItem('locallink-token');

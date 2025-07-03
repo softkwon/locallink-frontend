@@ -21,16 +21,33 @@
 <body>
     <header>
         <div class="container">
-            <div class="logo"><a href="index.html">LocalLink (Admin)</a></div>
-            <nav>
+            <div class="logo">
+                <a href="index.html">
+                    <img src="/images/logo_admin.png" alt="LocalLink 로고" class="header-logo-img">
+                </a>
+            </div>
+            
+            <nav class="desktop-nav">
                 <ul>
                     <li><a href="index.html">Locallink로 돌아가기</a></li>
                     <li><a href="admin_dashboard.html">관리자 대시보드</a></li>
                 </ul>
             </nav>
-            <div id="userAuthStatus" style="float: right;"></div>
-            <div id="user-menu-container"></div>
+
+            <div class="header-right-group">
+                <div id="user-menu-container">
+                    </div>
+                <button id="mobile-menu-toggle" class="mobile-menu-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
         </div>
+
+        <div id="mobile-menu-overlay" class="mobile-menu-overlay"></div>
+        <div id="mobile-menu" class="mobile-menu">
+            </div>
     </header>
 
     <main class="container">
