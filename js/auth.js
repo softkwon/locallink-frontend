@@ -43,7 +43,9 @@ async function checkLoginAndRenderHeader() {
         const user = result.user;
         const isAdmin = ['super_admin', 'user_manager', 'content_manager'].includes(user.role);
         const adminLink = isAdmin ? `<a href="admin_dashboard.html">관리자 페이지</a>` : '';
-        const profileImgUrl = user.profile_image_url ? `${STATIC_BASE_URL}${user.profile_image_url}` : `${STATIC_BASE_URL}/images/default_avatar.png`;
+        const profileImgUrl = (user.profile_image_url && user.profile_image_url.startsWith('http'))
+            ? user.profile_image_url // S3 전체 주소이면 그대로 사용
+            : `${STATIC_BASE_URL}/images/default_avatar.png`;
         
         const dropdownHtml = `
             <div class="dropdown-user-info">
@@ -238,7 +240,7 @@ async function fetchAndShowHistory() {
                 const date = new Date(item.created_at).toLocaleDateString();
                 const score = parseFloat(item.total_score || 0).toFixed(1);
                 // ★★★ '결과보기' 링크를 step4 전략 페이지로 수정합니다. ★★★
-                contentHtml += `<div class="modal-list-item"><span>${date} - 종합점수: <strong>${score}점</strong></span><div class="button-group"><a href="survey_step4_esg_strategy.html?diagId=${item.id}" class="button-secondary button-sm">결과보기</a><button type="button" class="button-danger button-sm delete-diagnosis-btn" data-diag-id="${item.id}">삭제</button></div></div>`;
+                contentHtml += `<div class="modal-list-item"><span>${date} - 종합점수: <strong>${score}점</strong></span><div class="button-group"><a href="survey_step3_esg_result.html?diagId=${item.id}" class="button-secondary button-sm">결과보기</a><button type="button" class="button-danger button-sm delete-diagnosis-btn" data-diag-id="${item.id}">삭제</button></div></div>`;
             });
         } else {
             contentHtml = '<p>완료된 진단 이력이 없습니다.</p>';
