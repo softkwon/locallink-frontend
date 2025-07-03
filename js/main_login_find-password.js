@@ -3,7 +3,7 @@
  * 기능: 비밀번호 찾기 페이지의 모든 기능을 담당합니다.
  * 수정 일시: 2025-07-03 14:32
  */
-import { API_BASE_URL } from '../config.js';
+import { API_BASE_URL } from './config.js';
 
 document.addEventListener('DOMContentLoaded', function() {
     const findPasswordForm = document.getElementById('findPasswordForm');
