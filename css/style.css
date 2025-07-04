@@ -1418,3 +1418,9 @@ footer .container {
     }
 }
 
+.section .image-content img {
+    border-radius: 8px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    max-width: none; /* 너비 제한 제거 또는 더 큰 값 지정 */
+    height: auto;
+}

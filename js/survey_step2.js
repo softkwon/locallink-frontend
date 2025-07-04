@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             const avgValue = industryAverages ? industryAverages[metricKey] : null;
             if (avgValue !== null && avgValue !== undefined) {
                 let unit = '';
-                if (metricKey.includes('ratio')) unit = '%';
+                if (metricKey.includes('ratio')) unit = '';
                 else if (metricKey.includes('ghg')) unit = ' tCO₂eq';
                 else if (metricKey.includes('energy')) unit = ' MWh';
                 else if (metricKey.includes('waste')) unit = ' 톤';
