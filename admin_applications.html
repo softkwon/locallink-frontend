@@ -9,7 +9,12 @@
     <style>
         /* ★★★ 테이블 UI 개선 CSS ★★★ */
         .page-section h2 { margin-bottom: 20px; }
-        .table-container { border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .table-container { 
+            border: 1px solid #dee2e6; 
+            border-radius: 8px; 
+            overflow-x: auto; /* ★★★ 가로 내용이 넘치면 자동으로 스크롤바를 생성합니다. ★★★ */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
+        }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #dee2e6; white-space: nowrap; }
         thead tr { background-color: #f8f9fa; }
