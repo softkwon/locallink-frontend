@@ -222,23 +222,41 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) { console.error('산업 평균 컬럼 목록 로딩 실패:', error); }
     }
 
+    /**
+     * 파일명: js/admin_program_edit.js
+     * 수정 위치: renderImagePreviews 함수 전체
+     * 수정 일시: 2025-07-06 07:44
+     */
     function renderImagePreviews(sectionId) {
         const section = document.getElementById(sectionId);
         if (!section) return;
         const previewContainer = section.querySelector('.image-preview-container');
+        
+        // 이전에 저장된 이미지 URL은 existingImages 전역 변수에서 가져옵니다.
+        const existingUrls = existingImages[sectionId] || [];
+        const newFiles = newSectionFiles[sectionId] || [];
+
         previewContainer.innerHTML = '';
-        (existingImages[sectionId] || []).forEach((filename, index) => {
+        
+        existingUrls.forEach((url, index) => {
             const wrapper = document.createElement('div');
             wrapper.className = 'image-preview-wrapper';
-            wrapper.innerHTML = `<img src="${STATIC_BASE_URL}/uploads/programs/${filename}" style="width: 100px; height: 100px; object-fit: cover;"><button type="button" class="remove-preview-btn" data-type="existing" data-section-id="${sectionId}" data-index="${index}">X</button>`;
+            
+            // ★★★ 이미지 URL이 전체 주소인지 확인하는 로직 ★★★
+            const imageUrl = (url && url.startsWith('http'))
+                ? url // S3 전체 주소이면 그대로 사용
+                : `${STATIC_BASE_URL}${url}`; // 아니면 기존 방식
+
+            wrapper.innerHTML = `<img src="${imageUrl}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px;"><button type="button" class="remove-preview-btn" data-type="existing" data-section-id="${sectionId}" data-index="${index}">X</button>`;
             previewContainer.appendChild(wrapper);
         });
-        (newSectionFiles[sectionId] || []).forEach((file, index) => {
+        
+        newFiles.forEach((file, index) => {
             const reader = new FileReader();
             reader.onload = (event) => {
                 const wrapper = document.createElement('div');
                 wrapper.className = 'image-preview-wrapper';
-                wrapper.innerHTML = `<img src="${event.target.result}" style="width: 100px; height: 100px; object-fit: cover;"><button type="button" class="remove-preview-btn" data-type="new" data-section-id="${sectionId}" data-index="${index}">X</button>`;
+                wrapper.innerHTML = `<img src="${event.target.result}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px;"><button type="button" class="remove-preview-btn" data-type="new" data-section-id="${sectionId}" data-index="${index}">X</button>`;
                 previewContainer.appendChild(wrapper);
             };
             reader.readAsDataURL(file);

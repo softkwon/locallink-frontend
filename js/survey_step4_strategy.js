@@ -97,7 +97,18 @@ function renderBenchmarkCharts(diagnosis, benchmarkScores, userAnswers, allQuest
 
     const catChartCanvas = document.getElementById('categoryBenchmarkChart');
     const qChartCanvas = document.getElementById('questionBenchmarkChart');
+
+    // ★★★ 산업분류코드 표시를 위한 요소 찾기 (추가) ★★★
+    const benchmarkInfoEl = document.getElementById('benchmarkIndustryInfo');
+
     if (!catChartCanvas || !qChartCanvas || !diagnosis) return;
+
+    // ★★★ 받아온 진단 정보로 산업분류코드 표시 (추가) ★★★
+    if (benchmarkInfoEl && diagnosis.industry_codes && diagnosis.industry_codes.length > 0) {
+        // 백엔드에서 industry_name도 함께 보내주면 더 좋습니다.
+        // 지금은 코드만 표시하는 것으로 구현합니다.
+        benchmarkInfoEl.innerHTML = `<strong>적용 산업분류:</strong> [${diagnosis.industry_codes[0]}]`;
+    }
 
     // 영역별 종합 성과 비교 차트 (Bar Chart)
     new Chart(catChartCanvas, {
