@@ -127,15 +127,18 @@ document.addEventListener('DOMContentLoaded', function() {
      * 수정 일시: 2025-07-06 10:35
      */
     function addSectionRow(section = {}) {
-        const sectionId = 'section-' + Date.now() + Math.random();
+        const sectionId = 'section-' + Date.now() + Math.random().toString(36).substr(2, 9);
         newSectionFiles[sectionId] = [];
 
         const newSection = document.createElement('div');
         newSection.className = 'content-section'; 
         newSection.id = sectionId;
         
+        // ★★★ 뉴스 페이지와 동일한 UI 구조로 수정 ★★★
         newSection.innerHTML = `
-            <div style="display: flex; justify-content: flex-end;"><button type="button" class="button-danger button-sm remove-section-btn">X</button></div>
+            <div style="display:flex; justify-content:flex-end; margin-bottom: 15px;">
+                <button type="button" class="button-danger button-sm remove-section-btn">X</button>
+            </div>
             <div class="form-group"><label>소제목</label><input type="text" class="form-control section-subheading" value="${section.subheading || ''}"></div>
             <div class="form-group"><label>상세 내용</label><textarea class="form-control section-description" rows="8">${section.description || ''}</textarea></div>
             
@@ -166,7 +169,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (isEditMode) {
             newSection.querySelector('.section-layout').value = section.layout || 'img-top';
-            // 이제 전역 변수가 아닌, 각 섹션의 hidden input을 기준으로 미리보기를 그립니다.
             renderImagePreviews(sectionId);
         }
     }
@@ -390,53 +392,53 @@ document.addEventListener('DOMContentLoaded', function() {
      * 수정 일시: 2025-07-06 10:40
      */
     async function handleProgramSubmit(event) {
-        event.preventDefault();
-        const submitButton = form.querySelector('button[type="submit"]');
-        submitButton.disabled = true;
-        submitButton.textContent = isEditMode ? '수정 중...' : '저장 중...';
+        event.preventDefault();
+        const submitButton = form.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        submitButton.textContent = isEditMode ? '수정 중...' : '저장 중...';
 
-        try {
-            const formData = new FormData();
-            
-            // ... (기본 정보 및 다른 필드 추가 로직은 변경 없음) ...
-            formData.append('title', safeGetValue('title'));
-            formData.append('program_code', safeGetValue('program_code'));
-            formData.append('esg_category', safeGetValue('esg_category'));
-            formData.append('program_overview', safeGetValue('program_overview'));
-            formData.append('risk_text', safeGetValue('risk_text'));
-            formData.append('risk_description', safeGetValue('risk_description'));
-            const economicEffects = Array.from(document.querySelectorAll('#effects-container .effect-item')).map(item => ({ type: item.querySelector('.effect-type').value, value: parseFloat(item.querySelector('.effect-value').value) || 0, description: item.querySelector('.effect-description').value })).filter(item => item.value);
-            formData.append('economic_effects', JSON.stringify(economicEffects));
-            const partnerOrganizations = Array.from(document.querySelectorAll('#organizations-container .organization-item')).map(item => ({ organization_name: item.querySelector('.organization-name').value, homepage_url: item.querySelector('.homepage-url').value })).filter(item => item.organization_name && item.homepage_url);
-            formData.append('related_links', JSON.stringify(partnerOrganizations));
-            const serviceRegions = Array.from(document.querySelectorAll('input[name="service_region"]:checked')).map(checkbox => checkbox.value);
-            formData.append('service_regions', serviceRegions.join(','));
-            const opportunityEffects = [];
-            document.querySelectorAll('#opportunity-effects-container .form-fieldset').forEach(row => {
-                const type = row.querySelector('.opportunity-type-select').value;
-                if (type === 'text') {
-                    const value = row.querySelector('.opportunity-text-value').value;
-                    if (value) opportunityEffects.push({ type: 'text', value: value });
-                } else {
-                    const avgDataKey = row.querySelector('.opportunity-avg-data-key').value;
-                    if (avgDataKey) { opportunityEffects.push({ type: 'calculation', description: row.querySelector('.opportunity-description').value, rule: { type: 'calculation', params: { avgDataKey, correctionFactor: parseFloat(row.querySelector('.opportunity-correction-factor').value) || 1.0 } } }); }
-                }
-            });
-            formData.append('opportunity_effects', JSON.stringify(opportunityEffects));
+        try {
+            const formData = new FormData();
+            
+            // 1. 기본 정보 추가
+            formData.append('title', safeGetValue('title'));
+            formData.append('program_code', safeGetValue('program_code'));
+            formData.append('esg_category', safeGetValue('esg_category'));
+            formData.append('program_overview', safeGetValue('program_overview'));
+            formData.append('risk_text', safeGetValue('risk_text'));
+            formData.append('risk_description', safeGetValue('risk_description'));
+            
+            // 2. 동적으로 추가되는 정보들 수집
+            const economicEffects = Array.from(document.querySelectorAll('#effects-container .effect-item')).map(item => ({ type: item.querySelector('.effect-type').value, value: parseFloat(item.querySelector('.effect-value').value) || 0, description: item.querySelector('.effect-description').value })).filter(item => item.value);
+            formData.append('economic_effects', JSON.stringify(economicEffects));
+            const partnerOrganizations = Array.from(document.querySelectorAll('#organizations-container .organization-item')).map(item => ({ organization_name: item.querySelector('.organization-name').value, homepage_url: item.querySelector('.homepage-url').value })).filter(item => item.organization_name && item.homepage_url);
+            formData.append('related_links', JSON.stringify(partnerOrganizations));
+            const serviceRegions = Array.from(document.querySelectorAll('input[name="service_region"]:checked')).map(checkbox => checkbox.value);
+            formData.append('service_regions', serviceRegions.join(','));
+            const opportunityEffects = [];
+            document.querySelectorAll('#opportunity-effects-container .form-fieldset').forEach(row => {
+                const type = row.querySelector('.opportunity-type-select').value;
+                if (type === 'text') {
+                    const value = row.querySelector('.opportunity-text-value').value;
+                    if (value) opportunityEffects.push({ type: 'text', value: value });
+                } else {
+                    const avgDataKey = row.querySelector('.opportunity-avg-data-key').value;
+                    if (avgDataKey) { opportunityEffects.push({ type: 'calculation', description: row.querySelector('.opportunity-description').value, rule: { type: 'calculation', params: { avgDataKey, correctionFactor: parseFloat(row.querySelector('.opportunity-correction-factor').value) || 1.0 } } }); }
+                }
+            });
+            formData.append('opportunity_effects', JSON.stringify(opportunityEffects));
 
-            // ✨ [수정] Content 및 이미지 처리 로직 변경
-            // ★★★ content 데이터와 이미지 파일 처리 로직 수정 ★★★
+            // ★★★ 3. 뉴스 페이지와 동일하게 content와 이미지 파일을 처리 ★★★
             const finalContent = [];
-            let imageCounter = 0; 
+            let imageCounter = 0;
 
             document.querySelectorAll('.content-section').forEach(section => {
                 const sectionId = section.id;
                 const newFiles = newSectionFiles[sectionId] || [];
                 
-                // hidden input에서 유지할 기존 이미지 URL 목록을 가져옵니다.
                 const keptImages = section.querySelector('.kept-image-urls').value.split(',').filter(Boolean);
-
                 const imagePlaceholders = [];
+
                 newFiles.forEach(file => {
                     const placeholder = `new_image_${imageCounter++}`;
                     formData.append(placeholder, file, file.name);
@@ -448,33 +450,31 @@ document.addEventListener('DOMContentLoaded', function() {
                     description: section.querySelector('.section-description').value,
                     layout: section.querySelector('.section-layout').value,
                     description_size: section.querySelector('.section-desc-size').value,
-                    // 최종 이미지 목록 = 유지할 기존 URL + 새 파일의 이름표
                     images: [...keptImages, ...imagePlaceholders]
                 });
             });
-            
-            formData.append('content', JSON.stringify(finalContent));
-            
-            allNewFiles.forEach(file => {
-                formData.append('newImages', file, file.name);
-            });
-            
-            const url = isEditMode ? `${API_BASE_URL}/admin/programs/${programId}` : `${API_BASE_URL}/admin/programs`;
-            const method = isEditMode ? 'PUT' : 'POST';
-            const response = await fetch(url, { method, headers: { 'Authorization': `Bearer ${token}` }, body: formData });
-            const result = await response.json();
-            if (!response.ok) throw new Error(result.message || '저장 중 오류 발생');
-            alert(result.message);
-            if (result.success) { window.location.href = 'admin_programs.html'; }
+            
+            formData.append('content', JSON.stringify(finalContent));
+            
+            // 4. 서버에 최종 데이터 전송
+            const url = isEditMode ? `${API_BASE_URL}/admin/programs/${programId}` : `${API_BASE_URL}/admin/programs`;
+            const method = isEditMode ? 'PUT' : 'POST';
+            
+            const response = await fetch(url, { method, headers: { 'Authorization': `Bearer ${token}` }, body: formData });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.message || '저장 중 오류 발생');
+            
+            alert(result.message);
+            if (result.success) { window.location.href = 'admin_programs.html'; }
 
-        } catch (err) {
-            console.error('프로그램 정보 저장 중 오류:', err);
-            alert('프로그램 정보 저장 중 오류가 발생했습니다: ' + err.message);
-        } finally {
-            submitButton.disabled = false;
-            submitButton.textContent = isEditMode ? '수정 완료' : '글 저장하기';
-        }
-    }
+        } catch (err) {
+            console.error('프로그램 정보 저장 중 오류:', err);
+            alert('프로그램 정보 저장 중 오류가 발생했습니다: ' + err.message);
+        } finally {
+            submitButton.disabled = false;
+            submitButton.textContent = isEditMode ? '수정 완료' : '글 저장하기';
+        }
+    }
 
     // --- 7. 페이지 시작 ---
     initializePage();
