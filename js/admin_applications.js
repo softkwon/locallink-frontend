@@ -133,15 +133,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     const newStatus = row.querySelector('.status-select').value;
                     
                     try {
-                        // ★★★ 수정: API 경로를 /api/applications/admin/.../status 로 변경 ★★★
-                        const response = await fetch(`${API_BASE_URL}/applications/admin/${applicationId}/status`, {
-                            method: 'PATCH',
+                        // ★★★ API 경로에 불필요한 'admin'이 들어가 있어 수정합니다. ★★★
+                        const response = await fetch(`${API_BASE_URL}/admin/applications/${applicationId}/status`, {
+                            method: 'PUT', // 상태 변경은 보통 PUT이나 PATCH를 사용합니다.
                             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                             body: JSON.stringify({ status: newStatus })
                         });
                         const result = await response.json();
                         alert(result.message);
-                        if(result.success) e.target.classList.remove('visible');
+                        if(result.success) {
+                            // ★★★ 수정된 부분: 성공 시 테이블을 다시 로드합니다. ★★★
+                            loadApplications();
+                        }
                     } catch (err) { alert('상태 변경 중 오류 발생'); }
                 }
             });
