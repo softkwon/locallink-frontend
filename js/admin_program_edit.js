@@ -273,7 +273,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const wrapper = document.createElement('div');
             wrapper.className = 'image-preview-wrapper';
             
+            // ▼▼▼▼▼ 가장 중요한 수정 부분 ▼▼▼▼▼
+            // 프로그램 이미지 경로는 '/'로 시작하지 않으므로, 여기서 직접 추가해줍니다.
             const imageUrl = (url && url.startsWith('http')) ? url : `${STATIC_BASE_URL}/${url}`;
+            // ▲▲▲▲▲ 가장 중요한 수정 부분 ▲▲▲▲▲
 
             wrapper.innerHTML = `<img src="${imageUrl}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px;"><button type="button" class="remove-preview-btn" data-type="existing" data-index="${index}">X</button>`;
             previewContainer.appendChild(wrapper);
