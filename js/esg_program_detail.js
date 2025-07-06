@@ -1,6 +1,5 @@
 // js/esg_program_detail.js (2025-07-01 12:45:00)
-import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
-
+import { API_BASE_URL } from './config.js'; // STATIC_BASE_URL은 더 이상 필요 없으므로 제거해도 됩니다.
 
 document.addEventListener('DOMContentLoaded', async function() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -24,7 +23,10 @@ document.addEventListener('DOMContentLoaded', async function() {
         ]);
 
         const programResult = await programRes.json();
-        if (!programResult.success) throw new Error(programResult.message);
+        if (!programResult.success) {
+            // ★★★ 상세 에러 메시지 표시 ★★★
+            throw new Error(programResult.message || '프로그램 정보를 가져오지 못했습니다.');
+        }
         
         let companyName = "귀사";
         if (userRes && userRes.ok) {
@@ -39,11 +41,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 });
 
-/**
- * 파일명: js/esg_program_detail.js
- * 수정 위치: renderProgramDetails 함수 전체
- * 수정 일시: 2025-07-06 09:33
- */
+
 function renderProgramDetails(program, hasCompletedDiagnosis, source, companyName) {
     const container = document.getElementById('program-detail-container');
     document.title = `${program.title} - LocalLink`;
@@ -61,13 +59,10 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
         }
     }
 
-    const serviceRegionsHtml = (program.service_regions && program.service_regions.length > 0) ? program.service_regions.join(', ') : '전국';
+    // ★★★ (수정) 백엔드가 완벽한 데이터를 보내주므로, 불필요한 처리를 모두 제거합니다. ★★★
+    const serviceRegionsHtml = program.service_regions?.join(', ') || '전국';
     
-    const contentSections = (typeof program.content === 'string') ? JSON.parse(program.content) : (program.content || []);
-    
-    // ★★★ 수정된 부분 ★★★
-    const contentHtml = contentSections.map(section => {
-        // 백엔드가 보내준 전체 URL을 그대로 사용합니다.
+    const contentHtml = (program.content || []).map(section => {
         const imagesHtml = (section.images || []).map(imgUrl => 
             `<img src="${imgUrl}" alt="프로그램 상세 이미지">`
         ).join('');
