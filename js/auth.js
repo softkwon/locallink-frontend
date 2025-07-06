@@ -86,10 +86,10 @@ async function checkLoginAndRenderHeader() {
 
     const token = localStorage.getItem('locallink-token');
 
-    // 비로그인 상태일 경우
+    // 비로그인 상태일 경우 (기존과 동일)
     if (!token) {
         menuContainer.innerHTML = `<a href="main_login.html" class="button-outline" style="margin-right:10px;">로그인</a><a href="main_signup.html" class="button-primary">회원가입</a>`;
-        attachHeaderLinkListeners(); // 비로그인 시에도 '문의하기' 등 일부 링크는 작동해야 함
+        attachHeaderLinkListeners();
         return;
     }
 
@@ -105,7 +105,7 @@ async function checkLoginAndRenderHeader() {
         const isAdmin = ['super_admin', 'user_manager', 'content_manager'].includes(user.role);
         const adminLink = isAdmin ? `<a href="admin_dashboard.html">관리자 페이지</a>` : '';
         const profileImgUrl = (user.profile_image_url && user.profile_image_url.startsWith('http'))
-            ? user.profile_image_url // S3 전체 주소이면 그대로 사용
+            ? user.profile_image_url
             : `${STATIC_BASE_URL}/images/default_avatar.png`;
         
         const dropdownHtml = `
@@ -128,7 +128,21 @@ async function checkLoginAndRenderHeader() {
             </div>
         `;
         
+        // ★★★ 수정된 부분 ★★★
+        // 기존 menuContainer의 innerHTML을 수정하여, 알림 아이콘 관련 HTML을 user-menu 앞에 추가합니다.
         menuContainer.innerHTML = `
+            <div class="notification-container">
+                <button id="notification-bell-btn" class="notification-bell">
+                    🔔
+                    <span id="notification-dot" class="notification-dot hidden"></span>
+                </button>
+                <div id="notification-panel" class="notification-panel hidden">
+                    <div class="notification-header">알림</div>
+                    <ul id="notification-list">
+                        <li>알림을 불러오는 중...</li>
+                    </ul>
+                </div>
+            </div>
             <span class="user-level-badge level-${user.level}">LV.${user.level}</span>
             <div id="user-menu">
                 <button id="user-menu-button" style="background-image: url('${profileImgUrl}')" title="${user.company_name || '사용자'}님 메뉴"></button>
@@ -138,6 +152,10 @@ async function checkLoginAndRenderHeader() {
 
         attachHeaderLinkListeners();
         startSessionTimer(token);
+        
+        // ★★★ 추가된 부분 ★★★
+        // 사용자 메뉴가 그려진 후, 알림 기능을 초기화하는 함수를 호출합니다.
+        initializeNotifications();
 
     } catch (error) {
         console.error("사용자 메뉴 생성 중 에러:", error);
@@ -527,5 +545,83 @@ function showSuccessModal() {
     successModal.querySelector('#closeSuccessModal').addEventListener('click', () => successModal.remove());
     successModal.addEventListener('click', (e) => {
         if (e.target === successModal) successModal.remove();
+    });
+}
+
+/**
+ * 🔔 알림 아이콘과 관련된 모든 기능을 초기화하는 함수
+ */
+async function initializeNotifications() {
+    const token = localStorage.getItem('locallink-token');
+    if (!token) return;
+
+    const bellBtn = document.getElementById('notification-bell-btn');
+    const dot = document.getElementById('notification-dot');
+    const panel = document.getElementById('notification-panel');
+    const list = document.getElementById('notification-list');
+
+    // HTML 요소가 없으면 함수를 종료합니다.
+    if (!bellBtn || !dot || !panel || !list) {
+        console.error("Notification elements not found.");
+        return;
+    }
+
+    try {
+        // 1. 내 알림 목록 가져오기
+        const response = await fetch(`${API_BASE_URL}/notifications`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const result = await response.json();
+
+        if (result.success && result.notifications.length > 0) {
+            const notifications = result.notifications;
+            
+            // 2. 안 읽은 알림이 있는지 확인하고 빨간 점 표시
+            const hasUnread = notifications.some(n => !n.is_read);
+            dot.classList.toggle('hidden', !hasUnread);
+
+            // 3. 알림 목록 렌더링
+            list.innerHTML = notifications.map(n => `
+                <li class="${n.is_read ? 'is-read' : ''}">
+                    <a href="${n.link_url || '#'}">
+                        <p>${n.message}</p>
+                        <small>${new Date(n.created_at).toLocaleString()}</small>
+                    </a>
+                </li>
+            `).join('');
+
+        } else {
+            list.innerHTML = '<li>새로운 알림이 없습니다.</li>';
+        }
+
+    } catch (error) {
+        console.error("알림 확인 중 오류:", error);
+        list.innerHTML = '<li>알림을 불러오는 데 실패했습니다.</li>';
+    }
+
+    // 4. 벨 아이콘 클릭 이벤트 리스너 추가
+    bellBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // 이벤트 버블링 방지
+        panel.classList.toggle('hidden');
+        
+        // 알림창이 열리고, 안 읽은 알림이 있으면 '읽음' 처리 API 호출
+        if (!panel.classList.contains('hidden') && !dot.classList.contains('hidden')) {
+            fetch(`${API_BASE_URL}/notifications/mark-as-read`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            }).then(res => res.json())
+              .then(result => {
+                if (result.success) {
+                    dot.classList.add('hidden'); // API 호출 성공 시 바로 빨간 점 숨기기
+                }
+              });
+        }
+    });
+
+    // 5. 알림창 바깥을 클릭하면 닫히도록 설정
+    document.addEventListener('click', (e) => {
+        if (!bellBtn.contains(e.target) && !panel.contains(e.target)) {
+            panel.classList.add('hidden');
+        }
     });
 }
