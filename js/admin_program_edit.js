@@ -272,7 +272,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         previewContainer.innerHTML = '';
         
-        // ✨ [수정] S3 버킷의 기본 URL을 정의합니다.
+        // ✨ [수정] S3 버킷의 기본 URL을 올바르게 정의합니다.
         const s3BaseUrl = 'https://locallink-images.s3.us-east-2.amazonaws.com/';
 
         // 1. 이미 서버에 저장된 이미지들의 미리보기를 그립니다.
@@ -280,16 +280,16 @@ document.addEventListener('DOMContentLoaded', function() {
             const wrapper = document.createElement('div');
             wrapper.className = 'image-preview-wrapper';
             
-            // ✨ [수정] 이미지 URL 생성 로직을 S3 주소에 맞게 변경합니다.
+            // ✨ [수정] 이미지 URL 생성 로직을 S3 주소에 맞게 최종 수정합니다.
             const imageUrl = (url && url.startsWith('http'))
-                ? url // DB에 이미 전체 URL이 저장된 경우 그대로 사용
-                : `${s3BaseUrl}${url}`; // DB에 파일 경로만 저장된 경우 S3 기본 주소와 결합
+                ? url // DB에 이미 전체 URL이 저장된 경우
+                : `${s3BaseUrl}${url}`; // DB에 파일 경로만 저장된 경우
 
             wrapper.innerHTML = `<img src="${imageUrl}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px;" alt="프로그램 이미지"><button type="button" class="remove-preview-btn" data-type="existing" data-section-id="${sectionId}" data-index="${index}">X</button>`;
             previewContainer.appendChild(wrapper);
         });
         
-        // 2. 새로 추가한 파일들의 미리보기를 그립니다. (이 부분은 변경 없음)
+        // 2. 새로 추가한 파일들의 미리보기 (변경 없음)
         newFiles.forEach((file, index) => {
             const reader = new FileReader();
             reader.onload = (event) => {
