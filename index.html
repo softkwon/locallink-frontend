@@ -268,7 +268,7 @@
 
         /* ★★★★★ 반응형 웹 디자인을 위한 미디어 쿼리 ★★★★★ */
 
-        /* 화면 너비가 992px 이하일 때 (태블릿 및 모바일) */
+        /* 화면 너비가 992px 이하일 때 (태블릿) */
         @media (max-width: 992px) {
             /* --- 헤더 --- */
             header .container nav {
@@ -276,8 +276,8 @@
             }
 
             /* --- 메인 배너 (Hero Section) --- */
-            .hero-section h1 {
-                font-size: 2.5em; /* 제목 글자 크기 줄이기 */
+            .hero h1 { /* 선택자를 .hero로 수정 */
+                font-size: 2.8em; /* 제목 글자 크기를 살짝 줄입니다. */
             }
 
             /* --- 메인 콘텐츠 섹션 --- */
@@ -295,25 +295,26 @@
         @media (max-width: 768px) {
             /* --- 헤더 --- */
             header .container {
-                flex-wrap: wrap; /* 로고와 사용자 메뉴가 한 줄에 다 들어가지 않으면 줄바꿈 허용 */
+                flex-wrap: wrap; 
                 justify-content: space-between;
             }
             #user-menu-container {
                 margin-top: 10px;
-                width: 100%; /* 사용자 메뉴가 남는 공간을 모두 차지하도록 */
+                width: 100%;
                 display: flex;
                 justify-content: flex-end;
             }
 
             /* --- 메인 배너 (Hero Section) --- */
-            .hero-section {
-                padding: 60px 20px;
+            .hero { /* 선택자를 .hero로 수정 */
+                padding: 80px 20px; /* 위아래 여백을 줄입니다. */
             }
-            .hero-section h1 {
-                font-size: 2em;
+            .hero h1 {
+                font-size: 2.2em; /* 제목 글자 크기를 더 줄입니다. */
+                line-height: 1.3;
             }
-            .hero-section p {
-                font-size: 1em;
+            .hero p {
+                font-size: 1em; /* 설명 글자 크기를 살짝 줄입니다. */
             }
 
             /* --- 메인 콘텐츠 섹션 --- */
@@ -321,11 +322,21 @@
                 padding: 40px 20px;
             }
             .section .container h2 {
-                font-size: 1.8em !important; /* 섹션 제목 크기 조절 */
+                font-size: 1.8em !important;
             }
-
-            
         }
+
+        /* 화면 너비가 480px 이하일 때 (더 작은 모바일) */
+        @media (max-width: 480px) {
+            .hero {
+                padding: 60px 20px; /* 여백을 더 줄임 */
+            }
+            .hero h1 {
+                font-size: 1.9em; /* 글자 크기를 더 줄임 */
+            }
+        }
+        
+
     </style>    
     
 </head>
