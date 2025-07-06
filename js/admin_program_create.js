@@ -253,6 +253,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (!previewContainer || !hiddenInput) return;
 
+        // 생성 모드에서는 'existingUrls'가 항상 비어있으므로 이 로직은 실행되지 않습니다.
         const existingUrls = hiddenInput.value ? hiddenInput.value.split(',').filter(Boolean) : [];
         const newFiles = newSectionFiles[sectionId] || [];
 
@@ -262,12 +263,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const wrapper = document.createElement('div');
             wrapper.className = 'image-preview-wrapper';
             
-            const imageUrl = (url && url.startsWith('http')) ? url : `${STATIC_BASE_URL}${url}`;
+            // 이미지 경로에 '/'를 추가하여 깨짐 현상 방지
+            const imageUrl = (url && url.startsWith('http')) ? url : `${STATIC_BASE_URL}/${url}`;
 
             wrapper.innerHTML = `<img src="${imageUrl}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px;"><button type="button" class="remove-preview-btn" data-type="existing" data-index="${index}">X</button>`;
             previewContainer.appendChild(wrapper);
         });
         
+        // 생성 모드에서는 이 부분만 실제로 동작합니다.
         newFiles.forEach((file, index) => {
             const reader = new FileReader();
             reader.onload = (event) => {
@@ -383,7 +386,7 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const formData = new FormData();
             
-            // 1. 기본 정보 추가 (생략)
+            // 1. 기본 텍스트 정보 추가
             formData.append('title', safeGetValue('title'));
             formData.append('program_code', safeGetValue('program_code'));
             formData.append('esg_category', safeGetValue('esg_category'));
@@ -391,13 +394,16 @@ document.addEventListener('DOMContentLoaded', function() {
             formData.append('risk_text', safeGetValue('risk_text'));
             formData.append('risk_description', safeGetValue('risk_description'));
             
-            // 2. 여러 개 추가될 수 있는 정보들 수집 (생략)
+            // 2. 동적 항목들 JSON으로 변환하여 추가
             const economicEffects = Array.from(document.querySelectorAll('#effects-container .effect-item')).map(item => ({ type: item.querySelector('.effect-type').value, value: parseFloat(item.querySelector('.effect-value').value) || 0, description: item.querySelector('.effect-description').value })).filter(item => item.value);
             formData.append('economic_effects', JSON.stringify(economicEffects));
+
             const partnerOrganizations = Array.from(document.querySelectorAll('#organizations-container .organization-item')).map(item => ({ organization_name: item.querySelector('.organization-name').value, homepage_url: item.querySelector('.homepage-url').value })).filter(item => item.organization_name && item.homepage_url);
             formData.append('related_links', JSON.stringify(partnerOrganizations));
+            
             const serviceRegions = Array.from(document.querySelectorAll('input[name="service_region"]:checked')).map(checkbox => checkbox.value);
             formData.append('service_regions', serviceRegions.join(','));
+            
             const opportunityEffects = [];
             document.querySelectorAll('#opportunity-effects-container .form-fieldset').forEach(row => {
                 const type = row.querySelector('.opportunity-type-select').value;
@@ -411,49 +417,60 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             formData.append('opportunity_effects', JSON.stringify(opportunityEffects));
 
-            // ★★★ 3. 콘텐츠와 이미지 파일 처리 로직 수정 ★★★
-            // ★★★ content 데이터와 이미지 파일 처리 로직 수정 ★★★
+            // --- 변경점 시작 ---
+
+            // 3. 콘텐츠 섹션 데이터와 이미지 파일을 함께 처리
             const finalContent = [];
-            let imageCounter = 0; 
+            const allNewFiles = []; // 새로 추가된 모든 파일을 담을 배열
 
             document.querySelectorAll('.content-section').forEach(section => {
                 const sectionId = section.id;
                 const newFiles = newSectionFiles[sectionId] || [];
                 
-                // hidden input에서 유지할 기존 이미지 URL 목록을 가져옵니다.
+                // (수정 모드용) 유지할 이미지. 생성 모드에서는 항상 빈 배열.
                 const keptImages = section.querySelector('.kept-image-urls').value.split(',').filter(Boolean);
+                const newImageNames = []; // 새로 추가될 이미지의 '원본 파일명'을 담을 배열
 
-                const imagePlaceholders = [];
                 newFiles.forEach(file => {
-                    const placeholder = `new_image_${imageCounter++}`;
-                    formData.append(placeholder, file, file.name);
-                    imagePlaceholders.push(placeholder);
+                    newImageNames.push(file.name); // 임시 식별자로 파일의 원본 이름을 사용
+                    allNewFiles.push(file);       // 모든 새 파일을 통합 배열에 추가
                 });
                 
                 finalContent.push({
                     subheading: section.querySelector('.section-subheading').value,
                     description: section.querySelector('.section-description').value,
                     layout: section.querySelector('.section-layout').value,
-                    description_size: section.querySelector('.section-desc-size').value,
-                    // 최종 이미지 목록 = 유지할 기존 URL + 새 파일의 이름표
-                    images: [...keptImages, ...imagePlaceholders]
+                    description_size: parseInt(section.querySelector('.section-desc-size').value, 10),
+                    images: [...keptImages, ...newImageNames] // 기존 이미지(없음)와 새 이미지 파일명을 합침
                 });
             });
             
-            // 텍스트 데이터인 content를 JSON 문자열로 변환하여 추가
             formData.append('content', JSON.stringify(finalContent));
-            
-            // 모든 새 파일들을 'newImages' 라는 동일한 키로 formData에 추가
+
+            // 4. 모아둔 모든 새 파일들을 'newImages' 라는 동일한 키로 FormData에 추가
             allNewFiles.forEach(file => {
                 formData.append('newImages', file, file.name);
             });
             
-            // 4. 서버에 최종 데이터 전송 (생략, 기존과 동일)
+            // --- 변경점 끝 ---
+            
+            // 5. 서버에 최종 데이터 전송
             const url = isEditMode ? `${API_BASE_URL}/admin/programs/${programId}` : `${API_BASE_URL}/admin/programs`;
-            const method = isEditMode ? 'PUT' : 'POST';
+            const method = isEditMode ? 'POST' : 'POST'; // 생성 모드이므로 항상 POST
+            
             const response = await fetch(url, { method, headers: { 'Authorization': `Bearer ${token}` }, body: formData });
-            const result = await response.json();
+            
+            const responseText = await response.text();
+            let result;
+            try {
+                result = JSON.parse(responseText);
+            } catch(e) {
+                console.error("서버 응답이 유효한 JSON이 아닙니다. 응답 내용:", responseText);
+                throw new Error("서버로부터 잘못된 형식의 응답을 받았습니다.");
+            }
+
             if (!response.ok) throw new Error(result.message || '저장 중 오류 발생');
+            
             alert(result.message);
             if (result.success) { window.location.href = 'admin_programs.html'; }
 
@@ -462,7 +479,7 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('프로그램 정보 저장 중 오류가 발생했습니다: ' + err.message);
         } finally {
             submitButton.disabled = false;
-            submitButton.textContent = isEditMode ? '수정 완료' : '글 저장하기';
+            submitButton.textContent = isEditMode ? '수정 완료' : '저장하기';
         }
     }
 
