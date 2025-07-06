@@ -121,40 +121,64 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // --- 4. 동적 UI 생성 및 헬퍼 함수들 ---
+    /**
+     * 파일명: js/admin_program_edit.js
+     * 수정 위치: addSectionRow 함수 전체
+     * 수정 일시: 2025-07-06 10:35
+     */
+    function addSectionRow(section = {}) {
+        const sectionId = 'section-' + Date.now() + Math.random();
+        newSectionFiles[sectionId] = [];
+        // 수정 모드일 때, 기존 이미지 URL들을 이 섹션 ID에 연결하여 상태를 관리합니다.
+        if(isEditMode) {
+            existingImages[sectionId] = section.images || [];
+        }
 
-    // --- 4. 동적 UI 생성 및 헬퍼 함수들 --- 
+        const newSection = document.createElement('div');
+        newSection.className = 'content-section'; 
+        newSection.id = sectionId;
+        
+        // ★★★ UI를 요청하신 내용으로 수정합니다. ★★★
+        newSection.innerHTML = `
+            <div style="display: flex; justify-content: flex-end;"><button type="button" class="button-danger button-sm remove-section-btn">X</button></div>
+            <div class="form-group">
+                <label>소제목</label>
+                <input type="text" class="form-control section-subheading" value="${section.subheading || ''}">
+            </div>
+            <div class="form-group">
+                <label>상세 내용</label>
+                <textarea class="form-control section-description" rows="8">${section.description || ''}</textarea>
+            </div>
+            <div class="form-group">
+                <label>이미지 파일 (최대 3개)</label>
+                <div class="image-preview-container" style="margin-bottom:10px;"></div>
+                <input type="file" class="form-control section-images" multiple accept="image/*">
+            </div>
+            <div class="form-group-inline">
+                <div class="form-group">
+                    <label>이미지 배치</label>
+                    <select class="form-control section-layout">
+                        <option value="img-top">이미지(상) / 텍스트(하)</option>
+                        <option value="text-left">텍스트(좌) / 이미지(우)</option>
+                        <option value="text-right">이미지(좌) / 텍스트(우)</option>
+                        <option value="img-bottom">텍스트(상) / 이미지(하)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>내용 글자 크기 (px)</label>
+                    <input type="number" class="form-control section-desc-size" value="${section.description_size || 16}">
+                </div>
+            </div>
+        `;
+        sectionsContainer.appendChild(newSection);
 
-    function addSectionRow(section = {}) { 
-        const sectionId = 'section-' + Date.now() + Math.random(); 
-        newSectionFiles[sectionId] = []; 
-        if(isEditMode) existingImages[sectionId] = section.images || []; 
-
-        const newSection = document.createElement('div'); 
-        newSection.className = 'content-section'; newSection.id = sectionId; 
-        newSection.innerHTML = ` 
-            <div style="display: flex; justify-content: flex-end;"><button type="button" class="button-danger button-sm remove-section-btn">X</button></div> 
-            <div class="form-group"><label>소제목</label><input type="text" class="form-control section-subheading" value="${section.subheading || ''}"></div> 
-            <div class="form-group"><label>상세 내용</label><textarea class="form-control section-description" rows="8">${section.description || ''}</textarea></div> 
-            <div class="form-group-inline"> 
-                               <div class="form-group">
-                   <label>이미지 배치</label>
-                   <select class="form-control section-image-layout">
-                       <option value="image-left-text-right">이미지 좌, 텍스트 우</option>
-                       <option value="image-right-text-left">이미지 우, 텍스트 좌</option>
-                       <option value="image-top-text-bottom">이미지 상, 텍스트 하</option>
-                       <option value="image-bottom-text-top">이미지 하, 텍스트 상</option>
-                   </select>
-                </div> 
-                <div class="form-group"><label>내용 글자 크기 (px)</label><input type="number" class="form-control section-desc-size" value="${section.description_size || 16}"></div> 
-            </div> 
-            <div class="form-group"><label>이미지 파일 (하나의 섹션에는 하나의 이미지만 추가해주세요.)</label><div class="image-preview-container" style="margin-bottom:10px;"></div><input type="file" class="form-control section-images" accept="image/*"></div>`;
-        sectionsContainer.appendChild(newSection); 
-        if(isEditMode) { 
-            // ✨ [수정] 기존 'row' 대신 새로운 기본값으로 변경
-            newSection.querySelector('.section-image-layout').value = section.image_layout || 'image-left-text-right'; 
-            renderImagePreviews(sectionId); 
-        } 
-    }
+        if(isEditMode) {
+            // DB에 저장된 레이아웃 값으로 드롭다운의 초기값을 설정합니다.
+            newSection.querySelector('.section-layout').value = section.layout || 'img-top';
+            // 기존 이미지들의 미리보기를 렌더링합니다.
+            renderImagePreviews(sectionId);
+        }
+    }
 
     function addEffectRow(effect = {}) {
         const newEffect = document.createElement('div');
@@ -344,88 +368,99 @@ document.addEventListener('DOMContentLoaded', function() {
         // 폼 제출 이벤트를 여기에 연결
         form.addEventListener('submit', handleProgramSubmit);
     }
-    
-    // --- 6. 폼 제출 핸들러 ---
-     async function handleProgramSubmit(event) { 
-        event.preventDefault(); 
-        try { 
-            const formData = new FormData(); 
-            formData.append('title', safeGetValue('title')); 
-            formData.append('program_code', safeGetValue('program_code')); 
-            formData.append('esg_category', safeGetValue('esg_category')); 
-            formData.append('program_overview', safeGetValue('program_overview')); 
-            formData.append('risk_text', safeGetValue('risk_text')); 
-            formData.append('risk_description', safeGetValue('risk_description')); 
-            
-            // --- 이하는 변경사항 없음 ---
-            const economicEffects = Array.from(document.querySelectorAll('#effects-container .effect-item')).map(item => ({ type: item.querySelector('.effect-type').value, value: parseFloat(item.querySelector('.effect-value').value) || 0, description: item.querySelector('.effect-description').value })).filter(item => item.value); 
-            formData.append('economic_effects', JSON.stringify(economicEffects)); 
-            const partnerOrganizations = Array.from(document.querySelectorAll('#organizations-container .organization-item')).map(item => ({ organization_name: item.querySelector('.organization-name').value, homepage_url: item.querySelector('.homepage-url').value })).filter(item => item.organization_name && item.homepage_url); 
-            formData.append('related_links', JSON.stringify(partnerOrganizations)); 
-            const serviceRegions = Array.from(document.querySelectorAll('input[name="service_region"]:checked')).map(checkbox => checkbox.value); 
-            formData.append('service_regions', serviceRegions.join(',')); 
-            const opportunityEffects = []; 
-            document.querySelectorAll('#opportunity-effects-container .form-fieldset').forEach(row => { 
-                const type = row.querySelector('.opportunity-type-select').value; 
-                if (type === 'text') { 
-                    const value = row.querySelector('.opportunity-text-value').value; 
-                    if (value) opportunityEffects.push({ type: 'text', value: value }); 
-                } else { 
-                    const avgDataKey = row.querySelector('.opportunity-avg-data-key').value; 
-                    if (avgDataKey) { opportunityEffects.push({ type: 'calculation', description: row.querySelector('.opportunity-description').value, rule: { type: 'calculation', params: { avgDataKey, correctionFactor: parseFloat(row.querySelector('.opportunity-correction-factor').value) || 1.0 } } }); } 
-                } 
-            }); 
-            formData.append('opportunity_effects', JSON.stringify(opportunityEffects)); 
+        
+    /**
+     * 파일명: js/admin_program_edit.js
+     * 수정 위치: handleProgramSubmit 함수 전체
+     * 수정 일시: 2025-07-06 10:40
+     */
+    async function handleProgramSubmit(event) {
+        event.preventDefault();
+        const submitButton = form.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        submitButton.textContent = isEditMode ? '수정 중...' : '저장 중...';
 
-            // --- ✨ 여기서부터 로직 수정 ---
-            const finalContent = [];
-            const allNewFiles = []; // 모든 섹션의 새 파일들을 한 곳에 모으기 위한 배열
+        try {
+            const formData = new FormData();
+            
+            // 1. 기본 정보 추가
+            formData.append('title', safeGetValue('title'));
+            formData.append('program_code', safeGetValue('program_code'));
+            formData.append('esg_category', safeGetValue('esg_category'));
+            formData.append('program_overview', safeGetValue('program_overview'));
+            formData.append('risk_text', safeGetValue('risk_text'));
+            formData.append('risk_description', safeGetValue('risk_description'));
+            
+            // 2. 여러 개 추가될 수 있는 정보들 수집 (기대효과, 연계단체 등)
+            const economicEffects = Array.from(document.querySelectorAll('#effects-container .effect-item')).map(item => ({ type: item.querySelector('.effect-type').value, value: parseFloat(item.querySelector('.effect-value').value) || 0, description: item.querySelector('.effect-description').value })).filter(item => item.value);
+            formData.append('economic_effects', JSON.stringify(economicEffects));
 
-            for (const section of sectionsContainer.querySelectorAll('.content-section')) { 
-                const sectionId = section.id;
-                // 기존에 있던 이미지 파일명 목록
-                const keptImages = (isEditMode && existingImages[sectionId]) ? existingImages[sectionId] : [];
-                // 이번에 새로 추가된 이미지 파일 객체 목록
-                const newImageFiles = newSectionFiles[sectionId] || [];
-                // 새로 추가된 이미지 파일의 '이름'만 추출한 목록
-                const newImageNames = newImageFiles.map(file => file.name);
+            const partnerOrganizations = Array.from(document.querySelectorAll('#organizations-container .organization-item')).map(item => ({ organization_name: item.querySelector('.organization-name').value, homepage_url: item.querySelector('.homepage-url').value })).filter(item => item.organization_name && item.homepage_url);
+            formData.append('related_links', JSON.stringify(partnerOrganizations));
+            
+            const serviceRegions = Array.from(document.querySelectorAll('input[name="service_region"]:checked')).map(checkbox => checkbox.value);
+            formData.append('service_regions', serviceRegions.join(','));
+            
+            const opportunityEffects = [];
+            document.querySelectorAll('#opportunity-effects-container .form-fieldset').forEach(row => {
+                const type = row.querySelector('.opportunity-type-select').value;
+                if (type === 'text') {
+                    const value = row.querySelector('.opportunity-text-value').value;
+                    if (value) opportunityEffects.push({ type: 'text', value: value });
+                } else {
+                    const avgDataKey = row.querySelector('.opportunity-avg-data-key').value;
+                    if (avgDataKey) { opportunityEffects.push({ type: 'calculation', description: row.querySelector('.opportunity-description').value, rule: { type: 'calculation', params: { avgDataKey, correctionFactor: parseFloat(row.querySelector('.opportunity-correction-factor').value) || 1.0 } } }); }
+                }
+            });
+            formData.append('opportunity_effects', JSON.stringify(opportunityEffects));
 
-                finalContent.push({ 
-                    subheading: section.querySelector('.section-subheading').value, 
-                    description: section.querySelector('.section-description').value, 
-                    image_layout: section.querySelector('.section-image-layout').value, 
-                    description_size: section.querySelector('.section-desc-size').value, 
-                    // 최종 이미지 목록 = 기존 이미지 + 새로운 이미지 이름
-                    images: [...keptImages, ...newImageNames] 
-                }); 
+            // ★★★ 3. 콘텐츠 섹션 데이터와 이미지 파일을 함께 처리하는 로직 ★★★
+            const finalContent = [];
+            let imageCounter = 0; // 새 파일에 고유한 이름(placeholder)을 붙이기 위함
 
-                // 실제 파일 객체는 별도의 배열에 모아둡니다.
-                allNewFiles.push(...newImageFiles);
-            } 
-            
-            // 서버에 보낼 content JSON 데이터를 추가합니다.
-            formData.append('content', JSON.stringify(finalContent)); 
-            
-            // 모든 새 파일들을 'newImages' 키로 formData에 추가합니다.
-            allNewFiles.forEach(file => {
-                formData.append('newImages', file, file.name);
-            });
-            // --- ✨ 수정 로직 끝 ---
+            for (const section of sectionsContainer.querySelectorAll('.content-section')) {
+                const sectionId = section.id;
+                const keptImages = (isEditMode && existingImages[sectionId]) ? existingImages[sectionId] : [];
+                const newImageFiles = newSectionFiles[sectionId] || [];
+                
+                const newImagePlaceholders = [];
+                newImageFiles.forEach(file => {
+                    const placeholder = `new_image_${imageCounter++}`;
+                    formData.append(placeholder, file, file.name); // 실제 파일을 FormData에 추가
+                    newImagePlaceholders.push(placeholder);      // 해당 파일의 이름표(key)를 저장
+                });
 
-            const url = isEditMode ? `${API_BASE_URL}/admin/programs/${programId}` : `${API_BASE_URL}/admin/programs`; 
-            const method = isEditMode ? 'PUT' : 'POST'; 
-            
-            const response = await fetch(url, { method, headers: { 'Authorization': `Bearer ${token}` }, body: formData }); 
-            const result = await response.json(); 
-            if (!response.ok) throw new Error(result.message || '저장 중 오류 발생'); 
-            
-            alert(result.message); 
-            if (result.success) { window.location.href = 'admin_programs.html'; } 
-        } catch (err) { 
-            console.error('프로그램 정보 저장 중 오류:', err); 
-            alert('프로그램 정보 저장 중 오류가 발생했습니다: ' + err.message); 
-        } 
-    }
+                finalContent.push({
+                    subheading: section.querySelector('.section-subheading').value,
+                    description: section.querySelector('.section-description').value,
+                    layout: section.querySelector('.section-layout').value,
+                    description_size: section.querySelector('.section-desc-size').value,
+                    // 최종 이미지 목록 = 기존에 있던 S3 URL + 새로 추가된 파일의 이름표
+                    images: [...keptImages, ...newImagePlaceholders]
+                });
+            }
+            
+            formData.append('content', JSON.stringify(finalContent));
+            
+            // 4. 서버에 최종 데이터 전송
+            const url = isEditMode ? `${API_BASE_URL}/admin/programs/${programId}` : `${API_BASE_URL}/admin/programs`;
+            const method = isEditMode ? 'PUT' : 'POST';
+            
+            const response = await fetch(url, { method, headers: { 'Authorization': `Bearer ${token}` }, body: formData });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.message || '저장 중 오류 발생');
+            
+            alert(result.message);
+            if (result.success) { window.location.href = 'admin_programs.html'; }
+
+        } catch (err) {
+            console.error('프로그램 정보 저장 중 오류:', err);
+            alert('프로그램 정보 저장 중 오류가 발생했습니다: ' + err.message);
+        } finally {
+            submitButton.disabled = false;
+            submitButton.textContent = isEditMode ? '수정 완료' : '글 저장하기';
+        }
+    }
 
     // --- 7. 페이지 시작 ---
     initializePage();
