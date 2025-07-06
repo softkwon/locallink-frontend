@@ -208,17 +208,17 @@ document.addEventListener('DOMContentLoaded', function() {
             <tr><td>기업신뢰도 향상</td><td class="amount-cell">${trustEffect.toFixed(2)}</td></tr>
         `;
 
-        // --- 4. [플랜에 따른 기대효과] 계산 (계산식 수정) ---
-        let optionalEffectsHtml = '';
+        // --- 3. [플랜수행에 따른 기대효과] 계산 ★★★ 로직 수정 ★★★
+        let optionalEffectsHtml = ''; // 매번 계산 시 변수를 초기화합니다.
         let totalOptionalEffect = 0;
+        
         planPrograms.forEach(program => {
             const unitEffectObj = program.economic_effects?.find(e => e.type === 'unit_effect');
             if (unitEffectObj && unitEffectObj.value > 0) {
-                // ★ 2. (편성ESG예산(억원) * 단위당 기대효과(원)) / 100,000,000 = 총 기대효과(억원) ★
                 const effectValueInEok = (targetDonation * unitEffectObj.value) / 100000000;
                 totalOptionalEffect += effectValueInEok;
-                optionalEffectsHtml += `<tr><td>${program.title}</td><td class="amount-cell">${effectValueInEok.toFixed(2)}</td></tr>`;
-                // ★★★ 설명(description)을 표시할 <td> 추가 ★★★
+                
+                // 중복되던 부분을 삭제하고, 하나의 tr만 생성하도록 수정합니다.
                 optionalEffectsHtml += `
                     <tr>
                         <td>${program.title}</td>
@@ -228,7 +228,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 `;
             }
         });
-        elements.optionalEffectsTableBody.innerHTML = optionalEffectsHtml || '<tr><td colspan="2" style="text-align:center;">선택된 플랜에 해당하는 기대효과가 없습니다.</td></tr>';
+        elements.optionalEffectsTableBody.innerHTML = optionalEffectsHtml || '<tr><td colspan="3" style="text-align:center;">선택된 플랜에 해당하는 기대효과가 없습니다.</td></tr>';
         
         // --- 5. 최종 합계 및 결과 표시 ---
         const totalEconomicEffect = totalTaxSaving + esgActivityEffect + marketingEffect + trustEffect + totalOptionalEffect;

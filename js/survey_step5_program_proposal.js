@@ -207,12 +207,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (button.classList.contains('add-to-plan-btn')) {
                     let myPlan = JSON.parse(localStorage.getItem('esgMyPlan')) || [];
                     if (myPlan.some(p => p.id == programId)) {
-                        alert('이미 플랜에 추가된 프로그램입니다.');
+                        alert('이미 플랜에 추가된 프로그램입니다. 시뮬레이터에서 확인할 수 있습니다');
                         return;
                     }
                     myPlan.push({ id: parseInt(programId), title: programTitle });
                     localStorage.setItem('esgMyPlan', JSON.stringify(myPlan));
-                    alert(`'${programTitle}' 프로그램이 내 플랜에 추가되었습니다.`);
+                    alert(`'${programTitle}' 프로그램이 내 플랜에 추가되었습니다. 시뮬레이터에서 내 플랜의 기대효과를 계산할 수 있습니다 `);
                 }
 
                 // '신청하기'
