@@ -392,7 +392,7 @@ document.addEventListener('DOMContentLoaded', function() {
     /**
      * 파일명: js/admin_program_create.js & js/admin_program_edit.js
      * 수정 위치: handleProgramSubmit 함수 전체
-     * 수정 일시: 2025-07-06 11:45
+     * 수정 일시: 2025-07-06 23:40
      */
     async function handleProgramSubmit(event) {
         event.preventDefault();
@@ -412,10 +412,10 @@ document.addEventListener('DOMContentLoaded', function() {
             formData.append('risk_description', safeGetValue('risk_description'));
             
             // 2. 동적으로 추가/삭제되는 항목들을 JSON으로 변환하여 추가
-            const economicEffects = Array.from(document.querySelectorAll('#effects-container .effect-item')).map(item => ({ type: item.querySelector('.effect-type').value, value: parseFloat(item.querySelector('.effect-value').value) || 0, description: item.querySelector('.effect-description').value })).filter(item => item.value);
+            const economicEffects = Array.from(document.querySelectorAll('#effects-container .effect-item')).map(item => ({ type: item.querySelector('.effect-type').value, value: parseFloat(item.querySelector('.effect-value').value) || 0, description: item.querySelector('.effect-description').value })).filter(item => item.value || item.description);
             formData.append('economic_effects', JSON.stringify(economicEffects));
 
-            const partnerOrganizations = Array.from(document.querySelectorAll('#organizations-container .organization-item')).map(item => ({ organization_name: item.querySelector('.organization-name').value, homepage_url: item.querySelector('.homepage-url').value })).filter(item => item.organization_name && item.homepage_url);
+            const partnerOrganizations = Array.from(document.querySelectorAll('#organizations-container .organization-item')).map(item => ({ organization_name: item.querySelector('.organization-name').value, homepage_url: item.querySelector('.homepage-url').value })).filter(item => item.organization_name || item.homepage_url);
             formData.append('related_links', JSON.stringify(partnerOrganizations));
             
             const serviceRegions = Array.from(document.querySelectorAll('input[name="service_region"]:checked')).map(checkbox => checkbox.value);
@@ -434,22 +434,22 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             formData.append('opportunity_effects', JSON.stringify(opportunityEffects));
 
-            // --- 변경점 시작 ---
-
-            // 3. 콘텐츠 섹션 데이터와 이미지 파일을 함께 처리
+            // 3. 콘텐츠 섹션 데이터와 이미지 파일을 '뉴스'와 동일한 방식으로 처리
             const finalContent = [];
-            const allNewFiles = []; // 새로 추가된 모든 파일을 담을 배열
+            let imageCounter = 0; 
 
             document.querySelectorAll('.content-section').forEach(section => {
                 const sectionId = section.id;
                 const newFiles = newSectionFiles[sectionId] || [];
                 
                 const keptImages = section.querySelector('.kept-image-urls').value.split(',').filter(Boolean);
-                const newImageNames = []; // 새로 추가될 이미지의 '원본 파일명'을 담을 배열
+                const newImagePlaceholders = [];
 
                 newFiles.forEach(file => {
-                    newImageNames.push(file.name); // 임시 식별자로 파일의 원본 이름을 사용
-                    allNewFiles.push(file);       // 모든 새 파일을 통합 배열에 추가
+                    // 'new_image_0', 'new_image_1' ... 과 같은 고유한 이름표 생성
+                    const placeholder = `new_image_${imageCounter++}`;
+                    formData.append(placeholder, file, file.name); // 이름표와 함께 파일 추가
+                    newImagePlaceholders.push(placeholder); // 이름표를 content에 포함
                 });
                 
                 finalContent.push({
@@ -457,39 +457,27 @@ document.addEventListener('DOMContentLoaded', function() {
                     description: section.querySelector('.section-description').value,
                     layout: section.querySelector('.section-layout').value,
                     description_size: parseInt(section.querySelector('.section-desc-size').value, 10),
-                    images: [...keptImages, ...newImageNames] // 기존 이미지 URL과 새 이미지 파일명을 합침
+                    images: [...keptImages, ...newImagePlaceholders] // 유지할 이미지 URL + 새 이미지 이름표
                 });
             });
             
             formData.append('content', JSON.stringify(finalContent));
-
-            // 4. 모아둔 모든 새 파일들을 'newImages' 라는 동일한 키로 FormData에 추가
-            allNewFiles.forEach(file => {
-                formData.append('newImages', file, file.name);
-            });
             
-            // --- 변경점 끝 ---
-            
-            // 5. 서버에 최종 데이터 전송
+            // 4. 서버에 최종 데이터 전송
             const url = isEditMode ? `${API_BASE_URL}/admin/programs/${programId}` : `${API_BASE_URL}/admin/programs`;
             const method = isEditMode ? 'PUT' : 'POST';
             
             const response = await fetch(url, { method, headers: { 'Authorization': `Bearer ${token}` }, body: formData });
             
-            // 에러 디버깅을 위해 응답이 JSON이 아닐 경우 텍스트로 출력
-            const responseText = await response.text();
-            let result;
-            try {
-                result = JSON.parse(responseText);
-            } catch(e) {
-                console.error("서버 응답이 유효한 JSON이 아닙니다. 응답 내용:", responseText);
-                throw new Error("서버로부터 잘못된 형식의 응답을 받았습니다.");
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(result.message || '저장 중 오류가 발생했습니다.');
             }
-
-            if (!response.ok) throw new Error(result.message || '저장 중 오류 발생');
             
             alert(result.message);
-            if (result.success) { window.location.href = 'admin_programs.html'; }
+            if (result.success) { 
+                window.location.href = 'admin_programs.html'; 
+            }
 
         } catch (err) {
             console.error('프로그램 정보 저장 중 오류:', err);
