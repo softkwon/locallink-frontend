@@ -134,7 +134,6 @@ document.addEventListener('DOMContentLoaded', function() {
         newSection.className = 'content-section'; 
         newSection.id = sectionId;
         
-        // ★★★ 뉴스 페이지와 동일한 UI 구조로 수정 ★★★
         newSection.innerHTML = `
             <div style="display:flex; justify-content:flex-end; margin-bottom: 15px;">
                 <button type="button" class="button-danger button-sm remove-section-btn">X</button>
@@ -155,8 +154,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <select class="form-control section-layout">
                         <option value="img-top">이미지(상) / 텍스트(하)</option>
                         <option value="text-left">텍스트(좌) / 이미지(우)</option>
-                        <option value="text-right">이미지(좌) / 텍스트(우)</option>
-                        <option value="img-bottom">텍스트(상) / 이미지(하)</option>
+                        <option value="img-left">이미지(좌) / 텍스트(우)</option> <option value="img-bottom">텍스트(상) / 이미지(하)</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -168,7 +166,9 @@ document.addEventListener('DOMContentLoaded', function() {
         sectionsContainer.appendChild(newSection);
 
         if (isEditMode) {
-            newSection.querySelector('.section-layout').value = section.layout || 'img-top';
+            // 'text-right'로 저장된 옛날 데이터를 'img-left'로 호환시켜줍니다.
+            const layoutValue = section.layout === 'text-right' ? 'img-left' : section.layout;
+            newSection.querySelector('.section-layout').value = layoutValue || 'img-top';
             renderImagePreviews(sectionId);
         }
     }
@@ -256,43 +256,43 @@ document.addEventListener('DOMContentLoaded', function() {
      * 수정 일시: 2025-07-06 07:44
      */
     function renderImagePreviews(sectionId) {
-    const sectionDiv = document.getElementById(sectionId);
-    if (!sectionDiv) return;
+        const sectionDiv = document.getElementById(sectionId);
+        if (!sectionDiv) return;
 
-    const previewContainer = sectionDiv.querySelector('.image-preview-container');
-    const hiddenInput = sectionDiv.querySelector('.kept-image-urls');
-    
-    if (!previewContainer || !hiddenInput) return;
-
-    const existingUrls = hiddenInput.value ? hiddenInput.value.split(',').filter(Boolean) : [];
-    const newFiles = newSectionFiles[sectionId] || [];
-
-    previewContainer.innerHTML = '';
-    
-    existingUrls.forEach((url, index) => {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'image-preview-wrapper';
+        const previewContainer = sectionDiv.querySelector('.image-preview-container');
+        const hiddenInput = sectionDiv.querySelector('.kept-image-urls');
         
-        // ★★★ 수정된 부분 ★★★
-        // 이제 백엔드가 항상 완벽한 전체 S3 주소를 보내주므로,
-        // 프론트에서는 받은 주소를 그대로 사용하기만 하면 됩니다.
-        const imageUrl = url;
+        if (!previewContainer || !hiddenInput) return;
 
-        wrapper.innerHTML = `<img src="${imageUrl}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px;"><button type="button" class="remove-preview-btn" data-type="existing" data-index="${index}">X</button>`;
-        previewContainer.appendChild(wrapper);
-    });
-    
-    newFiles.forEach((file, index) => {
-        const reader = new FileReader();
-        reader.onload = (event) => {
+        const existingUrls = hiddenInput.value ? hiddenInput.value.split(',').filter(Boolean) : [];
+        const newFiles = newSectionFiles[sectionId] || [];
+
+        previewContainer.innerHTML = '';
+        
+        existingUrls.forEach((url, index) => {
             const wrapper = document.createElement('div');
             wrapper.className = 'image-preview-wrapper';
-            wrapper.innerHTML = `<img src="${event.target.result}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px;"><button type="button" class="remove-preview-btn" data-type="new" data-index="${index}">X</button>`;
+            
+            // ★★★ 수정된 부분 ★★★
+            // 이제 백엔드가 항상 완벽한 전체 S3 주소를 보내주므로,
+            // 프론트에서는 받은 주소를 그대로 사용하기만 하면 됩니다.
+            const imageUrl = url;
+
+            wrapper.innerHTML = `<img src="${imageUrl}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px;"><button type="button" class="remove-preview-btn" data-type="existing" data-index="${index}">X</button>`;
             previewContainer.appendChild(wrapper);
-        };
-        reader.readAsDataURL(file);
-    });
-}
+        });
+        
+        newFiles.forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'image-preview-wrapper';
+                wrapper.innerHTML = `<img src="${event.target.result}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px;"><button type="button" class="remove-preview-btn" data-type="new" data-index="${index}">X</button>`;
+                previewContainer.appendChild(wrapper);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
 
     function safeSetValue(id, value) {
         const element = document.getElementById(id);
