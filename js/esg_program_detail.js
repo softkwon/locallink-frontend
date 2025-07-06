@@ -59,10 +59,16 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
         }
     }
 
-    // ★★★ (수정) 백엔드가 완벽한 데이터를 보내주므로, 불필요한 처리를 모두 제거합니다. ★★★
     const serviceRegionsHtml = program.service_regions?.join(', ') || '전국';
     
-    const contentHtml = (program.content || []).map(section => {
+    // ★★★ 수정된 부분 ★★★
+    // 백엔드 데이터가 배열이 아닐 수도 있는 모든 경우에 대비하여, 
+    // Array.isArray()로 한 번 더 안전하게 확인합니다.
+    const contentSections = Array.isArray(program.content) ? program.content : [];
+    const relatedLinks = Array.isArray(program.related_links) ? program.related_links : [];
+    const opportunityEffects = Array.isArray(program.opportunity_effects) ? program.opportunity_effects : [];
+
+    const contentHtml = contentSections.map(section => {
         const imagesHtml = (section.images || []).map(imgUrl => 
             `<img src="${imgUrl}" alt="프로그램 상세 이미지">`
         ).join('');
@@ -83,8 +89,8 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
         `;
     }).join('');
 
-    const orgsHtml = (program.related_links || []).map(org => `<li><a href="${org.homepage_url}" target="_blank">${org.organization_name}</a></li>`).join('') || '<li>-</li>';
-    const oppsHtml = (program.opportunity_effects || []).map(opp => `<li>${opp.value}</li>`).join('') || '<li>-</li>';
+    const orgsHtml = relatedLinks.map(org => `<li><a href="${org.homepage_url}" target="_blank">${org.organization_name}</a></li>`).join('') || '<li>-</li>';
+    const oppsHtml = opportunityEffects.map(opp => `<li>${opp.value}</li>`).join('') || '<li>-</li>';
 
     container.innerHTML = `
         <div class="program-detail-wrapper">
