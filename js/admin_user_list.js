@@ -67,13 +67,16 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     /**
-     * 받아온 데이터로 사용자 테이블을 그리는 함수
+     * 파일명: js/admin_user_list.js
+     * 수정 위치: renderUserTable 함수 전체
+     * 수정 일시: 2025-07-06 09:02
      */
     function renderUserTable(users) {
         if (!tableBodyEl) return;
         tableBodyEl.innerHTML = '';
         if (users.length === 0) {
-            tableBodyEl.innerHTML = `<tr><td colspan="8" style="text-align:center;">등록된 회원이 없습니다.</td></tr>`;
+            // 컬럼 개수가 9개로 늘어났으므로 colspan을 9로 수정합니다.
+            tableBodyEl.innerHTML = `<tr><td colspan="9" style="text-align:center;">등록된 회원이 없습니다.</td></tr>`;
             return;
         }
 
@@ -84,7 +87,8 @@ document.addEventListener('DOMContentLoaded', async function() {
             row.insertCell().textContent = user.company_name || '-';
             row.insertCell().textContent = user.manager_name || '-';
             row.insertCell().textContent = user.manager_phone || '-';
-            row.insertCell().textContent = getCompanySizeName(user.company_size);
+            // '회사 규모'는 지금 코드에 없지만, 만약 필요하다면 getCompanySizeName 같은 함수를 사용해야 합니다.
+            // row.insertCell().textContent = getCompanySizeName(user.company_size);
             
             const roleCell = row.insertCell();
             if (currentUserRole === 'super_admin') {
@@ -102,6 +106,13 @@ document.addEventListener('DOMContentLoaded', async function() {
             } else {
                 roleCell.textContent = user.role;
             }
+            
+            // ★★★ 1. 새로운 '레벨' 셀을 추가합니다. ★★★
+            const levelCell = row.insertCell();
+            levelCell.innerHTML = `<span class="user-level-badge level-${user.level}">LV.${user.level}</span>`;
+            levelCell.style.textAlign = 'center'; // 가운데 정렬
+
+            row.insertCell().textContent = new Date(user.created_at).toLocaleDateString();
             
             const actionCell = row.insertCell();
             if (currentUserRole === 'super_admin') {
