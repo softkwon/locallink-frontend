@@ -265,27 +265,30 @@ document.addEventListener('DOMContentLoaded', function() {
     function renderImagePreviews(sectionId) {
         const section = document.getElementById(sectionId);
         if (!section) return;
+
         const previewContainer = section.querySelector('.image-preview-container');
-        
         // 이전에 저장된 이미지 URL은 existingImages 전역 변수에서 가져옵니다.
         const existingUrls = existingImages[sectionId] || [];
+        // 새로 추가한 파일들은 newSectionFiles 전역 변수에서 가져옵니다.
         const newFiles = newSectionFiles[sectionId] || [];
 
         previewContainer.innerHTML = '';
         
+        // 1. 이미 서버에 저장된 이미지들의 미리보기를 그립니다.
         existingUrls.forEach((url, index) => {
             const wrapper = document.createElement('div');
             wrapper.className = 'image-preview-wrapper';
             
-            // ★★★ 이미지 URL이 전체 주소인지 확인하는 로직 ★★★
+            // ★★★ 이미지 URL이 http로 시작하는 전체 주소인지 확인하고 처리합니다. ★★★
             const imageUrl = (url && url.startsWith('http'))
                 ? url // S3 전체 주소이면 그대로 사용
-                : `${STATIC_BASE_URL}${url}`; // 아니면 기존 방식
+                : `${STATIC_BASE_URL}${url}`; // 아니면 옛날 데이터 호환
 
             wrapper.innerHTML = `<img src="${imageUrl}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px;"><button type="button" class="remove-preview-btn" data-type="existing" data-section-id="${sectionId}" data-index="${index}">X</button>`;
             previewContainer.appendChild(wrapper);
         });
         
+        // 2. 새로 추가한 파일들의 미리보기를 그립니다.
         newFiles.forEach((file, index) => {
             const reader = new FileReader();
             reader.onload = (event) => {

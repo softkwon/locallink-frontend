@@ -68,30 +68,20 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
     const contentSections = (typeof program.content === 'string') ? JSON.parse(program.content) : (program.content || []);
     
     const contentHtml = contentSections.map(section => {
-        // 2-1. 해당 섹션의 이미지들로 HTML을 만듭니다.
         const imagesHtml = (section.images || [])
             .map(imgUrl => {
-                const finalImageUrl = (imgUrl && imgUrl.startsWith('http'))
-                    ? imgUrl // S3 전체 주소이면 그대로 사용
-                    : `${STATIC_BASE_URL}${imgUrl}`; // 아니면 기존 방식
-                
-                // 2-2. 관리자 페이지에서 설정한 image_width 값을 style에 적용합니다.
-                const imageWidth = section.image_width ? `${section.image_width}px` : 'auto';
-                return `<img src="${finalImageUrl}" alt="프로그램 상세 이미지" style="width: ${imageWidth}; max-width: 100%;">`;
+                // S3 전체 주소이므로, 다른 주소를 덧붙이지 않습니다.
+                return `<img src="${imgUrl}" alt="프로그램 상세 이미지">`;
             }).join('');
         
-        // 2-3. 텍스트와 이미지 컨테이너 HTML 생성
         const textHtml = `
             <div class="text-content">
-                <h3 style="font-size: ${section.subheading_size || 24}px;">${section.subheading || ''}</h3>
-                <div style="font-size: ${section.description_size || 16}px;">
-                    ${(section.description || '').replace(/\n/g, '<br>')}
-                </div>
+                <h3>${section.subheading || ''}</h3>
+                <div>${(section.description || '').replace(/\n/g, '<br>')}</div>
             </div>
         `;
         const imageContainerHtml = imagesHtml ? `<div class="image-content">${imagesHtml}</div>` : '';
 
-        // 2-4. 레이아웃 관련 클래스를 제거하고 단순한 구조로 변경
         return `
             <div class="content-section-body">
                 ${textHtml}
@@ -100,11 +90,10 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
         `;
     }).join('');
 
-    // 3. 연계 단체 및 기대효과 정보 HTML 생성
-    const orgsHtml = (program.related_links && program.related_links.length > 0) ? program.related_links.map(org => `<li><a href="${org.homepage_url}" target="_blank">${org.organization_name}</a></li>`).join('') : '<li>-</li>';
-    const oppsHtml = (program.opportunity_effects && program.opportunity_effects.length > 0) ? program.opportunity_effects.map(opp => `<li>${opp.value}</li>`).join('') : '<li>-</li>';
+    // 3. 연계 단체, 기대효과 및 최종 페이지 HTML 조합
+    const orgsHtml = (program.related_links || []).map(org => `<li><a href="${org.homepage_url}" target="_blank">${org.organization_name}</a></li>`).join('') || '<li>-</li>';
+    const oppsHtml = (program.opportunity_effects || []).map(opp => `<li>${opp.value}</li>`).join('') || '<li>-</li>';
 
-    // 4. 최종 페이지 HTML 조합
     container.innerHTML = `
         <div class="program-detail-wrapper">
             <header class="program-header category-${program.esg_category.toLowerCase()}">
@@ -128,7 +117,6 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
                 <section class="detail-section">
                     <h4>방치 시 리스크</h4>
                     <p>${program.risk_text || '-'}</p>
-                    ${program.risk_description ? `<div class="risk-description">${program.risk_description}</div>` : ''}
                 </section>
                 <section class="detail-section">
                     <h4>개선 시 기대효과</h4>
@@ -144,7 +132,7 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
         </div>
     `;
 
-    // 5. 버튼 클릭 이벤트 처리
+    // 4. 버튼 클릭 이벤트 처리
     container.addEventListener('click', async (e) => {
         const targetButton = e.target.closest('.action-btn');
         if (!targetButton) return;
