@@ -127,48 +127,49 @@ document.addEventListener('DOMContentLoaded', function() {
      * 수정 일시: 2025-07-06 10:35
      */
     function addSectionRow(section = {}) {
-        const sectionId = 'section-' + Date.now() + Math.random();
-        newSectionFiles[sectionId] = [];
-        
-        // ✨ [수정] 더 이상 전역 변수 existingImages를 사용하지 않습니다.
+        const sectionId = 'section-' + Date.now() + Math.random();
+        newSectionFiles[sectionId] = [];
 
-        const newSection = document.createElement('div');
-        newSection.className = 'content-section'; 
-        newSection.id = sectionId;
-        
-        newSection.innerHTML = `
-            <div style="display: flex; justify-content: flex-end;"><button type="button" class="button-danger button-sm remove-section-btn">X</button></div>
-            <div class="form-group"><label>소제목</label><input type="text" class="form-control section-subheading" value="${section.subheading || ''}"></div>
-            <div class="form-group"><label>상세 내용</label><textarea class="form-control section-description" rows="8">${section.description || ''}</textarea></div>
-            <div class="form-group-inline">
-                <div class="form-group">
-                    <label>이미지 배치</label>
-                    <select class="form-control section-layout">
-                        <option value="img-top">이미지(상) / 텍스트(하)</option>
-                        <option value="text-left">텍스트(좌) / 이미지(우)</option>
-                        <option value="text-right">이미지(좌) / 텍스트(우)</option>
-                        <option value="img-bottom">텍스트(상) / 이미지(하)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>내용 글자 크기 (px)</label>
-                    <input type="number" class="form-control section-desc-size" value="${section.description_size || 16}">
-                </div>
-            </div>
-            <div class="form-group">
-                <label>이미지 파일 (최대 3개)</label>
-                <div class="image-preview-container" style="margin-bottom:10px;"></div>
-                <input type="file" class="form-control section-images" multiple accept="image/*">
-                               <input type="hidden" class="kept-image-urls" value="${(section.images || []).join(',') || ''}">
-            </div>
-        `;
-        sectionsContainer.appendChild(newSection);
+        const newSection = document.createElement('div');
+        newSection.className = 'content-section'; 
+        newSection.id = sectionId;
+        
+        newSection.innerHTML = `
+            <div style="display: flex; justify-content: flex-end;"><button type="button" class="button-danger button-sm remove-section-btn">X</button></div>
+            <div class="form-group"><label>소제목</label><input type="text" class="form-control section-subheading" value="${section.subheading || ''}"></div>
+            <div class="form-group"><label>상세 내용</label><textarea class="form-control section-description" rows="8">${section.description || ''}</textarea></div>
+            
+            <div class="form-group">
+                <label>이미지 파일 (최대 3개)</label>
+                <div class="image-preview-container" style="margin-bottom:10px;"></div>
+                <input type="file" class="form-control section-images" multiple accept="image/*">
+                <input type="hidden" class="kept-image-urls" value="${(section.images || []).join(',') || ''}">
+            </div>
+            
+            <div class="form-group-inline">
+                <div class="form-group">
+                    <label>이미지 배치</label>
+                    <select class="form-control section-layout">
+                        <option value="img-top">이미지(상) / 텍스트(하)</option>
+                        <option value="text-left">텍스트(좌) / 이미지(우)</option>
+                        <option value="text-right">이미지(좌) / 텍스트(우)</option>
+                        <option value="img-bottom">텍스트(상) / 이미지(하)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>내용 글자 크기 (px)</label>
+                    <input type="number" class="form-control section-desc-size" value="${section.description_size || 16}">
+                </div>
+            </div>
+        `;
+        sectionsContainer.appendChild(newSection);
 
-        if(isEditMode) {
-            newSection.querySelector('.section-layout').value = section.layout || 'img-top';
-            renderImagePreviews(sectionId);
-        }
-    }
+        if (isEditMode) {
+            newSection.querySelector('.section-layout').value = section.layout || 'img-top';
+            // 이제 전역 변수가 아닌, 각 섹션의 hidden input을 기준으로 미리보기를 그립니다.
+            renderImagePreviews(sectionId);
+        }
+    }
 
     function addEffectRow(effect = {}) {
         const newEffect = document.createElement('div');
@@ -253,40 +254,40 @@ document.addEventListener('DOMContentLoaded', function() {
      * 수정 일시: 2025-07-06 07:44
      */
     function renderImagePreviews(sectionId) {
-        const section = document.getElementById(sectionId);
-        if (!section) return;
+        const sectionDiv = document.getElementById(sectionId);
+        if (!sectionDiv) return;
 
-        const previewContainer = section.querySelector('.image-preview-container');
-        // ✨ [수정] Global 변수 대신 hidden input에서 직접 URL 목록을 가져옵니다.
-        const hiddenInput = section.querySelector('.kept-image-urls');
-        if (!previewContainer || !hiddenInput) return;
+        const previewContainer = sectionDiv.querySelector('.image-preview-container');
+        const hiddenInput = sectionDiv.querySelector('.kept-image-urls');
+        
+        if (!previewContainer || !hiddenInput) return;
 
-        const existingUrls = hiddenInput.value ? hiddenInput.value.split(',').filter(Boolean) : [];
-        const newFiles = newSectionFiles[sectionId] || [];
+        const existingUrls = hiddenInput.value ? hiddenInput.value.split(',').filter(Boolean) : [];
+        const newFiles = newSectionFiles[sectionId] || [];
 
-        previewContainer.innerHTML = '';
-        
-        const s3BaseUrl = 'https://locallink-images.s3.us-east-2.amazonaws.com/';
+        previewContainer.innerHTML = '';
+        
+        existingUrls.forEach((url, index) => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'image-preview-wrapper';
+            
+            const imageUrl = (url && url.startsWith('http')) ? url : `${STATIC_BASE_URL}${url}`;
 
-        existingUrls.forEach((url, index) => {
-            const wrapper = document.createElement('div');
-            wrapper.className = 'image-preview-wrapper';
-            const imageUrl = (url && url.startsWith('http')) ? url : `${s3BaseUrl}${url}`;
-            wrapper.innerHTML = `<img src="${imageUrl}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px;" alt="프로그램 이미지"><button type="button" class="remove-preview-btn" data-type="existing" data-index="${index}">X</button>`;
-            previewContainer.appendChild(wrapper);
-        });
-        
-        newFiles.forEach((file, index) => {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'image-preview-wrapper';
-                wrapper.innerHTML = `<img src="${event.target.result}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px;" alt="새 이미지 미리보기"><button type="button" class="remove-preview-btn" data-type="new" data-index="${index}">X</button>`;
-                previewContainer.appendChild(wrapper);
-            };
-            reader.readAsDataURL(file);
-        });
-    }
+            wrapper.innerHTML = `<img src="${imageUrl}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px;"><button type="button" class="remove-preview-btn" data-type="existing" data-index="${index}">X</button>`;
+            previewContainer.appendChild(wrapper);
+        });
+        
+        newFiles.forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'image-preview-wrapper';
+                wrapper.innerHTML = `<img src="${event.target.result}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px;"><button type="button" class="remove-preview-btn" data-type="new" data-index="${index}">X</button>`;
+                previewContainer.appendChild(wrapper);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
 
     function safeSetValue(id, value) {
         const element = document.getElementById(id);
@@ -309,32 +310,33 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if(opportunityEffectsContainer) opportunityEffectsContainer.addEventListener('click', e => { if (e.target.classList.contains('remove-opportunity-btn')) e.target.closest('.form-fieldset').remove(); });
         
-        if(sectionsContainer) {
-            sectionsContainer.addEventListener('click', e => {
-                if (e.target.classList.contains('remove-section-btn')) {
-                    e.target.closest('.content-section').remove();
-                    return;
-                }
-
-                if (e.target.classList.contains('remove-preview-btn')) {
-                    const sectionDiv = e.target.closest('.content-section');
-                    if (!sectionDiv) return;
-
-                    const { type, index } = e.target.dataset;
-                    const indexToRemove = parseInt(index, 10);
-                    
-                    // ✨ [수정] 이미지 삭제 로직 변경
-                    if(type === 'new') {
-                        newSectionFiles[sectionDiv.id].splice(indexToRemove, 1);
-                    } else { 
-                        const hiddenInput = sectionDiv.querySelector('.kept-image-urls');
-                        let imageUrls = hiddenInput.value.split(',');
-                        imageUrls.splice(indexToRemove, 1);
-                        hiddenInput.value = imageUrls.join(',');
-                    }
-                    renderImagePreviews(sectionDiv.id);
-                }
-            });
+        if (sectionsContainer) {
+            sectionsContainer.addEventListener('click', e => {
+                const target = e.target;
+                const sectionDiv = target.closest('.content-section');
+                if (!sectionDiv) return;
+                
+                // 섹션 삭제
+                if (target.matches('.remove-section-btn')) {
+                    if (confirm('이 섹션을 삭제하시겠습니까?')) sectionDiv.remove();
+                }
+                
+                // 이미지 미리보기 삭제
+                if (target.matches('.remove-preview-btn')) {
+                    const type = target.dataset.type;
+                    const indexToRemove = parseInt(target.dataset.index, 10);
+                    
+                    if (type === 'new') { // 새로 추가한 파일 삭제
+                        newSectionFiles[sectionDiv.id].splice(indexToRemove, 1);
+                    } else { // 기존 이미지 삭제
+                        const hiddenInput = sectionDiv.querySelector('.kept-image-urls');
+                        let imageUrls = hiddenInput.value.split(',');
+                        imageUrls.splice(indexToRemove, 1);
+                        hiddenInput.value = imageUrls.join(',');
+                    }
+                    renderImagePreviews(sectionDiv.id);
+                }
+            });
 
             sectionsContainer.addEventListener('change', e => {
                 if (e.target.classList.contains('section-images')) {
@@ -423,26 +425,33 @@ document.addEventListener('DOMContentLoaded', function() {
             formData.append('opportunity_effects', JSON.stringify(opportunityEffects));
 
             // ✨ [수정] Content 및 이미지 처리 로직 변경
-            const finalContent = [];
-            const allNewFiles = [];
+            // ★★★ content 데이터와 이미지 파일 처리 로직 수정 ★★★
+            const finalContent = [];
+            let imageCounter = 0; 
 
-            for (const section of sectionsContainer.querySelectorAll('.content-section')) {
-                const sectionId = section.id;
-                // hidden input에서 유지할 이미지 목록을 가져옵니다.
-                const keptImages = section.querySelector('.kept-image-urls').value.split(',').filter(Boolean);
-                const newImageFiles = newSectionFiles[sectionId] || [];
-                const newImageNames = newImageFiles.map(file => file.name);
+            document.querySelectorAll('.content-section').forEach(section => {
+                const sectionId = section.id;
+                const newFiles = newSectionFiles[sectionId] || [];
+                
+                // hidden input에서 유지할 기존 이미지 URL 목록을 가져옵니다.
+                const keptImages = section.querySelector('.kept-image-urls').value.split(',').filter(Boolean);
 
-                finalContent.push({
-                    subheading: section.querySelector('.section-subheading').value,
-                    description: section.querySelector('.section-description').value,
-                    layout: section.querySelector('.section-layout').value,
-                    description_size: section.querySelector('.section-desc-size').value,
-                    images: [...keptImages, ...newImageNames] 
-                });
-
-                allNewFiles.push(...newImageFiles);
-            }
+                const imagePlaceholders = [];
+                newFiles.forEach(file => {
+                    const placeholder = `new_image_${imageCounter++}`;
+                    formData.append(placeholder, file, file.name);
+                    imagePlaceholders.push(placeholder);
+                });
+                
+                finalContent.push({
+                    subheading: section.querySelector('.section-subheading').value,
+                    description: section.querySelector('.section-description').value,
+                    layout: section.querySelector('.section-layout').value,
+                    description_size: section.querySelector('.section-desc-size').value,
+                    // 최종 이미지 목록 = 유지할 기존 URL + 새 파일의 이름표
+                    images: [...keptImages, ...imagePlaceholders]
+                });
+            });
             
             formData.append('content', JSON.stringify(finalContent));
             
