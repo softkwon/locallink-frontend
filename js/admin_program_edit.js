@@ -263,43 +263,44 @@ document.addEventListener('DOMContentLoaded', function() {
      * 수정 일시: 2025-07-06 07:44
      */
     function renderImagePreviews(sectionId) {
-        const section = document.getElementById(sectionId);
-        if (!section) return;
+        const section = document.getElementById(sectionId);
+        if (!section) return;
 
-        const previewContainer = section.querySelector('.image-preview-container');
-        // 이전에 저장된 이미지 URL은 existingImages 전역 변수에서 가져옵니다.
-        const existingUrls = existingImages[sectionId] || [];
-        // 새로 추가한 파일들은 newSectionFiles 전역 변수에서 가져옵니다.
-        const newFiles = newSectionFiles[sectionId] || [];
+        const previewContainer = section.querySelector('.image-preview-container');
+        const existingUrls = existingImages[sectionId] || [];
+        const newFiles = newSectionFiles[sectionId] || [];
 
-        previewContainer.innerHTML = '';
-        
-        // 1. 이미 서버에 저장된 이미지들의 미리보기를 그립니다.
-        existingUrls.forEach((url, index) => {
-            const wrapper = document.createElement('div');
-            wrapper.className = 'image-preview-wrapper';
-            
-            // ★★★ 이미지 URL이 http로 시작하는 전체 주소인지 확인하고 처리합니다. ★★★
-            const imageUrl = (url && url.startsWith('http'))
-                ? url // S3 전체 주소이면 그대로 사용
-                : `${STATIC_BASE_URL}${url}`; // 아니면 옛날 데이터 호환
+        previewContainer.innerHTML = '';
+        
+        // ✨ [수정] S3 버킷의 기본 URL을 정의합니다.
+        const s3BaseUrl = 'https://locallink-images.s3.us-east-2.amazonaws.com/';
 
-            wrapper.innerHTML = `<img src="${imageUrl}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px;"><button type="button" class="remove-preview-btn" data-type="existing" data-section-id="${sectionId}" data-index="${index}">X</button>`;
-            previewContainer.appendChild(wrapper);
-        });
-        
-        // 2. 새로 추가한 파일들의 미리보기를 그립니다.
-        newFiles.forEach((file, index) => {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'image-preview-wrapper';
-                wrapper.innerHTML = `<img src="${event.target.result}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px;"><button type="button" class="remove-preview-btn" data-type="new" data-section-id="${sectionId}" data-index="${index}">X</button>`;
-                previewContainer.appendChild(wrapper);
-            };
-            reader.readAsDataURL(file);
-        });
-    }
+        // 1. 이미 서버에 저장된 이미지들의 미리보기를 그립니다.
+        existingUrls.forEach((url, index) => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'image-preview-wrapper';
+            
+            // ✨ [수정] 이미지 URL 생성 로직을 S3 주소에 맞게 변경합니다.
+            const imageUrl = (url && url.startsWith('http'))
+                ? url // DB에 이미 전체 URL이 저장된 경우 그대로 사용
+                : `${s3BaseUrl}${url}`; // DB에 파일 경로만 저장된 경우 S3 기본 주소와 결합
+
+            wrapper.innerHTML = `<img src="${imageUrl}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px;" alt="프로그램 이미지"><button type="button" class="remove-preview-btn" data-type="existing" data-section-id="${sectionId}" data-index="${index}">X</button>`;
+            previewContainer.appendChild(wrapper);
+        });
+        
+        // 2. 새로 추가한 파일들의 미리보기를 그립니다. (이 부분은 변경 없음)
+        newFiles.forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'image-preview-wrapper';
+                wrapper.innerHTML = `<img src="${event.target.result}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px;" alt="새 이미지 미리보기"><button type="button" class="remove-preview-btn" data-type="new" data-section-id="${sectionId}" data-index="${index}">X</button>`;
+                previewContainer.appendChild(wrapper);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
 
     function safeSetValue(id, value) {
         const element = document.getElementById(id);
