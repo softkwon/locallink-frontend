@@ -107,7 +107,7 @@ function renderBenchmarkCharts(diagnosis, benchmarkScores, userAnswers, allQuest
     if (benchmarkInfoEl && diagnosis.industry_codes && diagnosis.industry_codes.length > 0) {
         // 백엔드에서 industry_name도 함께 보내주면 더 좋습니다.
         // 지금은 코드만 표시하는 것으로 구현합니다.
-        benchmarkInfoEl.innerHTML = `<strong>적용 산업분류:</strong> [${diagnosis.industry_codes[0]}]`;
+        benchmarkInfoEl.innerHTML = `<strong>적용 산업분류:</strong> [${diagnosis.industry_codes[0]}] ${diagnosis.industry_name || ''}`;
     }
 
     // 영역별 종합 성과 비교 차트 (Bar Chart)

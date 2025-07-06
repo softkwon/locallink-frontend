@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="form-group"><label>이미지 레이아웃</label><select class="form-control section-image-layout"><option value="row">가로</option><option value="column">세로</option><option value="grid">격자</option></select></div>
                 <div class="form-group"><label>내용 글자 크기 (px)</label><input type="number" class="form-control section-desc-size" value="${section.description_size || 16}"></div>
             </div>
-            <div class="form-group"><label>이미지 파일 (최대 3개)</label><div class="image-preview-container" style="margin-bottom:10px;"></div><input type="file" class="form-control section-images" multiple accept="image/*"></div>`;
+            <div class="form-group"><label>1개 이미지 당 한개 내용을 올려주세요.</label><div class="image-preview-container" style="margin-bottom:10px;"></div><input type="file" class="form-control section-images" multiple accept="image/*"></div>`;
         sectionsContainer.appendChild(newSection);
         if(isEditMode) {
             newSection.querySelector('.section-image-layout').value = section.image_layout || 'row';

@@ -72,7 +72,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // --- 4. 렌더링 및 헬퍼 함수들 ---
+    /**
+     * 파일명: js/survey_step5_program_proposal.js
+     * 수정 위치: renderProgramSection 함수 전체
+     * 수정 일시: 2025-07-06 08:38
+     */
     function renderProgramSection(container, programs, emptyMessage) {
         if (!container) return;
         container.innerHTML = '';
@@ -81,7 +85,15 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         programs.forEach(program => {
-            const image = (program.content && program.content[0]?.images?.length > 0) ? `${STATIC_BASE_URL}/uploads/programs/${program.content[0].images[0]}` : 'images/default_program.png';
+            // ★★★ 이미지 URL 처리 로직 수정 ★★★
+            let image = '/images/default_program.png'; // 기본 이미지
+            const firstImage = program.content && program.content[0]?.images?.length > 0 ? program.content[0].images[0] : null;
+            if (firstImage && firstImage.startsWith('http')) {
+                image = firstImage; // S3 전체 주소이면 그대로 사용
+            } else if (firstImage) {
+                image = `${STATIC_BASE_URL}/uploads/programs/${firstImage}`; // 아니면 기존 방식
+            }
+            
             const programBox = document.createElement('div');
             programBox.className = 'program-box';
             if (program.isRecommended) programBox.classList.add('highlighted-program');
@@ -131,23 +143,28 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // --- 5. 이벤트 리스너 연결 ---
+    /**
+     * 파일명: js/survey_step5_program_proposal.js
+     * 수정 위치: attachEventListeners 함수 전체
+     * 수정 일시: 2025-07-06 08:42
+     */
     function attachEventListeners() {
         if (!mainContainer) return;
-        // ★★★ 이벤트 감시 범위를 페이지 전체(document)로 확장합니다. ★★★
+        
+        // 이벤트 감시 범위를 페이지 전체(document)로 확장하여, 동적으로 생성되는 버튼도 모두 처리합니다.
         document.addEventListener('click', async e => {
             const target = e.target;
             
             // --- '나의 ESG 활동' 또는 헤더의 '완료' 링크 클릭 처리 ---
             const dashboardLink = target.closest('a[href="main_my_esg_dashboard.html"]');
             if (dashboardLink) {
-                e.preventDefault(); // 기본 링크 이동을 막습니다.
+                e.preventDefault();
                 alert("'AI기반 ESG 전략 수립', 'ESG 프로그램 제안'은 회원정보의 '나의 진단이력' 결과보기를 통해 다시 보실 수 있습니다.");
-                window.location.href = dashboardLink.href; // 메시지 확인 후, 원래 링크 주소로 이동합니다.
-                return; // 다른 로직과 중복 실행 방지
+                window.location.href = dashboardLink.href;
+                return;
             }
 
-            // --- '자세히 보기' (카드 클릭) 처리 ---
+            // --- 프로그램 카드(자세히 보기) 클릭 처리 ---
             const cardWrapper = target.closest('.program-link-wrapper');
             if (cardWrapper && cardWrapper.dataset.programId) {
                 const programId = cardWrapper.dataset.programId;
@@ -162,18 +179,13 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!button) return;
 
             // --- '시뮬레이터 실행하기' 버튼 클릭 처리 ---
-            const simulatorBtn = target.closest('#openSimulatorBtn');
-            if (simulatorBtn) {
+            if (button.id === 'openSimulatorBtn') {
                 try {
-                    // ★ 1. 시뮬레이터에 필요한 최신 진단 정보를 가져옵니다.
                     const response = await fetch(`${API_BASE_URL}/diagnoses/${diagId}/results`, { headers: { 'Authorization': `Bearer ${token}` } });
                     const result = await response.json();
                     
                     if (result.success) {
-                        // ★ 2. sessionStorage에 진단 데이터를 저장합니다.
                         sessionStorage.setItem('latestDiagnosisData', JSON.stringify(result.results.diagnosis));
-                        
-                        // ★ 3. 새 창을 엽니다.
                         window.open('function_simulator.html', 'BudgetSimulator', 'width=900,height=800,scrollbars=yes,resizable=yes');
                     } else {
                         alert('시뮬레이터 실행에 필요한 정보를 불러오는 데 실패했습니다.');
@@ -187,21 +199,26 @@ document.addEventListener('DOMContentLoaded', function() {
             const programId = button.dataset.programId;
             const applicationId = button.dataset.applicationId;
 
-            // 프로그램 관련 버튼들
+            // --- 프로그램 관련 버튼들 ('내 플랜에 담기', '신청하기') ---
             if (programId) {
                 const programTitle = button.dataset.programTitle;
+
+                // '내 플랜에 담기'
                 if (button.classList.contains('add-to-plan-btn')) {
                     let myPlan = JSON.parse(localStorage.getItem('esgMyPlan')) || [];
                     if (myPlan.some(p => p.id == programId)) {
                         alert('이미 플랜에 추가된 프로그램입니다.');
                         return;
                     }
-                    myPlan.push({ id: parseInt(programId), title: programTitle, min_cost: 30000000 });
+                    myPlan.push({ id: parseInt(programId), title: programTitle });
                     localStorage.setItem('esgMyPlan', JSON.stringify(myPlan));
                     alert(`'${programTitle}' 프로그램이 내 플랜에 추가되었습니다.`);
                 }
+
+                // '신청하기'
                 if (button.classList.contains('apply-btn')) {
                     if (!confirm(`'${programTitle}' 프로그램을 신청하시겠습니까?`)) return;
+
                     try {
                         const response = await fetch(`${API_BASE_URL}/applications/me`, {
                             method: 'POST',
@@ -209,17 +226,23 @@ document.addEventListener('DOMContentLoaded', function() {
                             body: JSON.stringify({ programId: parseInt(programId) })
                         });
                         const result = await response.json();
-                        alert(result.message);
-                        if (result.success) {
-                           const appRes = await fetch(`${API_BASE_URL}/applications/me`, { headers: { 'Authorization': `Bearer ${token}` } });
-                           const appResult = await appRes.json();
-                           if(appResult.success) displayApplicationStatus(appResult.applications);
+
+                        if (response.ok) {
+                            alert(`'${programTitle}' 프로그램 신청이 완료되었습니다.\n담당자가 연락드립니다. 연락처를 확인해주세요.\n\n*진행상황은 '나의 ESG 활동'에서 확인해 주세요.\n(신청 취소는 해당 페이지에서 가능합니다)`);
+                            // 신청 후, 상태 목록을 즉시 새로고침하여 보여줍니다.
+                            const appRes = await fetch(`${API_BASE_URL}/applications/me`, { headers: { 'Authorization': `Bearer ${token}` } });
+                            const appResult = await appRes.json();
+                            if(appResult.success) displayApplicationStatus(appResult.applications);
+                        } else {
+                            alert(result.message);
                         }
-                    } catch (error) { alert('신청 처리 중 오류가 발생했습니다.'); }
+                    } catch (error) { 
+                        alert('신청 처리 중 오류가 발생했습니다.'); 
+                    }
                 }
             }
 
-            // 신청 취소 버튼
+            // --- '신청 취소' 버튼 ---
             if (applicationId) {
                 if (confirm("정말로 해당 프로그램 신청을 취소하시겠습니까?")) {
                     try {
@@ -230,9 +253,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         const result = await response.json();
                         alert(result.message);
                         if(result.success){
-                           const appRes = await fetch(`${API_BASE_URL}/applications/me`, { headers: { 'Authorization': `Bearer ${token}` } });
-                           const appResult = await appRes.json();
-                           if(appResult.success) displayApplicationStatus(appResult.applications);
+                            // 취소 후, 상태 목록을 즉시 새로고침하여 보여줍니다.
+                            const appRes = await fetch(`${API_BASE_URL}/applications/me`, { headers: { 'Authorization': `Bearer ${token}` } });
+                            const appResult = await appRes.json();
+                            if(appResult.success) displayApplicationStatus(appResult.applications);
                         }
                     } catch(err) { 
                         console.error("신청 취소 중 오류:", err);
