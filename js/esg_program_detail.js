@@ -46,6 +46,7 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
     const container = document.getElementById('program-detail-container');
     document.title = `${program.title} - LocalLink`;
 
+    // (이하 actionsHtml, noticeHtml 생성 로직은 동일)
     let actionsHtml = '';
     let noticeHtml = '';
     if (source === 'strategy') {
@@ -61,14 +62,15 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
 
     const serviceRegionsHtml = program.service_regions?.join(', ') || '전국';
     
-    // ★★★ 수정된 부분 ★★★
-    // 백엔드 데이터가 배열이 아닐 수도 있는 모든 경우에 대비하여, 
-    // Array.isArray()로 한 번 더 안전하게 확인합니다.
     const contentSections = Array.isArray(program.content) ? program.content : [];
     const relatedLinks = Array.isArray(program.related_links) ? program.related_links : [];
     const opportunityEffects = Array.isArray(program.opportunity_effects) ? program.opportunity_effects : [];
 
+    // ★★★ 수정된 부분 ★★★
     const contentHtml = contentSections.map(section => {
+        // 1. 레이아웃 값에 따라 class 이름을 동적으로 생성합니다.
+        const layoutClass = section.layout || 'img-top'; // 기본값은 'img-top'
+
         const imagesHtml = (section.images || []).map(imgUrl => 
             `<img src="${imgUrl}" alt="프로그램 상세 이미지">`
         ).join('');
@@ -76,13 +78,14 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
         const textHtml = `
             <div class="text-content">
                 <h3>${section.subheading || ''}</h3>
-                <div>${(section.description || '').replace(/\n/g, '<br>')}</div>
+                <div style="font-size: ${section.description_size || 16}px;">${(section.description || '').replace(/\n/g, '<br>')}</div>
             </div>
         `;
         const imageContainerHtml = imagesHtml ? `<div class="image-content">${imagesHtml}</div>` : '';
 
+        // 2. 생성된 class를 div에 적용합니다.
         return `
-            <div class="content-section-body">
+            <div class="content-section-body layout-${layoutClass}">
                 ${textHtml}
                 ${imageContainerHtml}
             </div>
@@ -92,6 +95,7 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
     const orgsHtml = relatedLinks.map(org => `<li><a href="${org.homepage_url}" target="_blank">${org.organization_name}</a></li>`).join('') || '<li>-</li>';
     const oppsHtml = opportunityEffects.map(opp => `<li>${opp.value}</li>`).join('') || '<li>-</li>';
 
+    // (이하 container.innerHTML 부분은 동일)
     container.innerHTML = `
         <div class="program-detail-wrapper">
             <header class="program-header category-${program.esg_category.toLowerCase()}">

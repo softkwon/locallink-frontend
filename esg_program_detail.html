@@ -77,6 +77,23 @@
             color: #6c757d;
             margin-top: 30px;
         }
+        /* 레이아웃별 스타일 */
+        .layout-img-top .text-content { order: 2; }
+        .layout-img-top .image-content { order: 1; margin-bottom: 25px; }
+
+        .layout-img-bottom .text-content { order: 1; }
+        .layout-img-bottom .image-content { order: 2; margin-top: 25px; }
+
+        .layout-text-left, .layout-text-right {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+        .layout-text-left .text-content, .layout-text-right .text-content { flex: 1; }
+        .layout-text-left .image-content, .layout-text-right .image-content { flex: 1; }
+
+        .layout-text-right .text-content { order: 2; }
+        .layout-text-right .image-content { order: 1; }
     </style>
 </head>
 <body>
