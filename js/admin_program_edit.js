@@ -273,15 +273,16 @@ document.addEventListener('DOMContentLoaded', function() {
             const wrapper = document.createElement('div');
             wrapper.className = 'image-preview-wrapper';
             
-            // ▼▼▼▼▼ 가장 중요한 수정 부분 ▼▼▼▼▼
-            // 프로그램 이미지 경로는 '/'로 시작하지 않으므로, 여기서 직접 추가해줍니다.
-            const imageUrl = (url && url.startsWith('http')) ? url : `${STATIC_BASE_URL}/${url}`;
-            // ▲▲▲▲▲ 가장 중요한 수정 부분 ▲▲▲▲▲
+            // ★★★ 코드 정리 ★★★
+            // 이제 백엔드가 항상 완벽한 전체 주소를 보내주므로, 
+            // 프론트에서 주소를 조립하는 로직이 더 이상 필요 없습니다.
+            const imageUrl = url;
 
             wrapper.innerHTML = `<img src="${imageUrl}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px;"><button type="button" class="remove-preview-btn" data-type="existing" data-index="${index}">X</button>`;
             previewContainer.appendChild(wrapper);
         });
         
+        // (이하 newFiles를 처리하는 부분은 기존과 동일)
         newFiles.forEach((file, index) => {
             const reader = new FileReader();
             reader.onload = (event) => {
