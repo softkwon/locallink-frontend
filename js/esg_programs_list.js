@@ -47,19 +47,11 @@ document.addEventListener('DOMContentLoaded', async function() {
 
         container.innerHTML = '';
         programs.forEach(program => {
-            let representativeImage;
-            const firstImage = program.content && program.content[0]?.images?.length > 0 
+            // ★★★ 수정된 부분 ★★★
+            // 백엔드에서 이미 전체 URL을 보내주므로, 받은 값을 그대로 사용합니다.
+            const representativeImage = program.content && program.content[0]?.images?.length > 0 
                 ? program.content[0].images[0] 
-                : null;
-
-            // ★★★ 이미지 URL 처리 로직 수정 ★★★
-            if (firstImage && firstImage.startsWith('http')) {
-                representativeImage = firstImage; // S3 전체 주소이면 그대로 사용
-            } else if (firstImage) {
-                representativeImage = `${STATIC_BASE_URL}/uploads/programs/${firstImage}`; // 옛날 방식
-            } else {
-                representativeImage = `${STATIC_BASE_URL}/images/default_program.png`; // 기본 이미지
-            }
+                : '/images/default_program.png'; // 기본 이미지는 상대 경로로 처리
             
             const regionsText = (program.service_regions && program.service_regions.length > 0)
                 ? program.service_regions.join(', ')
@@ -86,7 +78,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 <a href="${detailUrl}" target="_blank" style="text-decoration:none; color:inherit; display:flex; flex-direction:column; flex-grow:1;">
                     <img src="${representativeImage}" alt="${program.title}" class="card-image">
                     <div class="card-content">
-                        <span class="category-badge category-${program.esg_category}">${program.esg_category}</span>
+                        <span class="category-badge category-${program.esg_category.toLowerCase()}">${program.esg_category}</span>
                         <h4>${program.title}</h4>
                         <p class="overview">${program.program_overview || '프로그램 개요가 없습니다.'}</p>
                         <div class="service-regions"><strong>서비스 지역:</strong> ${regionsText}</div>

@@ -48,7 +48,6 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
     const container = document.getElementById('program-detail-container');
     document.title = `${program.title} - LocalLink`;
 
-    // 1. 조건에 따라 버튼과 안내 메시지 HTML 생성
     let actionsHtml = '';
     let noticeHtml = '';
     if (source === 'strategy') {
@@ -62,17 +61,16 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
         }
     }
 
-    // 2. 프로그램 상세 내용 섹션들의 HTML 생성
     const serviceRegionsHtml = (program.service_regions && program.service_regions.length > 0) ? program.service_regions.join(', ') : '전국';
     
     const contentSections = (typeof program.content === 'string') ? JSON.parse(program.content) : (program.content || []);
     
+    // ★★★ 수정된 부분 ★★★
     const contentHtml = contentSections.map(section => {
-        const imagesHtml = (section.images || [])
-            .map(imgUrl => {
-                // S3 전체 주소이므로, 다른 주소를 덧붙이지 않습니다.
-                return `<img src="${imgUrl}" alt="프로그램 상세 이미지">`;
-            }).join('');
+        // 백엔드가 보내준 전체 URL을 그대로 사용합니다.
+        const imagesHtml = (section.images || []).map(imgUrl => 
+            `<img src="${imgUrl}" alt="프로그램 상세 이미지">`
+        ).join('');
         
         const textHtml = `
             <div class="text-content">
@@ -90,7 +88,6 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
         `;
     }).join('');
 
-    // 3. 연계 단체, 기대효과 및 최종 페이지 HTML 조합
     const orgsHtml = (program.related_links || []).map(org => `<li><a href="${org.homepage_url}" target="_blank">${org.organization_name}</a></li>`).join('') || '<li>-</li>';
     const oppsHtml = (program.opportunity_effects || []).map(opp => `<li>${opp.value}</li>`).join('') || '<li>-</li>';
 
