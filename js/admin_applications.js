@@ -91,11 +91,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- 4. 이벤트 리스너 연결 ---
     function attachEventListeners() {
         // 'CSV로 내보내기' 버튼 이벤트
-        if(exportBtn) {
+        if (exportBtn) {
             exportBtn.addEventListener('click', async () => {
+                exportBtn.textContent = '생성 중...';
+                exportBtn.disabled = true;
                 try {
-                    // ★★★ 수정: API 경로를 /api/applications/admin/export 로 변경 ★★★
-                    const response = await fetch(`${API_BASE_URL}/applications/admin/export`, {
+                    const response = await fetch(`${API_BASE_URL}/admin/applications/export`, {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
                     if (!response.ok) throw new Error('파일 다운로드에 실패했습니다.');
@@ -105,27 +106,32 @@ document.addEventListener('DOMContentLoaded', function() {
                     const a = document.createElement('a');
                     a.style.display = 'none';
                     a.href = url;
-                    a.download = `applications-${Date.now()}.csv`;
+                    a.download = `applications-${new Date().toISOString().slice(0, 10)}.csv`;
                     document.body.appendChild(a);
                     a.click();
                     window.URL.revokeObjectURL(url);
                     a.remove();
-                } catch(error) {
+                } catch (error) {
                     alert(error.message);
+                } finally {
+                    exportBtn.textContent = 'CSV로 내보내기';
+                    exportBtn.disabled = false;
                 }
             });
         }
 
         // 테이블 내부 버튼 이벤트 (상태 저장)
-        if(tableBody) {
+        if (tableBody) {
+            // 'select' 값이 변경되면 '저장' 버튼을 표시하는 로직
             tableBody.addEventListener('change', e => {
                 if (e.target.classList.contains('status-select')) {
                     const row = e.target.closest('tr');
                     const saveBtn = row.querySelector('.status-save-btn');
-                    if(saveBtn) saveBtn.classList.add('visible');
+                    if (saveBtn) saveBtn.classList.add('visible');
                 }
             });
 
+            // '저장' 버튼을 클릭했을 때의 로직
             tableBody.addEventListener('click', async e => {
                 if (e.target.classList.contains('status-save-btn')) {
                     const row = e.target.closest('tr');
@@ -133,19 +139,21 @@ document.addEventListener('DOMContentLoaded', function() {
                     const newStatus = row.querySelector('.status-select').value;
                     
                     try {
-                        // ★★★ API 경로에 불필요한 'admin'이 들어가 있어 수정합니다. ★★★
                         const response = await fetch(`${API_BASE_URL}/admin/applications/${applicationId}/status`, {
-                            method: 'PUT', // 상태 변경은 보통 PUT이나 PATCH를 사용합니다.
+                            method: 'PUT',
                             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                             body: JSON.stringify({ status: newStatus })
                         });
                         const result = await response.json();
                         alert(result.message);
-                        if(result.success) {
-                            // ★★★ 수정된 부분: 성공 시 테이블을 다시 로드합니다. ★★★
+                        if (result.success) {
+                            // 성공 시 테이블을 다시 로드하여 변경사항을 반영
                             loadApplications();
                         }
-                    } catch (err) { alert('상태 변경 중 오류 발생'); }
+                    } catch (err) { 
+                        alert('상태 변경 중 오류 발생'); 
+                        console.error(err);
+                    }
                 }
             });
         }
