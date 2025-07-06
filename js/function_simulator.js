@@ -33,7 +33,11 @@ document.addEventListener('DOMContentLoaded', function() {
     let simParams = {};
     let planPrograms = [];
 
-    // --- 2. 페이지 초기화 ---
+    /**
+     * 파일명: js/function_simulator.js
+     * 수정 위치: initializePage 함수 전체
+     * 수정 일시: 2025-07-06 08:49
+     */
     async function initializePage() {
         if (!token) {
             elements.loading.innerHTML = '<h2>로그인이 필요합니다.</h2><a href="main_login.html">로그인 페이지로 이동</a>';
@@ -41,13 +45,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         try {
             const myPlan = JSON.parse(localStorage.getItem('esgMyPlan')) || [];
-            const planProgramIds = myPlan.map(p => p.id);
+            
+            // ★★★ Set을 사용하여 중복된 프로그램 ID를 제거합니다. ★★★
+            const uniqueProgramIds = [...new Set(myPlan.map(p => p.id))];
+
             const [paramsRes, programsRes] = await Promise.all([
                 fetch(`${API_BASE_URL}/simulator/parameters`, { headers: { 'Authorization': `Bearer ${token}` } }),
                 fetch(`${API_BASE_URL}/programs/batch-details`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                    body: JSON.stringify({ programIds: planProgramIds })
+                    body: JSON.stringify({ programIds: uniqueProgramIds }) // 중복이 제거된 ID 목록으로 요청
                 })
             ]);
             

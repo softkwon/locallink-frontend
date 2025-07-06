@@ -228,7 +228,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         const result = await response.json();
 
                         if (response.ok) {
-                            alert(`'${programTitle}' 프로그램 신청이 완료되었습니다.\n담당자가 연락드립니다. 연락처를 확인해주세요.\n\n*진행상황은 '나의 ESG 활동'에서 확인해 주세요.\n(신청 취소는 해당 페이지에서 가능합니다)`);
+                            alert(`'${programTitle}' 프로그램 신청이 완료되었습니다.\n담당자가 연락드립니다. 연락처를 확인해주세요.\n\n*진행상황은 '나의 ESG 활동'에서 확인해 주세요.\n(신청 취소는 현재 페이지에서만 가능합니다)`);
                             // 신청 후, 상태 목록을 즉시 새로고침하여 보여줍니다.
                             const appRes = await fetch(`${API_BASE_URL}/applications/me`, { headers: { 'Authorization': `Bearer ${token}` } });
                             const appResult = await appRes.json();
