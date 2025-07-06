@@ -387,9 +387,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
         
     /**
-     * 파일명: js/admin_program_edit.js
+     * 파일명: js/admin_program_create.js & js/admin_program_edit.js
      * 수정 위치: handleProgramSubmit 함수 전체
-     * 수정 일시: 2025-07-06 10:40
+     * 수정 일시: 2025-07-06 11:45
      */
     async function handleProgramSubmit(event) {
         event.preventDefault();
@@ -400,7 +400,7 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const formData = new FormData();
             
-            // 1. 기본 정보 추가
+            // 1. 기본 텍스트 정보 추가
             formData.append('title', safeGetValue('title'));
             formData.append('program_code', safeGetValue('program_code'));
             formData.append('esg_category', safeGetValue('esg_category'));
@@ -408,13 +408,16 @@ document.addEventListener('DOMContentLoaded', function() {
             formData.append('risk_text', safeGetValue('risk_text'));
             formData.append('risk_description', safeGetValue('risk_description'));
             
-            // 2. 동적으로 추가되는 정보들 수집
+            // 2. 동적으로 추가/삭제되는 항목들을 JSON으로 변환하여 추가
             const economicEffects = Array.from(document.querySelectorAll('#effects-container .effect-item')).map(item => ({ type: item.querySelector('.effect-type').value, value: parseFloat(item.querySelector('.effect-value').value) || 0, description: item.querySelector('.effect-description').value })).filter(item => item.value);
             formData.append('economic_effects', JSON.stringify(economicEffects));
+
             const partnerOrganizations = Array.from(document.querySelectorAll('#organizations-container .organization-item')).map(item => ({ organization_name: item.querySelector('.organization-name').value, homepage_url: item.querySelector('.homepage-url').value })).filter(item => item.organization_name && item.homepage_url);
             formData.append('related_links', JSON.stringify(partnerOrganizations));
+            
             const serviceRegions = Array.from(document.querySelectorAll('input[name="service_region"]:checked')).map(checkbox => checkbox.value);
             formData.append('service_regions', serviceRegions.join(','));
+            
             const opportunityEffects = [];
             document.querySelectorAll('#opportunity-effects-container .form-fieldset').forEach(row => {
                 const type = row.querySelector('.opportunity-type-select').value;
@@ -428,7 +431,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             formData.append('opportunity_effects', JSON.stringify(opportunityEffects));
 
-            // ★★★ 3. 뉴스 페이지와 동일하게 content와 이미지 파일을 처리 ★★★
+            // 3. 콘텐츠 섹션 데이터와 이미지 파일을 함께 처리
             const finalContent = [];
             let imageCounter = 0;
 
@@ -437,20 +440,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 const newFiles = newSectionFiles[sectionId] || [];
                 
                 const keptImages = section.querySelector('.kept-image-urls').value.split(',').filter(Boolean);
-                const imagePlaceholders = [];
+                const newImagePlaceholders = [];
 
                 newFiles.forEach(file => {
                     const placeholder = `new_image_${imageCounter++}`;
                     formData.append(placeholder, file, file.name);
-                    imagePlaceholders.push(placeholder);
+                    newImagePlaceholders.push(placeholder);
                 });
                 
                 finalContent.push({
                     subheading: section.querySelector('.section-subheading').value,
                     description: section.querySelector('.section-description').value,
                     layout: section.querySelector('.section-layout').value,
-                    description_size: section.querySelector('.section-desc-size').value,
-                    images: [...keptImages, ...imagePlaceholders]
+                    description_size: parseInt(section.querySelector('.section-desc-size').value, 10),
+                    images: [...keptImages, ...newImagePlaceholders]
                 });
             });
             
@@ -472,7 +475,7 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('프로그램 정보 저장 중 오류가 발생했습니다: ' + err.message);
         } finally {
             submitButton.disabled = false;
-            submitButton.textContent = isEditMode ? '수정 완료' : '글 저장하기';
+            submitButton.textContent = isEditMode ? '수정 완료' : '저장하기';
         }
     }
 
