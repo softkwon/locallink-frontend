@@ -122,28 +122,39 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- 4. 동적 UI 생성 및 헬퍼 함수들 ---
 
-    function addSectionRow(section = {}) {
-        const sectionId = 'section-' + Date.now() + Math.random();
-        newSectionFiles[sectionId] = [];
-        if(isEditMode) existingImages[sectionId] = section.images || [];
+    // --- 4. 동적 UI 생성 및 헬퍼 함수들 --- 
 
-        const newSection = document.createElement('div');
-        newSection.className = 'content-section'; newSection.id = sectionId;
-        newSection.innerHTML = `
-            <div style="display: flex; justify-content: flex-end;"><button type="button" class="button-danger button-sm remove-section-btn">X</button></div>
-            <div class="form-group"><label>소제목</label><input type="text" class="form-control section-subheading" value="${section.subheading || ''}"></div>
-            <div class="form-group"><label>상세 내용</label><textarea class="form-control section-description" rows="8">${section.description || ''}</textarea></div>
-            <div class="form-group-inline">
-                <div class="form-group"><label>이미지 레이아웃</label><select class="form-control section-image-layout"><option value="row">가로</option><option value="column">세로</option><option value="grid">격자</option></select></div>
-                <div class="form-group"><label>내용 글자 크기 (px)</label><input type="number" class="form-control section-desc-size" value="${section.description_size || 16}"></div>
-            </div>
-            <div class="form-group"><label>이미지 파일 (1개 이미지 당 한개 내용을 올려주세요.)</label><div class="image-preview-container" style="margin-bottom:10px;"></div><input type="file" class="form-control section-images" multiple accept="image/*"></div>`;
-        sectionsContainer.appendChild(newSection);
-        if(isEditMode) {
-            newSection.querySelector('.section-image-layout').value = section.image_layout || 'row';
-            renderImagePreviews(sectionId);
-        }
-    }
+    function addSectionRow(section = {}) { 
+        const sectionId = 'section-' + Date.now() + Math.random(); 
+        newSectionFiles[sectionId] = []; 
+        if(isEditMode) existingImages[sectionId] = section.images || []; 
+
+        const newSection = document.createElement('div'); 
+        newSection.className = 'content-section'; newSection.id = sectionId; 
+        newSection.innerHTML = ` 
+            <div style="display: flex; justify-content: flex-end;"><button type="button" class="button-danger button-sm remove-section-btn">X</button></div> 
+            <div class="form-group"><label>소제목</label><input type="text" class="form-control section-subheading" value="${section.subheading || ''}"></div> 
+            <div class="form-group"><label>상세 내용</label><textarea class="form-control section-description" rows="8">${section.description || ''}</textarea></div> 
+            <div class="form-group-inline"> 
+                               <div class="form-group">
+                   <label>이미지 배치</label>
+                   <select class="form-control section-image-layout">
+                       <option value="image-left-text-right">이미지 좌, 텍스트 우</option>
+                       <option value="image-right-text-left">이미지 우, 텍스트 좌</option>
+                       <option value="image-top-text-bottom">이미지 상, 텍스트 하</option>
+                       <option value="image-bottom-text-top">이미지 하, 텍스트 상</option>
+                   </select>
+                </div> 
+                <div class="form-group"><label>내용 글자 크기 (px)</label><input type="number" class="form-control section-desc-size" value="${section.description_size || 16}"></div> 
+            </div> 
+            <div class="form-group"><label>이미지 파일 (하나의 섹션에는 하나의 이미지만 추가해주세요.)</label><div class="image-preview-container" style="margin-bottom:10px;"></div><input type="file" class="form-control section-images" accept="image/*"></div>`;
+        sectionsContainer.appendChild(newSection); 
+        if(isEditMode) { 
+            // ✨ [수정] 기존 'row' 대신 새로운 기본값으로 변경
+            newSection.querySelector('.section-image-layout').value = section.image_layout || 'image-left-text-right'; 
+            renderImagePreviews(sectionId); 
+        } 
+    }
 
     function addEffectRow(effect = {}) {
         const newEffect = document.createElement('div');
