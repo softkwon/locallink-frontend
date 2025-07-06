@@ -273,7 +273,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const wrapper = document.createElement('div');
             wrapper.className = 'image-preview-wrapper';
             
-            const imageUrl = (url && url.startsWith('http')) ? url : `${STATIC_BASE_URL}${url}`;
+            const imageUrl = (url && url.startsWith('http')) ? url : `${STATIC_BASE_URL}/${url}`;
 
             wrapper.innerHTML = `<img src="${imageUrl}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px;"><button type="button" class="remove-preview-btn" data-type="existing" data-index="${index}">X</button>`;
             previewContainer.appendChild(wrapper);
