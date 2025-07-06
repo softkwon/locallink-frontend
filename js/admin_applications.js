@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             // '저장' 버튼을 클릭했을 때의 로직
-            tableBody.addEventListener('click', async e => {
+           tableBody.addEventListener('click', async e => {
                 if (e.target.classList.contains('status-save-btn')) {
                     const row = e.target.closest('tr');
                     const applicationId = row.dataset.id;
@@ -146,14 +146,11 @@ document.addEventListener('DOMContentLoaded', function() {
                         });
                         const result = await response.json();
                         alert(result.message);
-                        if (result.success) {
-                            // 성공 시 테이블을 다시 로드하여 변경사항을 반영
+                        if(result.success) {
+                            // ★★★ 수정된 부분: 성공 시 테이블을 다시 로드합니다. ★★★
                             loadApplications();
                         }
-                    } catch (err) { 
-                        alert('상태 변경 중 오류 발생'); 
-                        console.error(err);
-                    }
+                    } catch (err) { alert('상태 변경 중 오류 발생'); }
                 }
             });
         }
