@@ -39,11 +39,16 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 });
 
+/**
+ * 파일명: js/esg_program_detail.js
+ * 수정 위치: renderProgramDetails 함수 전체
+ * 수정 일시: 2025-07-06 09:33
+ */
 function renderProgramDetails(program, hasCompletedDiagnosis, source, companyName) {
     const container = document.getElementById('program-detail-container');
     document.title = `${program.title} - LocalLink`;
 
-    // 1. 조건에 따라 버튼과 안내 메시지 HTML 생성 (기존과 동일)
+    // 1. 조건에 따라 버튼과 안내 메시지 HTML 생성
     let actionsHtml = '';
     let noticeHtml = '';
     if (source === 'strategy') {
@@ -57,40 +62,36 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
         }
     }
 
-    /**
-     * 파일명: js/esg_program_detail.js
-     * 수정 위치: renderProgramDetails 함수 내부의 contentHtml 생성 부분
-     * 수정 일시: 2025-07-06 07:44
-     */
     // 2. 프로그램 상세 내용 섹션들의 HTML 생성
     const serviceRegionsHtml = (program.service_regions && program.service_regions.length > 0) ? program.service_regions.join(', ') : '전국';
     
     const contentSections = (typeof program.content === 'string') ? JSON.parse(program.content) : (program.content || []);
+    
     const contentHtml = contentSections.map(section => {
-        // ★★★ 1. 이미지 URL 처리 로직 수정 ★★★
+        // 2-1. 해당 섹션의 이미지들로 HTML을 만듭니다.
         const imagesHtml = (section.images || [])
             .map(imgUrl => {
                 const finalImageUrl = (imgUrl && imgUrl.startsWith('http'))
-                    ? imgUrl
-                    : `${STATIC_BASE_URL}${imgUrl}`;
+                    ? imgUrl // S3 전체 주소이면 그대로 사용
+                    : `${STATIC_BASE_URL}${imgUrl}`; // 아니면 기존 방식
                 
-                // ★★★ 2. 관리자 페이지에서 설정한 image_width 값을 style에 적용 ★★★
+                // 2-2. 관리자 페이지에서 설정한 image_width 값을 style에 적용합니다.
                 const imageWidth = section.image_width ? `${section.image_width}px` : 'auto';
-                return `<img src="${finalImageUrl}" alt="프로그램 이미지" style="width: ${imageWidth}; max-width: 100%;">`;
+                return `<img src="${finalImageUrl}" alt="프로그램 상세 이미지" style="width: ${imageWidth}; max-width: 100%;">`;
             }).join('');
         
-        // 3. 텍스트와 이미지 컨테이너 HTML 생성 (기존과 동일)
+        // 2-3. 텍스트와 이미지 컨테이너 HTML 생성
         const textHtml = `
             <div class="text-content">
                 <h3 style="font-size: ${section.subheading_size || 24}px;">${section.subheading || ''}</h3>
                 <div style="font-size: ${section.description_size || 16}px;">
-                    ${section.description.replace(/\n/g, '<br>') || ''}
+                    ${(section.description || '').replace(/\n/g, '<br>')}
                 </div>
             </div>
         `;
         const imageContainerHtml = imagesHtml ? `<div class="image-content">${imagesHtml}</div>` : '';
 
-        // ★★★ 4. 레이아웃 관련 클래스를 제거하고 단순한 구조로 변경 ★★★
+        // 2-4. 레이아웃 관련 클래스를 제거하고 단순한 구조로 변경
         return `
             <div class="content-section-body">
                 ${textHtml}
@@ -156,13 +157,13 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
             alert("다음단계인 'ESG 프로그램 제안'(Step5)에서 신청해 주세요.");
             return;
         }
-        if (action === 'apply_prompt' || action === 'add_plan_prompt') {
+        if (action === 'apply_prompt') {
             alert("먼저 간이 진단을 진행하세요.");
             return;
         }
         if (!token) {
             alert("로그인이 필요한 기능입니다.");
-            return;
+            return window.location.href = 'main_login.html';
         }
         if (action === 'apply') {
             if(confirm(`'${program.title}' 프로그램을 신청하시겠습니까?`)){
@@ -180,7 +181,7 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
         else if (action === 'add_plan') {
             let myPlan = JSON.parse(localStorage.getItem('esgMyPlan')) || [];
             if (myPlan.some(p => p.id === program.id)) { alert('이미 플랜에 추가된 프로그램입니다.'); return; }
-            myPlan.push({ id: program.id, title: program.title, min_cost: 30000000 });
+            myPlan.push({ id: program.id, title: program.title });
             localStorage.setItem('esgMyPlan', JSON.stringify(myPlan));
             alert(`'${program.title}' 프로그램이 내 플랜에 추가되었습니다.`);
         }
