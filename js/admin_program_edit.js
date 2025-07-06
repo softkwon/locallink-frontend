@@ -431,21 +431,22 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             formData.append('opportunity_effects', JSON.stringify(opportunityEffects));
 
+            // --- 변경점 시작 ---
+
             // 3. 콘텐츠 섹션 데이터와 이미지 파일을 함께 처리
             const finalContent = [];
-            let imageCounter = 0;
+            const allNewFiles = []; // 새로 추가된 모든 파일을 담을 배열
 
             document.querySelectorAll('.content-section').forEach(section => {
                 const sectionId = section.id;
                 const newFiles = newSectionFiles[sectionId] || [];
                 
                 const keptImages = section.querySelector('.kept-image-urls').value.split(',').filter(Boolean);
-                const newImagePlaceholders = [];
+                const newImageNames = []; // 새로 추가될 이미지의 '원본 파일명'을 담을 배열
 
                 newFiles.forEach(file => {
-                    const placeholder = `new_image_${imageCounter++}`;
-                    formData.append(placeholder, file, file.name);
-                    newImagePlaceholders.push(placeholder);
+                    newImageNames.push(file.name); // 임시 식별자로 파일의 원본 이름을 사용
+                    allNewFiles.push(file);       // 모든 새 파일을 통합 배열에 추가
                 });
                 
                 finalContent.push({
@@ -453,18 +454,35 @@ document.addEventListener('DOMContentLoaded', function() {
                     description: section.querySelector('.section-description').value,
                     layout: section.querySelector('.section-layout').value,
                     description_size: parseInt(section.querySelector('.section-desc-size').value, 10),
-                    images: [...keptImages, ...newImagePlaceholders]
+                    images: [...keptImages, ...newImageNames] // 기존 이미지 URL과 새 이미지 파일명을 합침
                 });
             });
             
             formData.append('content', JSON.stringify(finalContent));
+
+            // 4. 모아둔 모든 새 파일들을 'newImages' 라는 동일한 키로 FormData에 추가
+            allNewFiles.forEach(file => {
+                formData.append('newImages', file, file.name);
+            });
             
-            // 4. 서버에 최종 데이터 전송
+            // --- 변경점 끝 ---
+            
+            // 5. 서버에 최종 데이터 전송
             const url = isEditMode ? `${API_BASE_URL}/admin/programs/${programId}` : `${API_BASE_URL}/admin/programs`;
             const method = isEditMode ? 'PUT' : 'POST';
             
             const response = await fetch(url, { method, headers: { 'Authorization': `Bearer ${token}` }, body: formData });
-            const result = await response.json();
+            
+            // 에러 디버깅을 위해 응답이 JSON이 아닐 경우 텍스트로 출력
+            const responseText = await response.text();
+            let result;
+            try {
+                result = JSON.parse(responseText);
+            } catch(e) {
+                console.error("서버 응답이 유효한 JSON이 아닙니다. 응답 내용:", responseText);
+                throw new Error("서버로부터 잘못된 형식의 응답을 받았습니다.");
+            }
+
             if (!response.ok) throw new Error(result.message || '저장 중 오류 발생');
             
             alert(result.message);
