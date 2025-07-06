@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="css/components.css">
     <style>
         body { background-color: #f4f7f9; }
+        
         .program-detail-wrapper {
             max-width: 850px;
             margin: 40px auto;
@@ -18,18 +19,11 @@
         }
         .program-header {
             padding: 35px 40px;
-            background: linear-gradient(135deg, #0052D4, #4364F7); /* 기본 파란색 */
             color: white;
         }
-        .program-header.category-e {
-            background: linear-gradient(135deg, #237804, #52c41a);
-        }
-        .program-header.category-s {
-            background: linear-gradient(135deg, #d48806, #faad14);
-        }
-        .program-header.category-g {
-            background: linear-gradient(135deg, #a8071a, #f5222d);
-        }
+        .program-header.category-e { background: linear-gradient(135deg, #237804, #52c41a); }
+        .program-header.category-s { background: linear-gradient(135deg, #d48806, #faad14); }
+        .program-header.category-g { background: linear-gradient(135deg, #a8071a, #f5222d); }
         .program-header h1 { margin: 0 0 10px 0; font-size: 2.2em; }
         .program-header p { margin: 0; font-size: 1.1em; opacity: 0.9; }
         
@@ -42,21 +36,23 @@
             padding-bottom: 10px;
             margin: 0 0 20px 0;
         }
-        .detail-section p, .detail-section ul { margin: 0; padding: 0; list-style-type: none; font-size: 1em; line-height: 1.8; color: #555; }
+        .detail-section p, .detail-section ul { 
+            margin: 0; 
+            padding: 0; 
+            list-style-type: none; 
+            font-size: 1em; 
+            line-height: 1.8; 
+            color: #555;
+        }
         
-        /* ★★★ 콘텐츠 섹션 레이아웃 (최종 수정본) ★★★ */
         .content-section-body {
-            display: flex;
-            flex-direction: column; /* 항상 세로로 쌓음 (이미지가 위, 텍스트가 아래) */
-            margin: 50px 0;
+            margin: 40px 0;
         }
-        .text-content {
-            order: 2; /* 텍스트가 항상 두 번째에 오도록 순서 지정 */
-            line-height: 1.8;
+        .text-content h3 { 
+            margin-top: 20px; /* 이미지와 간격 */
+            margin-bottom: 10px;
         }
-        .text-content h3 { margin-top: 0; }
         .image-content {
-            order: 1; /* 이미지가 항상 첫 번째에 오도록 순서 지정 */
             display: flex;
             flex-wrap: wrap;
             gap: 15px;
@@ -66,8 +62,20 @@
         .image-content img {
             border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            max-width: 100%; /* 부모 요소를 넘지 않도록 */
+            max-width: 100%;
             height: auto;
+        }
+        .program-actions-section {
+            text-align: right;
+            margin-top: 40px;
+        }
+        .program-footer {
+            background-color: #f8f9fa;
+            text-align: center;
+            padding: 15px;
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-top: 30px;
         }
     </style>
 </head>

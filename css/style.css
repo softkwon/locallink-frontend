@@ -1447,17 +1447,3 @@ footer .container {
     height: auto;
 }
 
-/* 프로그램 표시 이미지  */
-.image-content {
-    /* --image-width 변수가 있으면 그 값을, 없으면 100%를 사용합니다. */
-    width: var(--image-width, 100%);
-}
-.image-content.layout-row {
-    display: flex;
-    gap: 10px;
-}
-.image-content.layout-column {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
