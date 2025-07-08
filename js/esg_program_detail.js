@@ -103,6 +103,7 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
             <header class="program-header category-${program.esg_category.toLowerCase()}">
                 <h1>${program.title}</h1>
                 <p>${program.program_overview || ''}</p>
+                <p>기부금으로 프로그램을 이용할 수 있습니다</p>
             </header>
             ${noticeHtml}
             <div class="program-body">
