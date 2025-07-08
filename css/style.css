@@ -61,26 +61,6 @@ header nav a:hover {
 
 
 
-/* --- 모바일 화면 대응 --- */
-@media (max-width: 768px) {
-    .hero {
-        padding: 80px 20px; /* 모바일 상하 여백 조정 */
-        min-height: 40vh;
-    }
-
-    /* ★★★ 요청사항 1: 모바일에서 폰트 크기 줄이기 ★★★ */
-    .hero h1 {
-        font-size: 2.2em; 
-    }
-    .hero p {
-        font-size: 1.0em;
-    }
-    .hero .cta-button {
-        font-size: 1.0em;
-        padding: 12px 28px;
-    }
-}
-
 /* 섹션 공통 스타일 */
 .section {
     padding: 60px 0;
