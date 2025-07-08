@@ -70,7 +70,7 @@ header nav a:hover {
     justify-content: center;
     
     /* --- 핵심 수정 --- */
-    min-height: 50vh; /* 화면 높이를 50%로 늘려 더 시원한 느낌을 줍니다. */
+    min-height: 70vh; /* 화면 높이를 50%로 늘려 더 시원한 느낌을 줍니다. */
     padding: 40px 20px; /* 내부 여백을 조정합니다. */
     box-sizing: border-box; /* 패딩이 높이/너비 계산에 포함되도록 합니다. */
     transition: min-height 0.3s ease, padding 0.3s ease; /* 부드러운 전환 효과 추가 */
@@ -1444,6 +1444,7 @@ footer .container {
         gap: 25px;
     }
 }
+
 
 .section .image-content img {
     border-radius: 8px;
