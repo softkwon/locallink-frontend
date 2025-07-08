@@ -101,10 +101,11 @@
         ================================== */
 
         /* 요청사항 1: 콘텐츠 섹션(이미지+글 세트) 간 구분 강화 */
+        /* 요청 1 & 2: 콘텐츠 섹션 구분선 강화 및 간격 확장 */
         .program-body > .content-section-body {
             padding-bottom: 50px;
-            margin-bottom: 50px;
-            border-bottom: 1px solid #f0f0f0; /* 각 섹션을 구분하는 옅은 회색 실선 추가 */
+            margin-bottom: 70px; /* 기존 50px에서 70px로 간격을 더 넓게 */
+            border-bottom: 1px solid #dee2e6; /* 기존 #f0f0f0에서 더 잘 보이는 색으로 변경 */
         }
         /* 마지막 섹션에는 구분선이 필요 없으므로 제거합니다. */
         .program-body > .content-section-body:last-child {
@@ -166,7 +167,7 @@
         .benefit-box p, .benefit-box ul {
             color: #595959; /* 본문 내용 색상 */
         }
-        
+
         /* 2. 버튼 양쪽 정렬을 위한 레이아웃 수정 */
         .program-actions-section {
             /* 기존 text-align: right; 대신 flexbox 사용 */
@@ -191,6 +192,23 @@
         .program-actions-section .button-secondary {
             padding: 12px 24px;
         }
+        /* '바로가기' 버튼 호버 효과 */
+        .program-actions-section a.button-secondary:hover {
+            background-color: #d4efff;
+            border-color: #69c0ff;
+        }
+
+        /* 요청 3: '바로가기' 버튼 크기 및 색상 조정 */
+        .program-actions-section a.button-secondary {
+            padding: 10px 22px; /* 버튼 크기 살짝 줄임 */
+            font-size: 0.95em;  /* 글자 크기 살짝 줄임 */
+            
+            /* 옅은 파란색 계열로 색상 변경 */
+            background-color: #e6f7ff;
+            color: #096dd9;
+            border: 1px solid #91d5ff; /* 색상에 맞는 테두리 추가 */
+        }
+
     </style>
 </head>
 <body>
