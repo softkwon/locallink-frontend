@@ -259,6 +259,39 @@
             flex-direction: row;
         }
 
+        /* ★★★★★ 히어로 섹션 최종 스타일 (여기에 모두 정리) ★★★★★ */
+        .hero {
+            background-color: #4A90E2;
+            color: white;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            
+            /* 데스크탑 기본 높이 */
+            min-height: 70vh; 
+            padding: 40px 20px;
+        }
+        .hero h1 {
+            font-size: 3.5em;
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 20px;
+        }
+        .hero p {
+            font-size: 1.2em;
+            margin-bottom: 40px;
+        }
+        .hero .cta-button {
+            background-color: #FFA500;
+            color: white;
+            padding: 15px 35px;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 50px;
+        }
+        
         /* 반응형 처리 */
         @media (max-width: 768px) {
             .section .container .content {
@@ -307,16 +340,14 @@
 
             /* --- 메인 배너 (Hero Section) --- */
             .hero {
-                /* ★★★ 핵심 수정 ★★★ */
-                min-height: 50vh;   /* 모바일에서 최소 높이를 화면의 50%로 줄입니다. */
-                padding: 60px 20px; /* 높이가 줄어든 만큼 내부 여백도 함께 조정합니다. */
+                min-height: 50vh;   /* 모바일에서 최소 높이를 50%로 줄임 */
+                padding: 60px 20px;
             }
             .hero h1 {
                 font-size: 2.2em;
-                line-height: 1.3;
             }
             .hero p {
-                font-size: 1em;
+                font-size: 1.0em;
             }
 
             /* --- 메인 콘텐츠 섹션 --- */

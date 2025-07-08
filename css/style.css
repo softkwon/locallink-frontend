@@ -59,58 +59,7 @@ header nav a:hover {
     color: #007bff;
 }
 
-/* --- 히어로 섹션 (메인 슬로건/카피) --- */
-.hero {
-    background-color: #4A90E2;
-    color: white;
-    text-align: center;
-    display: flex;
-    flex-direction: column; /* 콘텐츠를 세로로 정렬하기 위해 추가 */
-    align-items: center;
-    justify-content: center;
-    
-    /* --- 핵심 수정 --- */
-    min-height: 70vh; /* 화면 높이를 50%로 늘려 더 시원한 느낌을 줍니다. */
-    padding: 40px 20px; /* 내부 여백을 조정합니다. */
-    box-sizing: border-box; /* 패딩이 높이/너비 계산에 포함되도록 합니다. */
-    transition: min-height 0.3s ease, padding 0.3s ease; /* 부드러운 전환 효과 추가 */
-}
 
-.hero .container {
-    max-width: 800px;
-}
-
-.hero h1 {
-    font-size: 3.5em; /* PC에서 글자 크기를 키워 주목도 상승 */
-    font-weight: 700; /* 조금 더 굵게 */
-    margin-bottom: 20px;
-    line-height: 1.3;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.1); /* 텍스트에 부드러운 그림자 효과 */
-}
-
-.hero p {
-    font-size: 1.2em;
-    margin-bottom: 40px;
-    opacity: 0.9; /* 부제목은 살짝 투명하게 */
-}
-
-.hero .cta-button {
-    background-color: #FFA500; /* 눈에 띄는 계열 버튼 추천*/
-    color: white;
-    padding: 15px 35px;
-    text-decoration: none;
-    font-size: 1.1em;
-    font-weight: bold;
-    border-radius: 50px; /* 버튼을 알약 형태로 */
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-}
-
-.hero .cta-button:hover {
-    background-color: #E69500;  /* 호버 시 약간 어두운 색으로 변경 */
-    transform: translateY(-2px); /* 호버 시 살짝 위로 이동하는 효과 */
-    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
-}
 
 /* --- 모바일 화면 대응 --- */
 @media (max-width: 768px) {
