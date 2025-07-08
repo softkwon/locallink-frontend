@@ -270,7 +270,7 @@
             align-items: center;
             
             /* 데스크탑 기본 높이 */
-            min-height: 70vh; 
+            min-height: clamp(400px, 35vw, 700px);
             padding: 40px 20px;
         }
         .hero h1 {
@@ -293,11 +293,7 @@
         }
         
         /* 반응형 처리 */
-        @media (max-width: 768px) {
-            .section .container .content {
-                flex-direction: column !important; /* 모바일에서는 항상 세로로 쌓이도록 */
-            }
-        }
+       
 
         /* ★★★★★ 반응형 웹 디자인을 위한 미디어 쿼리 ★★★★★ */
 
@@ -340,7 +336,6 @@
 
             /* --- 메인 배너 (Hero Section) --- */
             .hero {
-                min-height: 50vh;   /* 모바일에서 최소 높이를 50%로 줄임 */
                 padding: 60px 20px;
             }
             .hero h1 {
@@ -368,6 +363,12 @@
             .partner-item img {
                 height: 40px; /* 모바일에서 로고 이미지의 높이를 줄입니다. */
             }
+
+        @media (max-width: 768px) {
+            .section .container .content {
+                flex-direction: column !important; /* 모바일에서는 항상 세로로 쌓이도록 */
+            }
+            }            
 
         } /* @media (max-width: 768px) 닫는 괄호 */
 
