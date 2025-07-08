@@ -59,6 +59,8 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
             actionsHtml = `<button class="button-primary action-btn" data-action="apply_prompt">신청하기</button>`;
         }
     }
+    // ★★★ 새로 추가: '바로가기' 버튼 HTML 정의 ★★★
+    const goHomeButtonHtml = `<a href="index.html" class="button-secondary">LocalLink AI-ESG 바로가기</a>`;
 
     const serviceRegionsHtml = program.service_regions?.join(', ') || '전국';
     
@@ -112,21 +114,24 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
                     <h4>프로그램 상세 내용</h4>
                     ${contentHtml || '<p>상세 내용이 없습니다.</p>'}
                 </section>
-                <section class="detail-section">
+                
+                <section class="detail-section related-orgs">
                     <h4>연계 단체</h4>
                     <ul>${orgsHtml}</ul>
                 </section>
-                <section class="detail-section">
+
+                <section class="detail-section risk-box">
                     <h4>방치 시 리스크</h4>
                     <p>${program.risk_text || '-'}</p>
                 </section>
-                <section class="detail-section">
+
+                <section class="detail-section benefit-box">
                     <h4>개선 시 기대효과</h4>
                     <ul>${oppsHtml}</ul>
                 </section>
+
                 <section class="program-actions-section">
-                    ${actionsHtml}
-                </section>
+                    ${goHomeButtonHtml}     <div>${actionsHtml}</div> </section>
             </div>
             <footer class="program-footer">
                 <p>*프로그램을 통해 [${companyName}]의 자세한 성과 측정이 가능합니다.</p>

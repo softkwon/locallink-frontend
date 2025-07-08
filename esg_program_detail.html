@@ -95,6 +95,102 @@
 
         .layout-img-left .text-content { order: 2; }
         .layout-img-left .image-content { order: 1; } 
+
+        /* ==================================
+        프로그램 상세 페이지 디자인 개선
+        ================================== */
+
+        /* 요청사항 1: 콘텐츠 섹션(이미지+글 세트) 간 구분 강화 */
+        .program-body > .content-section-body {
+            padding-bottom: 50px;
+            margin-bottom: 50px;
+            border-bottom: 1px solid #f0f0f0; /* 각 섹션을 구분하는 옅은 회색 실선 추가 */
+        }
+        /* 마지막 섹션에는 구분선이 필요 없으므로 제거합니다. */
+        .program-body > .content-section-body:last-child {
+            border-bottom: none;
+            margin-bottom: 20px; /* 마지막 섹션과 하단 버튼과의 간격 조정 */
+        }
+
+
+        /* 요청사항 2: '연계단체' 링크 스타일 개선 */
+        .detail-section.related-orgs a {
+            display: inline-block;
+            text-decoration: none;
+            background-color: #f1f3f5; /* 부드러운 회색 배경 */
+            color: #495057;
+            padding: 8px 18px;
+            margin: 5px 5px 5px 0; /* 링크 간 간격 */
+            border-radius: 20px;   /* 알약 형태의 부드러운 모서리 */
+            font-size: 1.05em;     /* 글자 크기 키움 */
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .detail-section.related-orgs a:hover {
+            background-color: #e9ecef;
+            color: #212529;
+            transform: translateY(-2px); /* 호버 시 살짝 떠오르는 효과 */
+        }
+
+
+        /* 요청사항 3: '방치 리스크'와 '개선시 기대효과' 박스 스타일 */
+        .risk-box,
+        .benefit-box {
+            padding: 25px 30px;
+            margin-top: 20px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+        }
+        /* '방치 리스크' 박스 - 옅은 붉은색 계열 */
+        .risk-box {
+            background-color: #fff1f0;
+            border-color: #ffa39e;
+        }
+        .risk-box h4 {
+            color: #cf1322; /* 제목 색상 */
+            border-bottom-color: rgba(207, 19, 34, 0.2); /* 제목 밑줄도 같은 계열로 */
+        }
+        .risk-box p, .risk-box ul {
+            color: #595959; /* 본문 내용 색상 */
+        }
+
+        /* '개선시 기대효과' 박스 - 옅은 파란색 계열 */
+        .benefit-box {
+            background-color: #e6f7ff;
+            border-color: #91d5ff;
+        }
+        .benefit-box h4 {
+            color: #096dd9; /* 제목 색상 */
+            border-bottom-color: rgba(9, 109, 217, 0.2); /* 제목 밑줄도 같은 계열로 */
+        }
+        .benefit-box p, .benefit-box ul {
+            color: #595959; /* 본문 내용 색상 */
+        }
+        
+        /* 2. 버튼 양쪽 정렬을 위한 레이아웃 수정 */
+        .program-actions-section {
+            /* 기존 text-align: right; 대신 flexbox 사용 */
+            display: flex;
+            justify-content: space-between; /* 양쪽 끝으로 요소를 배치 */
+            align-items: center;
+            margin-top: 40px;
+        }
+
+        /* 1. 신청하기 등 기존 버튼 가시성 향상 */
+        .program-actions-section .action-btn {
+            padding: 14px 30px; /* 버튼 크기 키움 */
+            font-size: 1.1em;   /* 글자 크기 키움 */
+            font-weight: bold;
+            transition: transform 0.2s ease;
+        }
+        .program-actions-section .action-btn:hover {
+            transform: scale(1.05); /* 호버 시 살짝 커지는 효과 */
+        }
+
+        /* 새로 추가될 '바로가기' 버튼을 위한 스타일 (a 태그) */
+        .program-actions-section .button-secondary {
+            padding: 12px 24px;
+        }
     </style>
 </head>
 <body>
