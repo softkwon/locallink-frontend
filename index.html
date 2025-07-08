@@ -268,10 +268,15 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            
-            /* 데스크탑 기본 높이 */
             min-height: clamp(400px, 35vw, 700px);
             padding: 40px 20px;
+            box-sizing: border-box; /* 패딩 계산을 위해 추가 */
+
+            /* ★★★ 핵심 수정: 폭과 위치 조정 ★★★ */
+            width: 90%;                 /* 다른 콘텐츠와 같이 기본 폭을 90%로 설정 */
+            max-width: 1200px;          /* 다른 콘텐츠와 같이 최대 폭을 1200px로 제한 */
+            margin: 40px auto;          /* 위아래 여백 40px, 좌우는 자동으로 중앙 정렬 */
+            border-radius: 12px;        /* 모서리를 부드럽게 둥글게 처리 */
         }
         .hero h1 {
             font-size: 3.5em;
