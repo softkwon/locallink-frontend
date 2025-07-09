@@ -1,5 +1,7 @@
 // js/survey_step1.js (2025-06-29 11:40:00)
 import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
+import { initializeIndustryModal } from './components/industry_modal.js';
+
 
 // 페이지 전역에서 사용할 변수
 let selectedIndustryCodes = []; 
