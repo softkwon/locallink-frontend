@@ -22,8 +22,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // 카테고리에 따라 페이지 제목과 글쓰기 버튼 링크 설정
-        if (category === 'locallink') {
-            if(titleEl) titleEl.textContent = 'LocalLink 소식';
+        if (category === 'ESGlink') {
+            if(titleEl) titleEl.textContent = 'ESGLink 소식';
             if(writeBtnContainer) writeBtnContainer.href = `admin_news_create.html?category=${category}`;
         } else if (category === 'trends') {
             if(titleEl) titleEl.textContent = 'ESG Market';

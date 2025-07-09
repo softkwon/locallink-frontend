@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 function renderProgramDetails(program, hasCompletedDiagnosis, source, companyName) {
     const container = document.getElementById('program-detail-container');
-    document.title = `${program.title} - LocalLink`;
+    document.title = `${program.title} - ESGLink`;
 
     // (이하 actionsHtml, noticeHtml 생성 로직은 동일)
     let actionsHtml = '';
@@ -60,7 +60,7 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
         }
     }
     // ★★★ 새로 추가: '바로가기' 버튼 HTML 정의 ★★★
-    const goHomeButtonHtml = `<a href="index.html" class="button-secondary">LocalLink AI-ESG 바로가기</a>`;
+    const goHomeButtonHtml = `<a href="index.html" class="button-secondary">ESGLink 바로가기</a>`;
 
     const serviceRegionsHtml = program.service_regions?.join(', ') || '전국';
     
