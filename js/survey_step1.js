@@ -147,10 +147,36 @@ document.addEventListener('DOMContentLoaded', async function() {
     try {
         const industryResponse = await fetch(`${API_BASE_URL}/industries`, { headers: { 'Authorization': `Bearer ${token}` } });
         const industryResult = await industryResponse.json();
-        if (industryResult.success) allIndustries = industryResult.industries;
-    } catch (e) { console.error("산업코드 목록 로딩 실패:", e); }
+        if (industryResult.success) {
+            allIndustries = industryResult.industries;
+        } else {
+            console.error("산업코드 목록 로딩 실패:", industryResult.message);
+        }
+    } catch (e) { 
+        console.error("산업코드 목록 API 호출 실패:", e);
+    }
 
-    // 기존 진단 정보 또는 사용자 정보 불러오기
+    // ★★★ 수정된 부분: 이벤트 리스너 연결 부분을 데이터 로딩과 분리하고, 모달 함수 존재 여부를 확실히 체크합니다. ★★★
+    
+    // 1. 이벤트 리스너 먼저 연결
+    document.getElementById('industryCodeInfoIconSurveyStep1')?.addEventListener('click', function() {
+        // 'initializeIndustryModal' 함수가 실제로 존재하는지 확인
+        if (typeof initializeIndustryModal === 'function') {
+            initializeIndustryModal({
+                initialSelection: selectedIndustryCodes,
+                onConfirm: (confirmedSelection) => {
+                    window.handleIndustryCodeSelectionForSurveyStep1(confirmedSelection);
+                }
+            });
+        } else {
+            console.error('initializeIndustryModal 함수를 찾을 수 없습니다. common_modal.js 파일이 올바르게 로드되었는지 확인하세요.');
+            alert('산업분류표를 여는 데 실패했습니다. 페이지를 새로고침하거나 관리자에게 문의하세요.');
+        }
+    });
+    document.querySelector('.form-actions .button-primary')?.addEventListener('click', saveAndProceed);
+
+
+    // 2. 데이터 로딩 및 폼 채우기
     const diagnosisId = sessionStorage.getItem('currentDiagnosisId');
     const dataEndpoint = diagnosisId ? `${API_BASE_URL}/diagnoses/${diagnosisId}` : `${API_BASE_URL}/users/me`;
 
@@ -162,30 +188,12 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (!result.success) throw new Error(result.message);
         
         const initialData = diagnosisId ? result.diagnosis : result.user;
-        
-        // 가져온 정보로 폼 채우기
         populateForm(initialData);
 
     } catch(error) {
-        // auth.js에 있는 logout() 함수를 호출할 수 없으므로, 직접 로그아웃 처리
         localStorage.removeItem('locallink-token');
         sessionStorage.removeItem('currentDiagnosisId');
         alert(error.message || '정보를 불러오는 데 실패했습니다. 다시 로그인해주세요.');
         window.location.href = 'main_login.html';
-        return;
     }
-    
-    // 이벤트 리스너 연결
-    document.getElementById('industryCodeInfoIconSurveyStep1')?.addEventListener('click', function() {
-        if (typeof initializeIndustryModal === 'function') {
-            initializeIndustryModal({
-                initialSelection: selectedIndustryCodes,
-                onConfirm: (confirmedSelection) => {
-                    window.handleIndustryCodeSelectionForSurveyStep1(confirmedSelection);
-                }
-            });
-        }
-    });
-    
-    document.querySelector('.form-actions .button-primary')?.addEventListener('click', saveAndProceed);
 });
