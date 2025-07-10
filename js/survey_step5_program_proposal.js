@@ -31,12 +31,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // --- 3. 데이터 로딩 및 전체 화면 렌더링 ---
+    //[2025-07-11][js/survey_step5_program_proposal.js [loadAndRenderAll 함수 수정]
+
     async function loadAndRenderAll() {
         try {
-            const [programsRes, statusRes, applicationsRes] = await Promise.all([
+            // --- 1. 필요한 데이터 병렬로 호출 (진단 정보 추가) ---
+            const [programsRes, statusRes, applicationsRes, userRes] = await Promise.all([
                 fetch(`${API_BASE_URL}/programs`),
                 fetch(`${API_BASE_URL}/users/me/diagnosis-status?diagId=${diagId}`, { headers: { 'Authorization': `Bearer ${token}` } }),
-                fetch(`${API_BASE_URL}/applications/me`, { headers: { 'Authorization': `Bearer ${token}` } })
+                fetch(`${API_BASE_URL}/applications/me`, { headers: { 'Authorization': `Bearer ${token}` } }),
+                fetch(`${API_BASE_URL}/users/me`, { headers: { 'Authorization': `Bearer ${token}` } }) // 사용자 정보(지역) 가져오기
             ]);
 
             const programsResult = await programsRes.json();
@@ -54,21 +58,48 @@ document.addEventListener('DOMContentLoaded', function() {
                 const appResult = await applicationsRes.json();
                 if(appResult.success) applications = appResult.applications;
             }
-            
-            const recommendedIds = diagnosisStatus.recommended_program_ids || [];
-            const recommendedPrograms = allProgramsCache.filter(p => recommendedIds.includes(p.id));
-            const otherPrograms = allProgramsCache.filter(p => !recommendedIds.includes(p.id));
 
+            // ★★★ 사용자 지역 정보 가져오기 ★★★
+            let userRegion = null;
+            if (userRes.ok) {
+                const userResult = await userRes.json();
+                if(userResult.success) userRegion = userResult.user.business_location;
+            }
+
+            // --- 2. 프로그램 목록 필터링 ---
+            const recommendedIds = new Set(diagnosisStatus.recommended_program_ids || []);
+            
+            // ★★★ 지역 맞춤 프로그램 필터링 ★★★
+            const regionalPrograms = allProgramsCache.filter(p => 
+                !recommendedIds.has(p.id) && // 추천 프로그램에서 제외하고
+                p.service_regions && userRegion && // 서비스 지역과 사용자 지역 정보가 모두 있을 때
+                (p.service_regions.includes(userRegion) || p.service_regions.includes('전국'))
+            );
+            const regionalIds = new Set(regionalPrograms.map(p => p.id));
+
+            const recommendedPrograms = allProgramsCache.filter(p => recommendedIds.has(p.id));
+            
+            // ★★★ '기타' 프로그램 필터링 (추천, 지역 맞춤 제외) ★★★
+            const otherPrograms = allProgramsCache.filter(p => 
+                !recommendedIds.has(p.id) && !regionalIds.has(p.id)
+            );
+
+            // --- 3. 각 섹션에 렌더링 ---
+            const regionalContainer = document.getElementById('regional-programs-container'); // 새로 추가한 컨테이너
+            
             renderProgramSection(recommendedContainer, recommendedPrograms, "진단 결과에 따른 맞춤 추천 프로그램이 없습니다.");
+            renderProgramSection(regionalContainer, regionalPrograms, "우리 회사 지역에 맞는 프로그램이 없습니다.");
             renderProgramSection(allProgramsContainer, otherPrograms.slice(0, 3), "다른 프로그램이 없습니다.");
+            
             displayApplicationStatus(applications);
             
-            if (customSolutionSection && customSolutionText && recommendedIds.length > 0) {
-                customSolutionText.innerHTML = `진단 결과, <strong>총 ${recommendedIds.length}개의 주요 개선 과제</strong>가 도출되었습니다. <br>귀사에 맞춰 제안된 모든 프로그램을 확인해보세요.`;
+            if (customSolutionSection && customSolutionText && recommendedIds.size > 0) {
+                customSolutionText.innerHTML = `진단 결과, <strong>총 ${recommendedIds.size}개의 주요 개선 과제</strong>가 도출되었습니다. <br>귀사에 맞춰 제안된 모든 프로그램을 확인해보세요.`;
                 customSolutionSection.style.display = 'block';
             }
         } catch (error) {
             if(recommendedContainer) recommendedContainer.innerHTML = `<p>데이터를 불러오는 중 오류가 발생했습니다: ${error.message}</p>`;
+            console.error("Step5 로딩 오류:", error);
         }
     }
 
