@@ -61,9 +61,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     orderCell.innerHTML = `
                         <button class="arrow-btn up-btn" data-id="${p.id}" title="위로" ${index === 0 ? 'disabled' : ''}>▲</button>
                         <button class="arrow-btn down-btn" data-id="${p.id}" title="아래로" ${index === result.partners.length - 1 ? 'disabled' : ''}>▼</button>
-                    `;
+                    `;                                        
                     
-                    row.insertCell().innerHTML = `<div class="button-group"><button class="button-primary button-sm save-btn">저장</button> <button class="button-danger button-sm delete-btn">삭제</button></div>`;                                           
+                    row.insertCell().innerHTML = `<div class="button-group"><button class="button-primary button-sm save-btn">저장</button> <button class="button-danger button-sm delete-btn">삭제</button></div>`;
                 });
             } else { throw new Error(result.message); }
         } catch (error) { loadingEl.textContent = `오류: ${error.message}`; }
