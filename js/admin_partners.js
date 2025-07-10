@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
     /**
      * 파일명: js/admin_partners.js
      * 수정 위치: loadPartners 함수 전체
-     * 수정 일시: 2025-07-04 03:03
+     * 수정 일시: 2025-07-11    02:33
      */
     async function loadPartners() {
         const loadingEl = document.getElementById('loadingMessage');
@@ -40,14 +40,12 @@ document.addEventListener('DOMContentLoaded', function() {
             const result = await response.json();
             if (result.success) {
                 tableBodyEl.innerHTML = '';
-                result.partners.forEach(p => {
+                result.partners.forEach((p, index) => {
                     const row = tableBodyEl.insertRow();
                     row.dataset.id = p.id;
                     
-                    // ★★★ 이미지 URL 처리 로직 수정 ★★★
-                    const logoUrl = (p.logo_url && p.logo_url.startsWith('http'))
-                        ? p.logo_url // S3 전체 주소이면 그대로 사용
-                        : `${STATIC_BASE_URL}${p.logo_url}`;
+                    // ★★★ 수정된 부분: 백엔드가 보내준 logo_url을 그대로 사용합니다. ★★★
+                    const logoUrl = p.logo_url || '/images/default_logo.png'; // 로고가 없을 경우 기본 이미지
 
                     row.insertCell().textContent = p.id;
                     row.insertCell().innerHTML = `<input type="text" class="form-control" value="${p.name}" data-key="name">`;
@@ -55,18 +53,22 @@ document.addEventListener('DOMContentLoaded', function() {
                     row.insertCell().innerHTML = `<input type="file" class="form-control logo-file-input" accept="image/*">`;
                     row.insertCell().innerHTML = `<input type="text" class="form-control" value="${p.link_url || ''}" data-key="link_url">`;
                     
-                    // ▼▼▼ '순서 변경' 셀과 버튼을 추가합니다. ▼▼▼
+                    // 순서 변경 버튼
                     const orderCell = row.insertCell();
                     orderCell.className = 'order-controls';
                     orderCell.innerHTML = `
                         <button class="arrow-btn up-btn" data-id="${p.id}" title="위로" ${index === 0 ? 'disabled' : ''}>▲</button>
                         <button class="arrow-btn down-btn" data-id="${p.id}" title="아래로" ${index === result.partners.length - 1 ? 'disabled' : ''}>▼</button>
-                    `;                                        
-                    
+                    `;
+
                     row.insertCell().innerHTML = `<div class="button-group"><button class="button-primary button-sm save-btn">저장</button> <button class="button-danger button-sm delete-btn">삭제</button></div>`;
                 });
-            } else { throw new Error(result.message); }
-        } catch (error) { loadingEl.textContent = `오류: ${error.message}`; }
+            } else { 
+                throw new Error(result.message); 
+            }
+        } catch (error) { 
+            loadingEl.textContent = `오류: ${error.message}`; 
+        }
         loadingEl.style.display = 'none';
         tableEl.classList.remove('hidden');
     }
