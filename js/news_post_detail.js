@@ -63,15 +63,17 @@ function renderPostDetails(post) {
                 <div class="post-meta">
                     <span class="category">${post.category}</span> | <span>${new Date(post.created_at).toLocaleDateString('ko-KR')}</span>
                 </div>
-                <div class="share-container">
-                    <button class="share-button" id="shareBtn">🔗</button>
-                    <div class="share-dropdown" id="shareDropdown">
-                        <a href="#" id="copyLinkBtn">링크 복사</a>
-                        <a href="#" id="kakaoShareBtn">카카오톡 공유</a>
-                    </div>
+            </div>
+            <div class="share-container">
+                <button class="share-button" id="shareBtn">🔗</button>
+                <div class="share-dropdown" id="shareDropdown">
+                    <a href="#" id="copyLinkBtn">링크 복사</a>
+                    <a href="#" id="kakaoShareBtn">카카오톡 공유</a>
                 </div>
             </div>
-            <div class="post-body">${sectionsHtml}</div>
+            <div class="post-body">
+                ${sectionsHtml}
+            </div>
             <div class="back-to-list-container">
                 <a href="javascript:history.back()" class="button-secondary">목록으로</a>
             </div>

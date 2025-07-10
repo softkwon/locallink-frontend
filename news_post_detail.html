@@ -11,7 +11,6 @@
     <link rel="stylesheet" href="css/components.css">
     <style>
         /* --- 뉴스 상세 페이지 스타일 --- */
-        /* --- 뉴스 상세 페이지 스타일 --- */
         .post-wrapper {
             max-width: 800px;
             margin: 40px auto;
@@ -73,9 +72,10 @@
             position: relative; /* 공유 버튼의 기준점 */
         }
         .share-container {
-            position: absolute;
-            top: 10px;
-            right: 10px;
+            position: relative; /* absolute에서 변경 */
+            text-align: right;  /* 내용을 오른쪽으로 정렬 */
+            margin-top: 15px;   /* 위쪽 제목과 간격 */
+            margin-bottom: 30px; /* 아래쪽 본문과 간격 */
         }
         .share-button {
             background: #f0f0f0;
@@ -89,7 +89,7 @@
         .share-dropdown {
             display: none;
             position: absolute;
-            top: 100%;
+            top: 100%; /* 버튼 바로 아래에 표시 */
             right: 0;
             background: white;
             border: 1px solid #ddd;
