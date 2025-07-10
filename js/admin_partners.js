@@ -75,12 +75,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // --- 이벤트 리스너 연결 ---
     function attachEventListeners() {
-        // '새 협력사 추가' 폼 제출 이벤트
+        // '새 협력사 추가' 폼 제출 이벤트 (기존과 동일)
         createForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(createForm);
             
-            // 파일이 선택되었는지 확인
             const fileInput = document.getElementById('new_logo_file');
             if (!fileInput.files[0]) {
                 alert('로고 이미지를 선택해주세요.');
@@ -104,14 +103,37 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // 테이블 내의 '저장' 또는 '삭제' 버튼 클릭 이벤트 (이벤트 위임)
+        // 테이블 내의 버튼 클릭 이벤트 (이벤트 위임 방식)
         tableBodyEl.addEventListener('click', async (e) => {
             const target = e.target;
             const row = target.closest('tr');
             if (!row) return;
             const id = row.dataset.id;
 
-            // '저장' 버튼 클릭
+            // ▼▼▼ 순서 변경 버튼 클릭 시 처리 로직 추가 ▼▼▼
+            if (target.matches('.arrow-btn')) {
+                const direction = target.classList.contains('up-btn') ? 'up' : 'down';
+                try {
+                    const response = await fetch(`${API_BASE_URL}/admin/partners/reorder`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify({ partnerId: id, direction: direction })
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        loadPartners(); // 성공 시 목록 새로고침
+                    } else {
+                        alert('순서 변경 실패: ' + result.message);
+                    }
+                } catch (error) {
+                    console.error('순서 변경 중 오류:', error);
+                    alert('순서 변경 중 오류가 발생했습니다.');
+                }
+                return; // 다른 버튼 로직을 실행하지 않고 종료
+            }
+            // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
+            // '저장' 버튼 클릭 (기존 로직)
             if (target.classList.contains('save-btn')) {
                 const fileInput = row.querySelector('.logo-file-input');
                 const file = fileInput.files[0];
@@ -120,8 +142,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 formData.append('name', row.querySelector('[data-key="name"]').value);
                 formData.append('link_url', row.querySelector('[data-key="link_url"]').value);
                 
-                // 새 파일이 있으면 'partnerLogo' 필드로 추가하고,
-                // 없으면 기존 로고 URL을 'logo_url' 필드로 전송합니다.
                 if (file) {
                     formData.append('partnerLogo', file);
                 } else {
@@ -137,14 +157,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         });
                         const result = await response.json();
                         alert(result.message);
-                        if(result.success) loadPartners(); // 성공 시 목록 새로고침
+                        if(result.success) loadPartners();
                     } catch(err) { 
                         alert('수정 중 오류 발생'); 
                     }
                 }
             }
 
-            // '삭제' 버튼 클릭
+            // '삭제' 버튼 클릭 (기존 로직)
             if (target.classList.contains('delete-btn')) {
                 if (confirm(`ID ${id} 항목을 정말로 삭제하시겠습니까?`)) {
                     try {
@@ -154,7 +174,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         });
                         const result = await response.json();
                         alert(result.message);
-                        if(result.success) loadPartners(); // 성공 시 목록 새로고침
+                        if(result.success) loadPartners();
                     } catch(err) { 
                         alert('삭제 중 오류 발생'); 
                     }
