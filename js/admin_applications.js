@@ -91,10 +91,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- 4. 이벤트 리스너 연결 ---
     function attachEventListeners() {
         // 'CSV로 내보내기' 버튼 이벤트
-        if (exportBtn) {
+        if(exportBtn) {
             exportBtn.addEventListener('click', async () => {
-                exportBtn.textContent = '생성 중...';
-                exportBtn.disabled = true;
                 try {
                     const response = await fetch(`${API_BASE_URL}/admin/applications/export`, {
                         headers: { 'Authorization': `Bearer ${token}` }
@@ -106,33 +104,30 @@ document.addEventListener('DOMContentLoaded', function() {
                     const a = document.createElement('a');
                     a.style.display = 'none';
                     a.href = url;
-                    a.download = `applications-${new Date().toISOString().slice(0, 10)}.csv`;
+                    a.download = `applications-${new Date().toISOString().slice(0,10)}.csv`;
                     document.body.appendChild(a);
                     a.click();
                     window.URL.revokeObjectURL(url);
                     a.remove();
-                } catch (error) {
+                } catch(error) {
                     alert(error.message);
-                } finally {
-                    exportBtn.textContent = 'CSV로 내보내기';
-                    exportBtn.disabled = false;
                 }
             });
         }
 
         // 테이블 내부 버튼 이벤트 (상태 저장)
-        if (tableBody) {
+        if(tableBody) {
             // 'select' 값이 변경되면 '저장' 버튼을 표시하는 로직
             tableBody.addEventListener('change', e => {
                 if (e.target.classList.contains('status-select')) {
                     const row = e.target.closest('tr');
                     const saveBtn = row.querySelector('.status-save-btn');
-                    if (saveBtn) saveBtn.classList.add('visible');
+                    if(saveBtn) saveBtn.classList.add('visible');
                 }
             });
 
             // '저장' 버튼을 클릭했을 때의 로직
-           tableBody.addEventListener('click', async e => {
+            tableBody.addEventListener('click', async e => {
                 if (e.target.classList.contains('status-save-btn')) {
                     const row = e.target.closest('tr');
                     const applicationId = row.dataset.id;
@@ -150,7 +145,10 @@ document.addEventListener('DOMContentLoaded', function() {
                             // ★★★ 수정된 부분: 성공 시 테이블을 다시 로드합니다. ★★★
                             loadApplications();
                         }
-                    } catch (err) { alert('상태 변경 중 오류 발생'); }
+                    } catch (err) { 
+                        alert('상태 변경 중 오류 발생'); 
+                        console.error(err);
+                    }
                 }
             });
         }
