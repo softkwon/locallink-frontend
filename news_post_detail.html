@@ -70,23 +70,28 @@
         /* ★★★ 공유 버튼 스타일 추가 ★★★ */
         .post-header {
             position: relative; /* 공유 버튼의 기준점 */
+            padding-top: 15px; /* 상단 패딩 추가하여 여백 확보 */
         }
         .share-container {
             position: absolute;
-            top: 10px;
+            top: 15px; /* 기존 10px 에서 살짝 아래로 조정 */
             right: 10px;
             z-index: 1; /* 다른 요소 위에 표시 */
+            background-color: rgba(255, 255, 255, 0.7); /* 배경색 추가 (약간 투명한 흰색) */
+            border-radius: 15px; /* 둥근 배경 */
+            padding: 2px 5px; /* 배경 주변 여백 */
         }
         .share-button {
-            background: #f0f0f0;
-            border: 1px solid #ddd;
+            background: none; /* 기존 배경색 제거 */
+            border: none;
             border-radius: 50%;
-            width: 30px; /* 크기 줄임 */
-            height: 30px; /* 크기 줄임 */
+            width: 30px; /* 크기 유지 */
+            height: 30px; /* 크기 유지 */
             cursor: pointer;
-            font-size: 0.9em; /* 아이콘 크기 줄임 */
-            line-height: 30px; /* 아이콘 중앙 정렬 */
+            font-size: 0.9em; /* 아이콘 크기 유지 */
+            line-height: 30px; /* 아이콘 중앙 정렬 유지 */
             text-align: center;
+            color: #333; /* 아이콘 색상 변경 (가독성 위해) */
         }
         .share-dropdown {
             display: none;
@@ -105,7 +110,7 @@
             color: #333;
             text-decoration: none;
             white-space: nowrap;
-            font-size: 0.9em; /* 드롭다운 폰트 크기 맞춤 */
+            font-size: 0.9em; /* 드롭다운 폰트 크기 유지 */
         }
         .share-dropdown a:hover {
             background-color: #f5f5f5;

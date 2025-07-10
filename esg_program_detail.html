@@ -215,23 +215,23 @@
         }
 
         /* ▼▼▼ 공유 버튼 스타일 추가 ▼▼▼ */
-        .program-header {
+            .program-header {
             position: relative; /* 공유 버튼의 기준점 */
-        }
-        .share-container {
+            }
+            .share-container {
             position: absolute;
             top: 10px;
             right: 10px;
-        }
-        .share-button {
+            }
+            .share-button {
             background: none;
             border: none;
             font-size: 1.5rem; /* 아이콘 크기 */
             cursor: pointer;
             padding: 5px;
-            color: white; /* 색상 박스 안 흰색으로 변경 */
-        }
-        .share-dropdown {
+            color: #333; /* 기존 white 에서 어두운 회색으로 변경 */
+            }
+            .share-dropdown {
             display: none;
             position: absolute;
             top: 100%; /* 버튼 아래로 펼쳐지도록 설정 */
@@ -242,17 +242,22 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             z-index: 10;
             margin-top: 5px; /* 버튼과의 간격 */
-        }
-        .share-dropdown a {
+            }
+            .share-dropdown a {
             display: block;
             padding: 8px 15px;
             color: #333;
             text-decoration: none;
             white-space: nowrap;
-        }
-        .share-dropdown a:hover {
+            }
+            .share-dropdown a:hover {
             background-color: #f5f5f5;
-        }
+            }
+
+            /* 공유 버튼 클릭 시 드롭다운 표시 */
+            .share-button.active + .share-dropdown {
+                display: block;
+            }
 
     </style>
 </head>
