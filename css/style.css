@@ -27,39 +27,6 @@ html, body {
     padding: 20px 0;
 }
 
-/* 헤더 */
-header {
-    background-color: #f8f9fa;
-    padding: 20px 0;
-    border-bottom: 1px solid #e7e7e7;
-}
-header .container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-header .logo {
-    font-size: 1.8em;
-    font-weight: bold;
-    color: #007bff;
-}
-header nav ul {
-    list-style: none;
-    display: flex;
-}
-header nav li {
-    margin-left: 20px;
-}
-header nav a {
-    text-decoration: none;
-    color: #333;
-    font-weight: 500;
-}
-header nav a:hover {
-    color: #007bff;
-}
-
-
 
 /* 섹션 공통 스타일 */
 .section {
@@ -1405,13 +1372,44 @@ footer .container {
 #notification-list li.is-read { color: #888; } /* 읽은 알림은 흐리게 */
 .hidden { display: none; }
 
-/* 고정 헤더 (Sticky Header) 스타일 */
+/* ============================
+   Header Styles (통합)
+   ============================ */
 header {
-    position: sticky;   /* 스크롤 시 특정 위치에 도달하면 고정됩니다. */
-    top: 0;             /* 화면 맨 위에 붙어서 고정됩니다. */
-    left: 0;
-    right: 0;
-    z-index: 1000;      /* 다른 모든 요소들보다 항상 위에 있도록 설정합니다. */
-    background-color: #ffffff; /* 스크롤 시 내용이 비치지 않도록 배경색을 지정합니다. */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); /* 입체감을 위한 부드러운 그림자 효과 */
+    /* 스티키 헤더 기능 */
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    
+    /* 기존 디자인 스타일 */
+    background-color: #ffffff;
+    padding: 20px 0;
+    border-bottom: 1px solid #e7e7e7;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+header .logo {
+    font-size: 1.8em;
+    font-weight: bold;
+    color: #007bff;
+}
+header nav ul {
+    list-style: none;
+    display: flex;
+}
+header nav li {
+    margin-left: 20px;
+}
+header nav a {
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+}
+header nav a:hover {
+    color: #007bff;
 }
