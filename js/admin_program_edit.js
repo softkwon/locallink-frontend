@@ -82,6 +82,13 @@ document.addEventListener('DOMContentLoaded', function() {
         safeSetValue('risk_text', program.risk_text);
         safeSetValue('risk_description', program.risk_description);
         
+        if (program.execution_type) {
+            const radioBtn = document.querySelector(`input[name="executionType"][value="${program.execution_type}"]`);
+            if (radioBtn) {
+                radioBtn.checked = true;
+            }
+        }
+        
         const serviceCheckboxes = document.querySelectorAll('input[name="service_region"]');
         serviceCheckboxes.forEach(cb => { cb.checked = false; cb.disabled = false; });
         if (program.service_regions && Array.isArray(program.service_regions)) {
@@ -410,6 +417,9 @@ document.addEventListener('DOMContentLoaded', function() {
             formData.append('program_overview', safeGetValue('program_overview'));
             formData.append('risk_text', safeGetValue('risk_text'));
             formData.append('risk_description', safeGetValue('risk_description'));
+            
+            const executionType = document.querySelector('input[name="executionType"]:checked')?.value || 'donation';
+            formData.append('execution_type', executionType);
             
             // 2. 동적으로 추가/삭제되는 항목들을 JSON으로 변환하여 추가
             const economicEffects = Array.from(document.querySelectorAll('#effects-container .effect-item')).map(item => ({ type: item.querySelector('.effect-type').value, value: parseFloat(item.querySelector('.effect-value').value) || 0, description: item.querySelector('.effect-description').value })).filter(item => item.value || item.description);

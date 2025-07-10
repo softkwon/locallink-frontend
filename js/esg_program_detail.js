@@ -46,6 +46,14 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
     const container = document.getElementById('program-detail-container');
     document.title = `${program.title} - ESGLink`;
 
+    // ▼▼▼ 바로 이 위치에 아래 코드를 추가하세요. ▼▼▼
+    let executionMessage = '';
+    if (program.execution_type === 'contract') {
+        executionMessage = '* 이 프로그램은 용역계약을 통해 진행할 수 있습니다.';
+    } else { // 'donation' 또는 값이 없는 경우 기본값
+        executionMessage = '* 이 프로그램은 기부를 통해 진행할 수 있습니다.';
+    }
+    
     // 1. 공유 썸네일용 첫 번째 이미지 URL 찾기
     const contentSections = Array.isArray(program.content) ? program.content : [];
     const firstImage = contentSections.flatMap(s => s.images || []).find(Boolean) || 'https://esglink.co.kr/images/logo_og.png';
@@ -54,7 +62,7 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
     document.querySelector('meta[property="og:title"]').setAttribute('content', program.title);
     document.querySelector('meta[property="og:description"]').setAttribute('content', program.program_overview || 'ESGlink에서 제공하는 ESG 프로그램을 확인하세요.');
     document.querySelector('meta[property="og:image"]').setAttribute('content', firstImage);
-
+    
     // 3. 버튼 HTML 생성
     let actionsHtml = '';
     let noticeHtml = '';
@@ -127,7 +135,9 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
                     </div>
                 </section>
             </div>
-            <footer class="program-footer"><p>*프로그램을 통해 [${companyName}]의 자세한 성과 측정이 가능합니다.</p></footer>
+            <footer class="program-footer">
+            <p>${executionMessage}</p>
+            <p>*프로그램을 통해 [${companyName}]의 자세한 성과 측정이 가능합니다.</p></footer>
         </div>
     `;
 
