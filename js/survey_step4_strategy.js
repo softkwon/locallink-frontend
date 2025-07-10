@@ -325,7 +325,7 @@ function renderRegionalMapAndIssues(diagnosis, regionalIssues) {
 
     const locationName = diagnosis.business_location_text || '지역 정보 없음';
     const mapFileName = diagnosis.business_location ? `${diagnosis.business_location}.jpg` : 'default.png';
-    const mapImageUrl = `${STATIC_BASE_URL}/images/maps/${mapFileName}`;
+    const mapImageUrl = `/images/maps/${mapFileName}`;
     
     // ★★★ E, S, G 카테고리별로 모든 이슈를 그룹화합니다. (요청사항 3) ★★★
     const issuesByCategory = { E: [], S: [], G: [] };
