@@ -14,10 +14,6 @@ body {
        아래 코드를 body가 아닌 html, body에 함께 적용합니다. */
 }
 
-/* ★★★ html과 body에 모두 가로 스크롤 숨김 처리 ★★★ */
-html, body {
-    overflow-x: hidden;
-}
 
 /* 전체 컨테이너 */
 .container {

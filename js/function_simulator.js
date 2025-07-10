@@ -203,7 +203,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const trustEffect = (opProfit > 0 && referenceDonationForCalc > 0) ? (revenue / opProfit) * (targetDonation / referenceDonationForCalc) * trustCoefficient : 0;
         
         elements.costSavingEffectsTableBody.innerHTML = `
-            <tr><td>ESG활동 기대효과(추정치)</td><td class="amount-cell">${esgActivityEffect.toFixed(2)}</td></tr>
+            <tr><td>ESG활동 기대효과(추정치,NYU)</td><td class="amount-cell">${esgActivityEffect.toFixed(2)}</td></tr>
             <tr><td>ESG활동 마케팅 효과</td><td class="amount-cell">${marketingEffect.toFixed(2)}</td></tr>
             <tr><td>기업신뢰도 향상</td><td class="amount-cell">${trustEffect.toFixed(2)}</td></tr>
         `;
