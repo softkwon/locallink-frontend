@@ -762,17 +762,6 @@ footer {
     box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* 예시: 그림자 효과 */
 }
 
-/* 고정 헤더 (Sticky Header) 스타일 */
-header {
-    position: sticky;   /* 스크롤 시 특정 위치에 도달하면 고정됩니다. */
-    top: 0;             /* 화면 맨 위에 붙어서 고정됩니다. */
-    left: 0;
-    right: 0;
-    z-index: 1000;      /* 다른 모든 요소들보다 항상 위에 있도록 설정합니다. */
-    background-color: #ffffff; /* 스크롤 시 내용이 비치지 않도록 배경색을 지정합니다. */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); /* 입체감을 위한 부드러운 그림자 효과 */
-}
-
 /* 진행 상태를 보여주는 스텝퍼 UI 스타일 */
 .status-stepper { display: flex; align-items: flex-start; justify-content: space-between; margin: 20px 0; }
 .step { display: flex; flex-direction: column; align-items: center; text-align: center; width: 80px; }
@@ -1415,3 +1404,14 @@ footer .container {
 #notification-list a { text-decoration: none; color: #333; }
 #notification-list li.is-read { color: #888; } /* 읽은 알림은 흐리게 */
 .hidden { display: none; }
+
+/* 고정 헤더 (Sticky Header) 스타일 */
+header {
+    position: sticky;   /* 스크롤 시 특정 위치에 도달하면 고정됩니다. */
+    top: 0;             /* 화면 맨 위에 붙어서 고정됩니다. */
+    left: 0;
+    right: 0;
+    z-index: 1000;      /* 다른 모든 요소들보다 항상 위에 있도록 설정합니다. */
+    background-color: #ffffff; /* 스크롤 시 내용이 비치지 않도록 배경색을 지정합니다. */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); /* 입체감을 위한 부드러운 그림자 효과 */
+}
