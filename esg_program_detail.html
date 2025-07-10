@@ -219,8 +219,9 @@
             position: relative; /* 공유 버튼의 기준점 */
         }
         .share-container {
-            /* 상세 페이지에서는 헤더가 아닌 본문 하단 버튼 영역으로 이동합니다. */
-            position: relative;
+            position: absolute;
+            top: 10px;
+            right: 10px;
         }
         .share-button {
             background: none;
@@ -228,19 +229,19 @@
             font-size: 1.5rem; /* 아이콘 크기 */
             cursor: pointer;
             padding: 5px;
-            color: #555;
+            color: white; /* 색상 박스 안 흰색으로 변경 */
         }
         .share-dropdown {
             display: none;
             position: absolute;
-            bottom: 100%; /* 버튼 위로 펼쳐지도록 설정 */
+            top: 100%; /* 버튼 아래로 펼쳐지도록 설정 */
             right: 0;
             background: white;
             border: 1px solid #ddd;
             border-radius: 5px;
-            box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             z-index: 10;
-            margin-bottom: 10px; /* 버튼과의 간격 */
+            margin-top: 5px; /* 버튼과의 간격 */
         }
         .share-dropdown a {
             display: block;

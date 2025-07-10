@@ -105,6 +105,13 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
             <header class="program-header category-${program.esg_category.toLowerCase()}">
                 <h1>${program.title}</h1>
                 <p>${program.program_overview || ''}</p>
+                <div class="share-container">
+                    <button class="share-button" id="shareBtn" title="공유하기">🔗</button>
+                    <div class="share-dropdown" id="shareDropdown">
+                        <a href="#" id="copyLinkBtn">링크 복사</a>
+                        <a href="#" id="kakaoShareBtn">카카오톡 공유</a>
+                    </div>
+                </div>
             </header>
             ${noticeHtml}
             <div class="program-body">
@@ -117,7 +124,6 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
                     <a href="index.html" class="button-secondary">[ESGLink 바로가기]</a>
                     <div class="actions-group">
                         ${actionsHtml}
-                        ${shareButtonHtml}
                     </div>
                 </section>
             </div>
