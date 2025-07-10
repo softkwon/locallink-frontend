@@ -158,11 +158,15 @@
             <p>게시물을 불러오는 중입니다...</p>
         </div>
     </main>
-     <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"
-        integrity="sha384-TiCUE00h649CAMonG018J2Ld5uOFoc+KaW5XuE20vDrpWvLVgD2XZ9weo/o+lOLw" crossorigin="anonymous"></script>
+    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"></script>
     <script>
         // 발급받은 JavaScript 키로 카카오 SDK를 초기화합니다.
-        Kakao.init('1cabc61a192c60eb189e387019886477');
+        // 'YOUR_KAKAO_JAVASCRIPT_KEY' 부분은 실제 키로 교체해야 합니다.
+        try {
+            Kakao.init('1cabc61a192c60eb189e387019886477');
+        } catch(e) {
+            console.error("Kakao SDK 초기화 실패:", e);
+        }
     </script>
 
     <footer id="footer-placeholder"></footer>
