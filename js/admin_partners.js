@@ -54,7 +54,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     row.insertCell().innerHTML = `<img src="${logoUrl}" alt="${p.name}" data-original-logo="${p.logo_url || ''}" style="width:100px; height:auto;">`;
                     row.insertCell().innerHTML = `<input type="file" class="form-control logo-file-input" accept="image/*">`;
                     row.insertCell().innerHTML = `<input type="text" class="form-control" value="${p.link_url || ''}" data-key="link_url">`;
-                    row.insertCell().innerHTML = `<div class="button-group"><button class="button-primary button-sm save-btn">저장</button> <button class="button-danger button-sm delete-btn">삭제</button></div>`;
+                    
+                    // ▼▼▼ '순서 변경' 셀과 버튼을 추가합니다. ▼▼▼
+                    const orderCell = row.insertCell();
+                    orderCell.className = 'order-controls';
+                    orderCell.innerHTML = `
+                        <button class="arrow-btn up-btn" data-id="${p.id}" title="위로" ${index === 0 ? 'disabled' : ''}>▲</button>
+                        <button class="arrow-btn down-btn" data-id="${p.id}" title="아래로" ${index === result.partners.length - 1 ? 'disabled' : ''}>▼</button>
+                    `;
+                    
+                    row.insertCell().innerHTML = `<div class="button-group"><button class="button-primary button-sm save-btn">저장</button> <button class="button-danger button-sm delete-btn">삭제</button></div>`;                                           
                 });
             } else { throw new Error(result.message); }
         } catch (error) { loadingEl.textContent = `오류: ${error.message}`; }
