@@ -81,8 +81,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             return;
         }
 
-        // 현재 로그인한 관리자의 ID를 가져옵니다. (가상 함수, 실제 구현 필요)
-        const myUserId = getMyUserId(); // 예: localStorage에서 파싱
+        const myUserId = getMyUserId(); // 현재 로그인한 관리자 ID 가져오기
 
         users.forEach(user => {
             const row = tableBodyEl.insertRow();
@@ -95,55 +94,47 @@ document.addEventListener('DOMContentLoaded', async function() {
             const roleCell = row.insertCell();
             const actionCell = row.insertCell();
 
-            // 'super_admin' 또는 'vice_super_admin'일 경우 관리 UI를 보여줍니다.
-            if (currentUserRole === 'super_admin' || currentUserRole === 'vice_super_admin') {
-                // 역할 변경 드롭다운 생성
-                const roleSelect = document.createElement('select');
-                roleSelect.className = 'form-control-sm';
-                roleSelect.dataset.userid = user.id;
-                
-                const roles = ['user', 'content_manager', 'user_manager', 'vice_super_admin', 'super_admin'];
-                roles.forEach(role => {
-                    const option = document.createElement('option');
-                    option.value = role;
-                    option.textContent = role;
-                    if (role === user.role) option.selected = true;
+            const canEditRole = (currentUserRole === 'super_admin' && user.id !== myUserId) ||
+                                (currentUserRole === 'vice_super_admin' && user.role !== 'super_admin');
 
-                    // vice_super_admin은 super_admin을 지정하거나, 기존 super_admin을 건드릴 수 없음
-                    if (currentUserRole === 'vice_super_admin' && (role === 'super_admin' || user.role === 'super_admin')) {
-                        option.disabled = true;
-                        roleSelect.disabled = true; // select 자체를 비활성화
-                    }
-                    roleSelect.appendChild(option);
-                });
-                roleCell.appendChild(roleSelect);
-                
-                // 관리 버튼 생성
-                // 'super_admin'이거나, 대상이 'super_admin'이 아닐 경우에만 버튼을 보여줍니다.
-                if (user.role !== 'super_admin') {
-                    actionCell.innerHTML = `
-                        <div class="button-group">
-                            <button class="button-primary button-sm save-role-btn" data-userid="${user.id}">역할 저장</button>
-                            <button class="button-danger button-sm delete-user-btn" data-userid="${user.id}">삭제</button>
-                        </div>`;
-                } else {
-                    // 대상이 super_admin이면, 오직 super_admin 자신만 버튼을 볼 수 있습니다. (하지만 보통 자신을 삭제/수정하진 않음)
-                    actionCell.textContent = '-';
-                }
-
-            } else {
-                roleCell.textContent = user.role;
-                actionCell.textContent = '-';
-            }
+            // 역할 변경 UI (select)
+            const roleSelect = document.createElement('select');
+            roleSelect.className = 'form-control-sm';
+            roleSelect.dataset.userid = user.id;
             
+            const roles = ['user', 'content_manager', 'user_manager', 'vice_super_admin', 'super_admin'];
+            roles.forEach(role => {
+                const option = document.createElement('option');
+                option.value = role;
+                option.textContent = role;
+                if (role === user.role) option.selected = true;
+                roleSelect.appendChild(option);
+            });
+            
+            // super_admin이 아니면 역할 변경을 막음
+            if (!canEditRole) {
+                roleSelect.disabled = true;
+            }
+            roleCell.appendChild(roleSelect);
+            
+            // 레벨
             const levelCell = row.insertCell();
             levelCell.innerHTML = `<span class="user-level-badge level-${user.level}">LV.${user.level}</span>`;
             levelCell.style.textAlign = 'center';
-
-            row.insertCell().textContent = new Date(user.created_at).toLocaleDateString();
             
-            // 마지막 관리 셀은 위에서 이미 처리했으므로 비워둡니다.
-            row.insertCell(); 
+            // 가입일
+            row.insertCell().textContent = new Date(user.created_at).toLocaleDateString();
+
+            // 관리 버튼
+            if (canEditRole) {
+                actionCell.innerHTML = `
+                    <div class="button-group">
+                        <button class="button-primary button-sm save-role-btn" data-userid="${user.id}">역할 저장</button>
+                        <button class="button-danger button-sm delete-user-btn" data-userid="${user.id}">삭제</button>
+                    </div>`;
+            } else {
+                actionCell.textContent = '-';
+            }
         });
 
         if(loadingEl) loadingEl.style.display = 'none';
