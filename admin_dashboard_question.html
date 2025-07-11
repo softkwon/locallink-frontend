@@ -33,6 +33,8 @@
             <nav class="desktop-nav">
                 <ul>
                     <li><a href="index.html">ESGlink로 돌아가기</a></li>
+                    <li><a href="admin_dashboard.html">관리자 대시보드(main)</a></li>
+
                 </ul>
             </nav>
 
@@ -54,60 +56,39 @@
 
     <main class="container">
         <section class="admin-section">
-            <h2>관리자 대시보드</h2>
-            <p>ESGlink 서비스의 데이터를 관리합니다.</p>
-
-            <div class="dashboard-grid">
+            <h2>관리자 대시보드-질문관리</h2>
+            <p>ESGlink 서비스의 질문 관련 데이터를 관리합니다.</p>
+            
                 <div class="dashboard-card">
-                    <h3>회원 관리</h3>
-                    <p>전체 회원 목록을 보고 역할을 변경</p>
-                    <a href="admin_user_list.html" class="button-primary">바로가기</a>
+                    <h3>설문 문항 관리</h3>
+                    <p>ESG 진단 설문의 질문과 보기를 관리</p>
+                    <a href="admin_question_list.html" class="button-secondary">바로가기</a>
                 </div>
                 <div class="dashboard-card">
-                    <h3>회원별 ESG진단 통계</h3>
-                    <p>회원별 완료된 진단 상세 데이터를 확인</p>
-                    <a href="admin_statistics.html" class="button-primary">바로가기</a>
+                    <h3>채점 규칙 관리</h3>
+                    <p>각 질문 답변에 대한 점수를 수정</p>
+                    <a href="admin_scoring_rules.html" class="button-secondary">바로가기</a>
                 </div>
                 <div class="dashboard-card">
-                    <h3>사이트 관리</h3>
-                    <p>메인 페이지 등 사이트 주요 콘텐츠 수정</p>
-                    <a href="admin_site_content.html" class="button-primary">바로가기</a>
+                    <h3>채점 규칙 관리-벤치마크</h3>
+                    <p>업종 평균과 비교하는 채점 규칙을 수정</p>
+                    <a href="admin_benchmark_rules.html" class="button-secondary">바로가기</a>
                 </div>
                 <div class="dashboard-card">
-                    <h3>신청 내역 관리</h3>
-                    <p>사용자들이 남긴 프로그램 신청 내역을 확인</p>
-                    <a href="admin_applications.html" class="button-primary">바로가기</a>
-                </div>
-                <div class="dashboard-card">
-                    <h3>문의 내역 관리</h3>
-                    <p>사용자들이 남긴 문의 내역을 확인하고 처리</p>
-                    <a href="admin_inquiries.html" class="button-primary">바로가기</a>
+                    <h3>채점 규칙 관리-답변 추정파트</h3>
+                    <p>산업평균 값을 설문답변으로 변환하는 규칙</p>
+                    <a href="admin_answer_rules.html" class="button-secondary">바로가기</a>
                 </div>                
                 <div class="dashboard-card">
-                    <h3>News 관리</h3>
-                    <p>웹사이트에 게시될 소식을 작성하고 관리</p>
-                    <a href="admin_news_list.html" class="button-teal">바로가기</a>
+                    <h3>산업 평균 벤치마크 점수</h3>
+                    <p>각 산업의 질문별 평균 점수를 확인</p>
+                    <a href="admin_industry_benchmarks.html" class="button-secondary">바로가기</a>
                 </div>
                 <div class="dashboard-card">
-                    <h3>ESG프로그램 관리</h3>
-                    <p>ESG프로그램 추가 및 관리</p>
-                    <a href="admin_programs.html" class="button-teal">바로가기</a>
-                </div>                
-                <div class="dashboard-card">
-                    <h3>ESG프로그램 추천 규칙 관리</h3>
-                    <p>ESG프로그램 추천하는 규칙 설정</p>
-                    <a href="admin_strategy_rules.html" class="button-orange">바로가기</a>
+                    <h3>시뮬레이터 규칙-예산 편성 계산 관리</h3>
+                    <p>시뮬레이터의 주요 변수와 세율 등을 관리</p>
+                    <a href="admin_simulator_rules.html" class="button-secondary">바로가기</a>
                 </div>
-                <div class="dashboard-card">
-                    <h3>질문 관리 대시보드</h3>
-                    <p>ESG 진단 설문 및 채점 규칙을 통합 관리</p>
-                    <a href="admin_dashboard_question.html" class="button-secondary">바로가기</a>
-                </div>                
-                <div class="dashboard-card">
-                    <h3>ESG DATA 관리 대시보드</h3>
-                    <p>ESG 관련 통계, 이슈 데이터를 통합 관리</p>
-                    <a href="admin_dashboard_esgdata.html" class="button-green">바로가기</a>
-                </div>                
                 
             </div>
         </section>

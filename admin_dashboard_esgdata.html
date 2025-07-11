@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 대시보드 - LocalLink</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .dashboard-card { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 20px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .dashboard-card h3 { margin-top: 0; }
+        .dashboard-card a { display: block; margin-top: 15px; }
+        .button-green { background-color: #28a745; border-color: #28a745; }
+        .button-green:hover { background-color: #218838; border-color: #1e7e34; }
+
+        .button-teal { background-color: #20c997; border-color: #20c997; }
+        .button-teal:hover { background-color: #1baa80; border-color: #179b72; }
+
+        .button-orange { background-color: #fd7e14; border-color: #fd7e14; }
+        .button-orange:hover { background-color: #e66a0a; border-color: #d96208; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">
+                    <img src="/images/logo_admin.png" alt="LocalLink 로고" class="header-logo-img">
+                </a>
+            </div>
+            
+            <nav class="desktop-nav">
+                <ul>
+                    <li><a href="index.html">ESGlink로 돌아가기</a></li>
+                    <li><a href="admin_dashboard.html">관리자 대시보드(main)</a></li>
+
+                </ul>
+            </nav>
+
+            <div class="header-right-group">
+                <div id="user-menu-container">
+                    </div>
+                <button id="mobile-menu-toggle" class="mobile-menu-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+
+        <div id="mobile-menu-overlay" class="mobile-menu-overlay"></div>
+        <div id="mobile-menu" class="mobile-menu">
+            </div>
+    </header>
+
+    <main class="container">
+        <section class="admin-section">
+            <h2>관리자 대시보드</h2>
+            <p>ESGlink 서비스의 데이터를 관리합니다.</p>
+
+            <div class="dashboard-grid">
+                
+                <div class="dashboard-card">
+                    <h3>산업 평균 관리</h3>
+                    <p>각 산업별 평균 데이터를 수정</p>
+                    <a href="admin_industry_averages.html" class="button-green">바로가기</a>
+                </div>
+                
+                <div class="dashboard-card">
+                    <h3>산업별 ESG 이슈 관리</h3>
+                    <p>산업별 ESG 기회·위기 등 이슈 요인 관리</p>
+                    <a href="admin_industry_issues.html" class="button-green">바로가기</a>
+                </div>
+                <div class="dashboard-card">
+                    <h3>회사 규모별 ESG 이슈 관리</h3>
+                    <p>사용자의 회사 규모에 따른 ESG 이슈 관리</p>
+                    <a href="admin_company_size_issues.html" class="button-green">바로가기</a>
+                </div>
+                <div class="dashboard-card">
+                    <h3>지역별 ESG 이슈 관리</h3>
+                    <p>사업장 위치에 따른 지역별 ESG 이슈 관리</p>
+                    <a href="admin_regional_issues.html" class="button-green">바로가기</a>
+                </div>
+                
+            </div>
+        </section>
+    </main>
+    <footer id="footer-placeholder"></footer>
+
+    <script type="module" src="js/auth.js" defer></script>
+</body>
+</html>
