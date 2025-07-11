@@ -340,6 +340,37 @@
         .hidden {
             display: none;
         }
+
+        /* ★★★ 추가 ★★★ */
+        .start-actions {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px; /* 버튼 사이 간격 */
+            max-width: 300px;
+            margin: 0 auto;
+        }
+        #start-btn {
+            flex-grow: 1; /* 시작 버튼이 남는 공간을 모두 차지 */
+        }
+        .btn-icon {
+            flex-shrink: 0; /* 버튼 크기가 줄어들지 않도록 */
+            background-color: #f1f1f1;
+            border: 1px solid #ddd;
+            color: #555;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn-icon:hover {
+            background-color: #e0e0e0;
+        }
+        .btn-icon svg {
+            width: 24px;
+            height: 24px;
+        }
     </style>
 </head>
 <body>
@@ -423,6 +454,7 @@
         const shareDropdown = document.getElementById('share-dropdown');
         const copyBtn = document.getElementById('copy-btn');
         const kakaoShareBtn = document.getElementById('kakao-share-btn');
+        const startShareBtn = document.getElementById('start-share-btn');
 
         const TOTAL_QUESTIONS = 27;
         let currentQIdx = 0;
@@ -659,6 +691,7 @@
         
         copyBtn.addEventListener('click', copyLink);
         kakaoShareBtn.addEventListener('click', shareToKakao);
+        startShareBtn.addEventListener('click', copyLink);
         
         // ★★★ 추가: 페이지 로드 시 초기 화면만 보이게 설정 ★★★
         document.addEventListener('DOMContentLoaded', () => {
