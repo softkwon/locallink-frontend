@@ -322,23 +322,167 @@
 
         // 데이터 (결과 16개)
         const infoList = {
-            "INTJ": {typeName:"INTJ",title:"미래를 설계하는 ESG 전략가",summary:"논리적인 통찰력으로 비효율적인 시스템을 간파하고, 지속가능한 미래를 위한 최적의 로드맵을 설계합니다.",keywords:["#전략", "#비전", "#독립성", "#장기적관점"],imgSrc:"https://i.imgur.com/uJqYqS1.png", famous_figures: "빌 게이츠, 일론 머스크"},
-            "INTP": {typeName:"INTP",title:"논리적인 ESG 탐구가",summary:"'왜?'라는 질문을 던지며 ESG 이슈의 근원을 파고들고, 새로운 아이디어와 해결책을 탐구하는 것을 즐깁니다.",keywords:["#분석", "#논리", "#아이디어", "#탐구"],imgSrc:"https://i.imgur.com/v2Y8fU7.png", famous_figures: "유발 하라리, 알베르트 아인슈타인"},
-            "ENTJ": {typeName:"ENTJ",title:"대담한 비전의 ESG 지휘관",summary:"대담한 목표를 설정하고, 사람들을 이끌어 사회와 환경에 실질적인 변화를 만들어내는 타고난 리더입니다.",keywords:["#결단력", "#통솔력", "#비전", "#성취"],imgSrc:"https://i.imgur.com/T0i3y5A.png", famous_figures: "크리스티아나 피게레스(파리 협정), 스티브 잡스"},
-            "ENTP": {typeName:"ENTP",title:"끊임없이 질문하는 ESG 혁신가",summary:"기존의 방식에 안주하지 않고, 끊임없는 토론과 아이디어 제시를 통해 더 나은 ESG 솔루션을 찾아냅니다.",keywords:["#도전", "#토론", "#가능성", "#유연함"],imgSrc:"https://i.imgur.com/N6gG1jL.png", famous_figures: "리처드 브랜슨, 레오나르도 다빈치"},
-            "INFJ": {typeName:"INFJ",title:"세상을 바꾸는 ESG 옹호자",summary:"조용하지만 강한 신념으로, 더 나은 세상을 만들기 위한 장기적인 계획을 세우고 꾸준히 사람들을 설득합니다.",keywords:["#통찰력", "#신념", "#옹호", "#선한영향력"],imgSrc:"https://i.imgur.com/p8b8g5Y.png", famous_figures: "제인 구달, 마틴 루터 킹"},
-            "INFP": {typeName:"INFP",title:"이상적인 ESG 가치실천가",summary:"마음속 깊은 신념과 가치에 따라, 진정성 있는 방식으로 자신만의 선한 영향력을 조용히 실천합니다.",keywords:["#진정성", "#이상", "#가능성", "#공감"],imgSrc:"https://i.imgur.com/tHlAd5B.png", famous_figures: "그레타 툰베리, J.K. 롤링"},
-            "ENFJ": {typeName:"ENFJ",title:"선한 영향력의 ESG 멘토",summary:"사람들에게 ESG의 가치를 알리고 영감을 주며, 함께 성장하고 긍정적인 변화를 이끌어내는 데 재능이 있습니다.",keywords:["#이타주의", "#리더십", "#교육", "#커뮤니티"],imgSrc:"https://i.imgur.com/gYj9N0d.png", famous_figures: "오프라 윈프리, 버락 오바마"},
-            "ENFP": {typeName:"ENFP",title:"열정 가득한 ESG 스파크",summary:"창의적인 아이디어와 넘치는 열정으로 주변 사람들에게 영감을 주며, 즐거운 에너지로 ESG 활동을 주도합니다.",keywords:["#영감", "#열정", "#창의력", "#소통"],imgSrc:"https://i.imgur.com/uX8D8bC.png", famous_figures: "레오나르도 디카프리오, 월트 디즈니"},
-            "ISTJ": {typeName:"ISTJ",title:"소금과 빛 같은 ESG 실천가",summary:"세상의 원칙과 데이터를 기반으로, 보이지 않는 곳에서부터 책임감을 갖고 세상을 위한 역할을 묵묵히 수행합니다.",keywords:["#책임감", "#원칙", "#데이터", "#꾸준함"],imgSrc:"https://i.imgur.com/eZ0kY1K.png", famous_figures: "워런 버핏, (모범적인 공무원, 회계사 유형)"},
-            "ISFJ": {typeName:"ISFJ",title:"따뜻한 공동체 ESG 지킴이",summary:"주변 사람들과 공동체를 위해 구체적이고 현실적인 방법으로 헌신하며, 따뜻한 안정을 만들어갑니다.",keywords:["#헌신", "#봉사", "#안정", "#친절"],imgSrc:"https://i.imgur.com/N5O3s3g.png", famous_figures: "마더 테레사, (헌신적인 사회복지사 유형)"},
-            "ESTJ": {typeName:"ESTJ",title:"목표 지향적 ESG 경영자",summary:"현실적인 데이터를 바탕으로 가장 효율적인 ESG 계획을 수립하고, 목표 달성을 위해 강력하게 실행해나갑니다.",keywords:["#리더십", "#효율", "#체계", "#결과중심"],imgSrc:"https://i.imgur.com/O6jD8hA.png", famous_figures: "팀 쿡, 힐러리 클린턴"},
-            "ESFJ": {typeName:"ESFJ",title:"사교적인 ESG 캠페이너",summary:"뛰어난 공감과 소통 능력으로 사람들을 모아, 즐거운 이벤트와 캠페인을 통해 ESG 가치를 널리 확산시킵니다.",keywords:["#친목", "#협력", "#이벤트", "#공감대"],imgSrc:"https://i.imgur.com/R3pX5Bw.png", famous_figures: "안젤리나 졸리(UN 친선대사), 앤 해서웨이"},
-            "ISTP": {typeName:"ISTP",title:"만능 해결사형 ESG 기술자",summary:"실용적인 문제 해결 능력을 바탕으로, 환경과 사회 문제를 개선할 수 있는 기술적인 해결책을 찾아 적용합니다.",keywords:["#실용주의", "#효율", "#기술", "#문제해결"],imgSrc:"https://i.imgur.com/L4pW6J7.png", famous_figures: "이본 쉬나드(파타고니아 창업자), 베어 그릴스"},
-            "ISFP": {typeName:"ISFP",title:"마음 따뜻한 ESG 아티스트",summary:"자신만의 감성과 경험을 통해 ESG 가치를 표현하며, 일상 속에서 아름답고 조화로운 실천을 추구합니다.",keywords:["#감성", "#조화", "#경험", "#현재"],imgSrc:"https://i.imgur.com/w8qX9A5.png", famous_figures: "오드리 헵번, (유명 비건 셰프 유형)"},
-            "ESTP": {typeName:"ESTP",title:"에너자이저 ESG 액셔니스타",summary:"눈앞의 문제에 즉각적으로 뛰어들어, 직접 행동하며 빠르고 현실적인 임팩트를 만들어내는 에너자이저입니다.",keywords:["#행동력", "#에너지", "#임팩트", "#현장"],imgSrc:"https://i.imgur.com/h5r8S9A.png", famous_figures: "어니스트 헤밍웨이, (에너지 넘치는 스타트업 창업가)"},
-            "ESFP": {typeName:"ESFP",title:"자유로운 영혼의 ESG 인플루언서",summary:"긍정적인 에너지와 트렌디한 감각으로 ESG 활동을 즐기며, 그 경험을 공유해 사람들의 참여를 이끌어냅니다.",keywords:["#긍정", "#소통", "#트렌드", "#함께즐기기"],imgSrc:"https://i.imgur.com/c6l7A9B.png", famous_figures: "(긍정적인 에너지의 환경 인플루언서), 제이미 올리버"}
-        };
+        "INTJ": {
+            typeName:"INTJ",
+            title:"미래를 설계하는 ESG 전략가",
+            summary:`논리적인 통찰력으로 비효율적인 시스템을 간파하고, 지속가능한 미래를 위한 최적의 로드맵을 설계합니다.
+            <br><br><strong>주요 특징:</strong> 감정보다는 데이터와 사실에 근거해 판단하며, 혼자일 때 최상의 아이디어를 냅니다. 장기적인 관점에서 문제를 보고 근본적인 해결책을 찾는 것을 선호합니다.
+            <br><br><strong>추천 활동:</strong> ESG 데이터 분석 및 전략 수립, 기후 기술 스타트업 투자, 기업 지속가능경영 컨설팅`,
+            keywords:["#전략", "#비전", "#독립성", "#장기적관점"],
+            imgSrc:"https://i.imgur.com/uJqYqS1.png", 
+            famous_figures: "빌 게이츠, 일론 머스크"
+        },
+        "INTP": {
+            typeName:"INTP",
+            title:"논리적인 ESG 탐구가",
+            summary:`'왜?'라는 질문을 던지며 ESG 이슈의 근원을 파고들고, 새로운 아이디어와 해결책을 탐구하는 것을 즐깁니다.
+            <br><br><strong>주요 특징:</strong> 지적 호기심이 왕성하며, 기존의 방식에 의문을 제기합니다. 복잡한 문제를 분석하고 독창적인 해결책을 찾는 데 뛰어난 재능이 있습니다.
+            <br><br><strong>추천 활동:</strong> 그린워싱 분석 및 비평, 사회 문제 원인에 대한 깊이 있는 리서치, 순환 경제 모델 개발`,
+            keywords:["#분석", "#논리", "#아이디어", "#탐구"],
+            imgSrc:"https://i.imgur.com/v2Y8fU7.png", 
+            famous_figures: "유발 하라리, 알베르트 아인슈타인"
+        },
+        "ENTJ": {
+            typeName:"ENTJ",
+            title:"대담한 비전의 ESG 지휘관",
+            summary:`대담한 목표를 설정하고, 사람들을 이끌어 사회와 환경에 실질적인 변화를 만들어내는 타고난 리더입니다.
+            <br><br><strong>주요 특징:</strong> 체계적이고 효율적인 방식으로 목표를 달성하는 것을 중요하게 생각합니다. 결단력이 있으며, 사람들을 조직하고 프로젝트를 성공으로 이끄는 데 능숙합니다.
+            <br><br><strong>추천 활동:</strong> ESG 프로젝트 총괄 리더, 사회적 기업 창업, 환경 캠페인 조직`,
+            keywords:["#결단력", "#통솔력", "#비전", "#성취"],
+            imgSrc:"https://i.imgur.com/T0i3y5A.png", 
+            famous_figures: "크리스티아나 피게레스(파리 협정), 스티브 잡스"
+        },
+        "ENTP": {
+            typeName:"ENTP",
+            title:"끊임없이 질문하는 ESG 혁신가",
+            summary:`기존의 방식에 안주하지 않고, 끊임없는 토론과 아이디어 제시를 통해 더 나은 ESG 솔루션을 찾아냅니다.
+            <br><br><strong>주요 특징:</strong> 지적인 도전을 즐기며, 다양한 관점에서 문제를 바라봅니다. 재치와 창의력으로 사람들과 토론하며 새로운 가능성을 탐색하는 것을 좋아합니다.
+            <br><br><strong>추천 활동:</strong> ESG 정책 토론회 참여, 사회 혁신 아이디어톤, ESG 관련 팟캐스트 운영`,
+            keywords:["#도전", "#토론", "#가능성", "#유연함"],
+            imgSrc:"https://i.imgur.com/N6gG1jL.png", 
+            famous_figures: "리처드 브랜슨, 레오나르도 다빈치"
+        },
+        "INFJ": {
+            typeName:"INFJ",
+            title:"세상을 바꾸는 ESG 옹호자",
+            summary:`조용하지만 강한 신념으로, 더 나은 세상을 만들기 위한 장기적인 계획을 세우고 꾸준히 사람들을 설득합니다.
+            <br><br><strong>주요 특징:</strong> 깊은 통찰력으로 문제의 본질을 꿰뚫어 봅니다. 자신의 신념을 실현하기 위해 헌신하며, 다른 사람들에게 영감을 주는 영향력이 있습니다.
+            <br><br><strong>추천 활동:</strong> 비영리 단체 활동, 인권 및 환경 관련 정책 제안, 소셜 다큐멘터리 제작`,
+            keywords:["#통찰력", "#신념", "#옹호", "#선한영향력"],
+            imgSrc:"https://i.imgur.com/p8b8g5Y.png", 
+            famous_figures: "제인 구달, 마틴 루터 킹"
+        },
+        "INFP": {
+            typeName:"INFP",
+            title:"이상적인 ESG 가치실천가",
+            summary:`마음속 깊은 신념과 가치에 따라, 진정성 있는 방식으로 자신만의 선한 영향력을 조용히 실천합니다.
+            <br><br><strong>주요 특징:</strong> 진정성을 가장 중요하게 생각하며, 자신의 이상과 현실이 일치하는 삶을 추구합니다. 공감 능력이 뛰어나며, 예술적인 방식으로 자신의 가치를 표현하기도 합니다.
+            <br><br><strong>추천 활동:</strong> 가치 소비 실천 및 공유(블로그, SNS), 유기견 봉사, 공정무역 제품 사용`,
+            keywords:["#진정성", "#이상", "#가능성", "#공감"],
+            imgSrc:"https://i.imgur.com/tHlAd5B.png", 
+            famous_figures: "그레타 툰베리, J.K. 롤링"
+        },
+        "ENFJ": {
+            typeName:"ENFJ",
+            title:"선한 영향력의 ESG 멘토",
+            summary:`사람들에게 ESG의 가치를 알리고 영감을 주며, 함께 성장하고 긍정적인 변화를 이끌어내는 데 재능이 있습니다.
+            <br><br><strong>주요 특징:</strong> 타고난 리더십과 소통 능력으로 사람들을 하나로 모읍니다. 다른 사람의 성장을 돕는 것에서 큰 보람을 느끼며, 긍정적인 커뮤니티를 만드는 데 기여합니다.
+            <br><br><strong>추천 활동:</strong> ESG 교육 프로그램 기획 및 강의, 사내 ESG 스터디 그룹 리딩, 자원봉사 팀 리더`,
+            keywords:["#이타주의", "#리더십", "#교육", "#커뮤니티"],
+            imgSrc:"https://i.imgur.com/gYj9N0d.png", 
+            famous_figures: "오프라 윈프리, 버락 오바마"
+        },
+        "ENFP": {
+            typeName:"ENFP",
+            title:"열정 가득한 ESG 스파크",
+            summary:`창의적인 아이디어와 넘치는 열정으로 주변 사람들에게 영감을 주며, 즐거운 에너지로 ESG 활동을 주도합니다.
+            <br><br><strong>주요 특징:</strong> 새로운 가능성을 탐색하는 것을 좋아하며, 긍정적인 에너지로 주변을 밝게 만듭니다. 사람들과 어울리며 아이디어를 나누는 과정에서 활력을 얻습니다.
+            <br><br><strong>추천 활동:</strong> ESG 유튜브 채널 운영, 재미있는 환경 챌린지 기획 및 참여, 소셜벤처 네트워킹 파티 참석`,
+            keywords:["#영감", "#열정", "#창의력", "#소통"],
+            imgSrc:"https://i.imgur.com/uX8D8bC.png", 
+            famous_figures: "레오나르도 디카프리오, 월트 디즈니"
+        },
+        "ISTJ": {
+            typeName:"ISTJ",
+            title:"소금과 빛 같은 ESG 실천가",
+            summary:`세상의 원칙과 데이터를 기반으로, 보이지 않는 곳에서부터 책임감을 갖고 세상을 위한 역할을 묵묵히 수행합니다.
+            <br><br><strong>주요 특징:</strong> 현실적이고 체계적이며, 맡은 바를 끝까지 해냅니다. 약속과 원칙을 중요하게 생각하며, 꾸준하고 성실한 방식으로 신뢰를 쌓습니다.
+            <br><br><strong>추천 활동:</strong> 가정/회사에서 분리수거 및 에너지 절약 시스템 구축, 개인 탄소 발자국 계산 및 관리, ESG 관련 법규 준수 모니터링`,
+            keywords:["#책임감", "#원칙", "#데이터", "#꾸준함"],
+            imgSrc:"https://i.imgur.com/eZ0kY1K.png", 
+            famous_figures: "워런 버핏, (모범적인 공무원, 회계사 유형)"
+        },
+        "ISFJ": {
+            typeName:"ISFJ",
+            title:"따뜻한 공동체 ESG 지킴이",
+            summary:`주변 사람들과 공동체를 위해 구체적이고 현실적인 방법으로 헌신하며, 따뜻한 안정을 만들어갑니다.
+            <br><br><strong>주요 특징:</strong> 다른 사람을 돕는 것에서 큰 기쁨을 느끼며, 실질적인 도움을 주는 것을 선호합니다. 성실하고 책임감이 강해, 공동체의 안정에 기여하는 숨은 영웅입니다.
+            <br><br><strong>추천 활동:</strong> 지역 사회 봉사활동, 독거노인 돕기, 사내 나눔 바자회 준비`,
+            keywords:["#헌신", "#봉사", "#안정", "#친절"],
+            imgSrc:"https://i.imgur.com/N5O3s3g.png", 
+            famous_figures: "마더 테레사, (헌신적인 사회복지사 유형)"
+        },
+        "ESTJ": {
+            typeName:"ESTJ",
+            title:"목표 지향적 ESG 경영자",
+            summary:`현실적인 데이터를 바탕으로 가장 효율적인 ESG 계획을 수립하고, 목표 달성을 위해 강력하게 실행해나갑니다.
+            <br><br><strong>주요 특징:</strong> 조직과 절차를 중시하며, 분명한 목표와 구체적인 계획을 선호합니다. 타고난 관리자로서, 주어진 자원으로 최상의 결과를 만들어내는 데 능숙합니다.
+            <br><br><strong>추천 활동:</strong> 기업 ESG 경영팀, 에너지 효율 개선 프로젝트 관리, 공급망 실사 책임자`,
+            keywords:["#리더십", "#효율", "#체계", "#결과중심"],
+            imgSrc:"https://i.imgur.com/O6jD8hA.png", 
+            famous_figures: "팀 쿡, 힐러리 클린턴"
+        },
+        "ESFJ": {
+            typeName:"ESFJ",
+            title:"사교적인 ESG 캠페이너",
+            summary:`뛰어난 공감과 소통 능력으로 사람들을 모아, 즐거운 이벤트와 캠페인을 통해 ESG 가치를 널리 확산시킵니다.
+            <br><br><strong>주요 특징:</strong> 조화로운 인간관계를 중요하게 생각하며, 다른 사람의 필요를 잘 파악합니다. 친근하고 사교적인 성격으로, 즐거운 분위기 속에서 사람들의 참여를 이끌어냅니다.
+            <br><br><strong>추천 활동:</strong> 자선 행사 및 이벤트 주최, ESG 캠페인 홍보대사, 사내 봉사 동호회 운영`,
+            keywords:["#친목", "#협력", "#이벤트", "#공감대"],
+            imgSrc:"https://i.imgur.com/R3pX5Bw.png", 
+            famous_figures: "안젤리나 졸리(UN 친선대사), 앤 해서웨이"
+        },
+        "ISTP": {
+            typeName:"ISTP",
+            title:"만능 해결사형 ESG 기술자",
+            summary:`실용적인 문제 해결 능력을 바탕으로, 환경과 사회 문제를 개선할 수 있는 기술적인 해결책을 찾아 적용합니다.
+            <br><br><strong>주요 특징:</strong> 도구와 기술을 다루는 데 능숙하며, 위기 상황에서 뛰어난 문제 해결 능력을 보입니다. 이론보다는 직접 부딪치며 배우는 것을 선호합니다.
+            <br><br><strong>추천 활동:</strong> 적정 기술 개발 및 보급, DIY 업사이클링, 고장 난 물건 수리 봉사`,
+            keywords:["#실용주의", "#효율", "#기술", "#문제해결"],
+            imgSrc:"https://i.imgur.com/L4pW6J7.png", 
+            famous_figures: "이본 쉬나드(파타고니아 창업자), 베어 그릴스"
+        },
+        "ISFP": {
+            typeName:"ISFP",
+            title:"마음 따뜻한 ESG 아티스트",
+            summary:`자신만의 감성과 경험을 통해 ESG 가치를 표현하며, 일상 속에서 아름답고 조화로운 실천을 추구합니다.
+            <br><br><strong>주요 특징:</strong> 현재의 순간을 즐기며, 오감을 통해 세상을 경험합니다. 다른 사람에게 자신의 가치를 강요하기보다, 자신의 삶을 통해 자연스럽게 보여주는 것을 좋아합니다.
+            <br><br><strong>추천 활동:</strong> 비건 레시피 개발 및 공유, 업사이클링 아트, 도시 텃밭 가꾸기`,
+            keywords:["#감성", "#조화", "#경험", "#현재"],
+            imgSrc:"https://i.imgur.com/w8qX9A5.png", 
+            famous_figures: "오드리 헵번, (유명 비건 셰프 유형)"
+        },
+        "ESTP": {
+            typeName:"ESTP",
+            title:"에너자이저 ESG 액셔니스타",
+            summary:`눈앞의 문제에 즉각적으로 뛰어들어, 직접 행동하며 빠르고 현실적인 임팩트를 만들어내는 에너자이저입니다.
+            <br><br><strong>주요 특징:</strong> 스릴과 도전을 즐기며, 상황 판단이 빠릅니다. 지루한 계획보다는 직접 몸으로 부딪혀 문제를 해결하는 것을 선호하며, 실제적인 결과를 중요하게 생각합니다.
+            <br><br><strong>추천 활동:</strong> 재난 구호 현장 활동, 긴급 환경 문제(기름 유출 등) 대응, 임팩트 스타트업 창업`,
+            keywords:["#행동력", "#에너지", "#임팩트", "#현장"],
+            imgSrc:"https://i.imgur.com/h5r8S9A.png", 
+            famous_figures: "어니스트 헤밍웨이, (에너지 넘치는 스타트업 창업가)"
+        },
+        "ESFP": {
+            typeName:"ESFP",
+            title:"자유로운 영혼의 ESG 인플루언서",
+            summary:`긍정적인 에너지와 트렌디한 감각으로 ESG 활동을 즐기며, 그 경험을 공유해 사람들의 참여를 이끌어냅니다.
+            <br><br><strong>주요 특징:</strong> 사교적이고 에너지가 넘치며, 사람들의 주목을 받는 것을 즐깁니다. 딱딱하고 어려운 방식보다는 즐겁고 신나는 방식으로 세상을 바꾸는 것을 좋아합니다.
+            <br><br><strong>추천 활동:</strong> ESG 관련 틱톡/릴스 등 숏폼 콘텐츠 제작, 플로깅 파티 주최, 친환경 브랜드 V-log 제작`,
+            keywords:["#긍정", "#소통", "#트렌드", "#함께즐기기"],
+            imgSrc:"https://i.imgur.com/c6l7A9B.png", 
+            famous_figures: "(긍정적인 에너지의 환경 인플루언서), 제이미 올리버"
+        }
+    };
         
         const TOTAL_QUESTIONS = 30;
         let currentQIdx = 0;
