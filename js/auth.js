@@ -625,3 +625,20 @@ async function initializeNotifications() {
         }
     });
 }
+
+/**
+ * 로컬 스토리지의 토큰에서 현재 로그인한 사용자의 ID를 파싱하여 반환합니다.
+ * @returns {number | null} - 사용자 ID 또는 토큰이 없거나 잘못된 경우 null
+ */
+export function getMyUserId() {
+    const token = localStorage.getItem('locallink-token');
+    if (!token) return null;
+    try {
+        // 토큰의 중간 부분(payload)을 디코딩하여 사용자 정보를 얻습니다.
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.userId;
+    } catch (e) {
+        console.error("Token parsing error:", e);
+        return null;
+    }
+}

@@ -1,6 +1,8 @@
 // js/admin_user_list.js (2025-07-02 00:25:00)
 import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
 import { checkAdminPermission, getCompanySizeName } from './admin_common.js';
+import { getMyUserId } from './auth.js'; // auth.js에서 함수를 불러옵니다.
+
 
 document.addEventListener('DOMContentLoaded', async function() {
     
@@ -69,16 +71,18 @@ document.addEventListener('DOMContentLoaded', async function() {
     /**
      * 파일명: js/admin_user_list.js
      * 수정 위치: renderUserTable 함수 전체
-     * 수정 일시: 2025-07-06 09:02
+     * 수정 일시: 2025-07-11 09:59
      */
     function renderUserTable(users) {
         if (!tableBodyEl) return;
         tableBodyEl.innerHTML = '';
         if (users.length === 0) {
-            // 컬럼 개수가 9개로 늘어났으므로 colspan을 9로 수정합니다.
             tableBodyEl.innerHTML = `<tr><td colspan="9" style="text-align:center;">등록된 회원이 없습니다.</td></tr>`;
             return;
         }
+
+        // 현재 로그인한 관리자의 ID를 가져옵니다. (가상 함수, 실제 구현 필요)
+        const myUserId = getMyUserId(); // 예: localStorage에서 파싱
 
         users.forEach(user => {
             const row = tableBodyEl.insertRow();
@@ -87,44 +91,59 @@ document.addEventListener('DOMContentLoaded', async function() {
             row.insertCell().textContent = user.company_name || '-';
             row.insertCell().textContent = user.manager_name || '-';
             row.insertCell().textContent = user.manager_phone || '-';
-            // '회사 규모'는 지금 코드에 없지만, 만약 필요하다면 getCompanySizeName 같은 함수를 사용해야 합니다.
-            // row.insertCell().textContent = getCompanySizeName(user.company_size);
             
             const roleCell = row.insertCell();
-            if (currentUserRole === 'super_admin') {
+            const actionCell = row.insertCell();
+
+            // 'super_admin' 또는 'vice_super_admin'일 경우 관리 UI를 보여줍니다.
+            if (currentUserRole === 'super_admin' || currentUserRole === 'vice_super_admin') {
+                // 역할 변경 드롭다운 생성
                 const roleSelect = document.createElement('select');
                 roleSelect.className = 'form-control-sm';
                 roleSelect.dataset.userid = user.id;
-                ['user', 'content_manager', 'user_manager', 'super_admin'].forEach(role => {
+                
+                const roles = ['user', 'content_manager', 'user_manager', 'vice_super_admin', 'super_admin'];
+                roles.forEach(role => {
                     const option = document.createElement('option');
                     option.value = role;
                     option.textContent = role;
                     if (role === user.role) option.selected = true;
+
+                    // vice_super_admin은 super_admin을 지정하거나, 기존 super_admin을 건드릴 수 없음
+                    if (currentUserRole === 'vice_super_admin' && (role === 'super_admin' || user.role === 'super_admin')) {
+                        option.disabled = true;
+                        roleSelect.disabled = true; // select 자체를 비활성화
+                    }
                     roleSelect.appendChild(option);
                 });
                 roleCell.appendChild(roleSelect);
+                
+                // 관리 버튼 생성
+                // 'super_admin'이거나, 대상이 'super_admin'이 아닐 경우에만 버튼을 보여줍니다.
+                if (user.role !== 'super_admin') {
+                    actionCell.innerHTML = `
+                        <div class="button-group">
+                            <button class="button-primary button-sm save-role-btn" data-userid="${user.id}">역할 저장</button>
+                            <button class="button-danger button-sm delete-user-btn" data-userid="${user.id}">삭제</button>
+                        </div>`;
+                } else {
+                    // 대상이 super_admin이면, 오직 super_admin 자신만 버튼을 볼 수 있습니다. (하지만 보통 자신을 삭제/수정하진 않음)
+                    actionCell.textContent = '-';
+                }
+
             } else {
                 roleCell.textContent = user.role;
+                actionCell.textContent = '-';
             }
             
-            // ★★★ 1. 새로운 '레벨' 셀을 추가합니다. ★★★
             const levelCell = row.insertCell();
             levelCell.innerHTML = `<span class="user-level-badge level-${user.level}">LV.${user.level}</span>`;
-            levelCell.style.textAlign = 'center'; // 가운데 정렬
+            levelCell.style.textAlign = 'center';
 
             row.insertCell().textContent = new Date(user.created_at).toLocaleDateString();
             
-            const actionCell = row.insertCell();
-            if (currentUserRole === 'super_admin') {
-                actionCell.innerHTML = `
-                    <div class="button-group">
-                        <button class="button-primary button-sm save-role-btn" data-userid="${user.id}">역할 저장</button>
-                        <button class="button-danger button-sm delete-user-btn" data-userid="${user.id}">삭제</button>
-                    </div>
-                `;
-            } else {
-                actionCell.textContent = '-';
-            }
+            // 마지막 관리 셀은 위에서 이미 처리했으므로 비워둡니다.
+            row.insertCell(); 
         });
 
         if(loadingEl) loadingEl.style.display = 'none';
