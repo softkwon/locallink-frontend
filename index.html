@@ -387,7 +387,42 @@
             }
         }
         
+        /* --- 히어로 섹션에 기준점 추가 --- */
+        .hero {
+            position: relative; /* 자식 요소의 absolute 위치 기준을 위해 추가 */
+        }
 
+        /* --- ESG MBTI 테스트 버튼 스타일 --- */
+        .mbti-test-button {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            background-color: rgba(255, 255, 255, 0.2); /* 반투명 배경 */
+            color: white;
+            border: 1px solid white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9em;
+            z-index: 5; /* 다른 요소 위에 오도록 */
+        }
+
+        .mbti-test-button:hover {
+            background-color: rgba(255, 255, 255, 0.4); /* 호버 시 더 진하게 */
+            transform: translateY(-2px);
+        }
+
+        /* --- 모바일 화면에서 버튼 스타일 조정 --- */
+        @media (max-width: 768px) {
+            .mbti-test-button {
+                position: static; /* 모바일에서는 원래 위치로 돌아옴 */
+                display: block;
+                width: fit-content;
+                margin: 20px auto 0; /* 기존 버튼 아래에 여백을 주고 중앙 정렬 */
+            }
+        }
     </style>    
     
 </head>
@@ -444,6 +479,7 @@
             <h1>ESGlink: 지속가능한 성장을 설계하는 <br>AI-ESG플래너</h1>
             <p>우리 기업의 ESG 진단부터 지역 기반 실행방안까지, one-click</p>
             <a href="survey_step1.html" class="cta-button" id="heroStartButton">지금 바로 시작하기</a>
+            <button class="mbti-test-button" onclick="openEsgMbtiTest()">당신의 ESG MBTI는?</button>
         </div>
     </section>
 
@@ -474,7 +510,13 @@
     <script type="module" src="js/admin_common.js" defer></script> 
     <script type="module" src="js/main_index.js" defer></script>
     
-    
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script>
+    function openEsgMbtiTest() {
+        // 경로는 이전에 확인한 event_contents 폴더 기준으로 설정했습니다.
+        window.open('event_contents/esg-mbti.html', 'EsgMbtiTest', 'width=600,height=800,scrollbars=yes');
+    }
+    </script>
 
 </body>
 </html>
