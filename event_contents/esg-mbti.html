@@ -341,32 +341,25 @@
             </div>
         </div>
 
-        <div id="result-screen" class="hidden">
-            <div id="result-capture">
-                <div id="result-type-name"></div>
-                <h2 id="result-title"></h2>
-                <img id="result-img" src="" alt="결과 이미지">
-                <p id="result-summary"></p>
-                <div class="keywords"></div>
-                <div id="famous-figures-container" class="famous-figures-container"></div>
-            </div>
-            
-            <div class="result-actions">
-                <div class="share-container">
-                    <button id="share-toggle-btn" class="share-btn-icon">
-                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3s3-1.34 3-3-1.34-3-3-3z"></path></svg>
-                        공유하기
-                    </button>
-                    <div id="share-dropdown" class="dropdown-content">
-                        <button id="copy-btn">링크 복사</button>
-                        <button id="kakao-share-btn">카톡 공유</button>
-                    </div>
+        <div class="result-actions" style="margin-top: 20px; margin-bottom: 30px; grid-template-columns: 1fr 1fr;">
+            <div class="share-container" style="grid-column: 1 / 3; margin-bottom: 10px;">
+                <button id="share-toggle-btn" class="share-btn-icon">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3s3-1.34 3-3-1.34-3-3-3z"></path></svg>
+                    공유하기
+                </button>
+                <div id="share-dropdown" class="dropdown-content">
+                    <button id="copy-btn">링크 복사</button>
+                    <button id="kakao-share-btn">카톡 공유</button>
                 </div>
-                <button id="replay-btn" class="btn btn-secondary">다시하기</button>
-                <button id="download-btn" class="btn">결과 저장</button>
-
-                <a href="https://esglink.co.kr" target="_blank" class="btn btn-full-width">더 많은 ESG정보는 ESGlink에서</a>
             </div>
+            <button id="replay-btn" class="btn btn-secondary">다시하기</button>
+            <button id="download-btn" class="btn">결과 저장</button>
+        </div>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="[https://esglink.co.kr](https://esglink.co.kr)" target="_blank" style="color: var(--primary-color); font-weight: bold; text-decoration: none; font-size: 1.1em;">
+                더 많은 정보는 ESGlink에서 확인하세요 <span style="font-size: 1.2em;">👉</span>
+            </a>
         </div>
     </div>
 
