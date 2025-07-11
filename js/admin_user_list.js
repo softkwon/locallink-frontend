@@ -137,6 +137,46 @@ document.addEventListener('DOMContentLoaded', async function() {
     function attachEventListeners() {
         if (!tableBodyEl) return;
 
+        // ★★★ Export 버튼 이벤트 리스너 추가 ★★★
+        const exportBtn = document.getElementById('exportCsvBtn');
+        if (exportBtn) {
+            exportBtn.addEventListener('click', async () => {
+                exportBtn.textContent = '생성 중...';
+                exportBtn.disabled = true;
+                try {
+                    // 1. 백엔드 Export API 호출
+                    const response = await fetch(`${API_BASE_URL}/admin/users/export`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (!response.ok) {
+                        throw new Error('데이터를 내보내는 중 오류가 발생했습니다.');
+                    }
+                    
+                    // 2. 응답받은 파일 데이터(blob)로 다운로드 링크 생성
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = `users-list-${new Date().toISOString().slice(0,10)}.csv`;
+                    
+                    // 3. 링크를 클릭하여 파일 다운로드 실행
+                    document.body.appendChild(a);
+                    a.click();
+                    
+                    // 4. 임시로 만든 링크와 URL 객체 제거
+                    window.URL.revokeObjectURL(url);
+                    a.remove();
+
+                } catch (error) {
+                    alert(error.message);
+                } finally {
+                    exportBtn.textContent = 'CSV로 내보내기';
+                    exportBtn.disabled = false;
+                }
+            });
+        }
+        
         tableBodyEl.addEventListener('click', async (e) => {
             const userId = e.target.dataset.userid;
             if (!userId) return;
