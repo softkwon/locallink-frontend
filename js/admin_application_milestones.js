@@ -59,26 +59,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         const programName = programSelect.options[programSelect.selectedIndex].text;
         const userName = e.target.options[e.target.selectedIndex].text;
         editorTitle.textContent = `[${userName}]님의 [${programName}] 프로그램 마일스톤`;
-        await loadMilestones(currentApplicationId); // 마일스톤 로딩 함수 호출
+        await loadMilestones(currentApplicationId);
         milestonesEditor.classList.remove('hidden');
     });
 
     // [이벤트] 3. '새 마일스톤 추가' 버튼 클릭
     addMilestoneBtn.addEventListener('click', () => createMilestoneCard());
 
-    // ★★★ [이벤트] 4. '모든 변경사항 저장' 버튼 클릭 (핵심 기능) ★★★
+    // [이벤트] 4. '모든 변경사항 저장' 버튼 클릭
     saveAllBtn.addEventListener('click', async () => {
         if (!currentApplicationId) return;
-
         saveAllBtn.disabled = true;
         saveAllBtn.textContent = '저장 중...';
-
         try {
             const formData = new FormData();
             const milestonesData = [];
             let fileCounter = 0;
-
-            // 화면의 모든 마일스톤 카드를 순회하며 데이터 수집
             document.querySelectorAll('#milestone-list .milestone-card').forEach(card => {
                 const milestone = {
                     id: card.dataset.id,
@@ -87,34 +83,26 @@ document.addEventListener('DOMContentLoaded', async () => {
                     linked_question_code: card.querySelector('.linked-question-code').value,
                     content: card.querySelector('.milestone-content').value,
                     display_order: parseInt(card.querySelector('.milestone-order').value, 10) || 0,
-                    attachment_url: card.querySelector('a')?.href || null // 기존 파일 URL
+                    attachment_url: card.querySelector('a')?.href || null
                 };
-
-                // 새 첨부파일이 있는지 확인
                 const fileInput = card.querySelector('.milestone-attachment');
                 if (fileInput.files[0]) {
                     const placeholder = `file_${fileCounter++}`;
                     formData.append(placeholder, fileInput.files[0]);
-                    milestone.filePlaceholder = placeholder; // 파일이 있다는 표시
+                    milestone.filePlaceholder = placeholder;
                 }
                 milestonesData.push(milestone);
             });
-
             formData.append('milestonesData', JSON.stringify(milestonesData));
-
-            // 백엔드 API 호출
             const res = await fetch(`${API_BASE_URL}/admin/applications/${currentApplicationId}/milestones/batch-update`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` },
                 body: formData
             });
-
             const result = await res.json();
             if (!res.ok) throw new Error(result.message);
-
             alert(result.message);
-            await loadMilestones(currentApplicationId); // 저장 후 목록 새로고침
-
+            await loadMilestones(currentApplicationId);
         } catch (error) {
             alert(`저장 실패: ${error.message}`);
             console.error("마일스톤 저장 에러:", error);
@@ -124,7 +112,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
     
-    // [이벤트] 5. 개별 마일스톤 삭제 버튼 (UI에서만 제거)
+    // [이벤트] 5. 개별 마일스톤 삭제 버튼
     milestoneList.addEventListener('click', (e) => {
         if(e.target.classList.contains('remove-milestone-btn')) {
             e.target.closest('.milestone-card').remove();
@@ -133,7 +121,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- 4. 동적 UI 및 데이터 로딩 함수 ---
     
-    // 마일스톤 목록을 불러와 화면에 그리는 함수
     async function loadMilestones(applicationId) {
         const res = await fetch(`${API_BASE_URL}/admin/applications/${applicationId}/milestones`, { headers: { 'Authorization': `Bearer ${token}` } });
         const result = await res.json();
@@ -143,11 +130,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // 마일스톤 카드 한 개를 만드는 함수
+    // ★★★ [핵심 수정] 마일스톤 카드에 '현재 사용자 점수' 표시 추가 ★★★
     function createMilestoneCard(milestone = {}) {
         const card = document.createElement('div');
         card.className = 'milestone-card';
         card.dataset.id = milestone.id || 'new';
+        
+        // 현재 점수를 표시할 텍스트 준비
+        const currentUserScoreText = milestone.linked_question_code && milestone.current_user_score !== null
+            ? `(현재 사용자 점수: <strong>${milestone.current_user_score}</strong>)`
+            : '';
+
         card.innerHTML = `
             <div class="milestone-header">
                 <strong>마일스톤 상세 설정</strong>
@@ -163,7 +156,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <input type="number" class="form-control milestone-score" value="${milestone.score_value || 0}">
                 </div>
                 <div class="form-group">
-                    <label>연동할 진단 문항 (선택)</label>
+                    <label>연동할 진단 문항 (선택) ${currentUserScoreText}</label> 
                     <select class="form-control linked-question-code">
                         <option value="">-- 문항 선택 --</option>
                         ${Array.from({length: 16}, (_, i) => `<option value="S-Q${i+1}" ${milestone.linked_question_code === `S-Q${i+1}` ? 'selected' : ''}>S-Q${i+1}</option>`).join('')}
