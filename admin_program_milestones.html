@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>맞춤 마일스톤 관리</title>
+    <link rel="stylesheet" href="css/admin_style.css">
+    <style>
+        .milestone-item { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+        .milestone-item input { flex-grow: 1; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>맞춤 마일스톤 관리</h1>
+        <div class="form-group">
+            <label for="program-select">마일스톤을 관리할 프로그램 선택:</label>
+            <select id="program-select" class="form-control">
+                <option value="">-- 프로그램을 선택하세요 --</option>
+            </select>
+        </div>
+        <hr>
+        <div id="milestones-container" class="hidden">
+            <h2 id="selected-program-title"></h2>
+            <div id="milestone-list"></div>
+            <button id="add-milestone-btn" class="button-secondary">새 마일스톤 추가</button>
+            <button id="save-milestones-btn" class="button-primary">변경사항 저장</button>
+        </div>
+    </div>
+    <script type="module" src="js/admin_program_milestones.js"></script>
+</body>
+</html>
