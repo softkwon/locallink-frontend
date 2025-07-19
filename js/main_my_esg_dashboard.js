@@ -27,16 +27,33 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 });
 
+// ★★★ [신규] 점수에 따른 등급, 설명, 색상을 반환하는 함수 ★★★
+function getRiskLevelInfo(score) {
+    if (score >= 80) return { level: '우수', description: 'ESG 경영 수준이 매우 높아, 지속가능한 성장의 기회가 많습니다.', color: '#28a745' };
+    if (score >= 60) return { level: '양호', description: 'ESG 경영 관리가 양호한 수준이나, 일부 개선이 필요합니다.', color: '#17a2b8' };
+    if (score >= 40) return { level: '보통', description: 'ESG 관련 리스크 관리를 위한 개선 노력이 필요합니다.', color: '#ffc107' };
+    return { level: '미흡', description: 'ESG 관련 규제 및 시장 요구에 대응하기 위한 적극적인 개선이 시급합니다.', color: '#dc3545' };
+}
+
 function renderScoreAndGauge(data) {
+    const gaugeContainer = document.getElementById('gauge-container');
     const gaugeElement = document.getElementById('realtime-score-gauge');
     const scoreTextElement = document.getElementById('realtime-score-text');
     const initialScoreElement = document.getElementById('initial-score');
     const improvementScoreElement = document.getElementById('improvement-score');
+    const riskTitleElement = document.getElementById('risk-level-title');
+    const riskDescElement = document.getElementById('risk-level-description');
+    const tooltipElement = document.getElementById('gauge-tooltip');
 
-    if (!gaugeElement || !scoreTextElement || !initialScoreElement || !improvementScoreElement) return;
+    if (!gaugeContainer) return;
 
     const score = data.realtimeScore || 0;
-    
+    const riskInfo = getRiskLevelInfo(score);
+
+    // 1. 위험도 설명 및 점수 표시
+    riskTitleElement.textContent = `${riskInfo.level} 등급`;
+    riskTitleElement.style.color = riskInfo.color;
+    riskDescElement.textContent = riskInfo.description;
     scoreTextElement.textContent = `${score.toFixed(1)}점`;
     initialScoreElement.textContent = (data.initialScore || 0).toFixed(1);
     improvementScoreElement.textContent = `+${data.improvementScore || 0}`;
@@ -45,19 +62,43 @@ function renderScoreAndGauge(data) {
         const options = {
             series: [score],
             chart: { type: 'radialBar', height: 250 },
-            plotOptions: {
-                radialBar: {
-                    hollow: { size: '60%' },
-                    dataLabels: { show: false }
-                }
-            },
+            plotOptions: { radialBar: { hollow: { size: '60%' }, dataLabels: { show: false } } },
             stroke: { lineCap: 'round' },
             labels: ['실시간 점수'],
-            colors: [score >= 80 ? '#28a745' : score >= 60 ? '#17a2b8' : score >= 40 ? '#ffc107' : '#dc3545']
+            colors: [riskInfo.color]
         };
         gaugeElement.innerHTML = '';
         const chart = new ApexCharts(gaugeElement, options);
         chart.render();
+
+        // ★★★ 2. 마우스 오버 시 예상 점수 계산 및 표시 기능 ★★★
+        let potentialImprovement = 0;
+        if (data.customizedPrograms) {
+            data.customizedPrograms.forEach(program => {
+                if (program.timeline) {
+                    program.timeline.forEach(milestone => {
+                        if (!milestone.isCompleted) {
+                            potentialImprovement += milestone.scoreValue || 0;
+                        }
+                    });
+                }
+            });
+        }
+        const expectedScore = score + potentialImprovement;
+
+        gaugeContainer.addEventListener('mouseover', () => {
+            if (potentialImprovement > 0) {
+                chart.updateSeries([expectedScore]); // 차트 바를 예상 점수까지 채움
+                tooltipElement.innerHTML = `모든 프로그램 완료 시<br><strong>${expectedScore.toFixed(1)}점</strong> 예상`;
+                tooltipElement.style.opacity = 1;
+            }
+        });
+
+        gaugeContainer.addEventListener('mouseout', () => {
+            chart.updateSeries([score]); // 마우스 떼면 원래 점수로 복귀
+            tooltipElement.style.opacity = 0;
+        });
+
     } else {
         console.warn('ApexCharts 라이브러리가 로드되지 않았습니다.');
     }
@@ -74,7 +115,6 @@ function renderCustomizedTimelines(programs) {
     }
 
     programs.forEach(program => {
-        // ★★★ 핵심 수정: is_completed 대신 isCompleted 사용, 파일 다운로드 링크 추가 ★★★
         const timelineHtml = program.timeline ? program.timeline.map(milestone => `
             <div class="step ${milestone.isCompleted ? 'completed' : 'pending'}">
                 <div class="step-icon">${milestone.isCompleted ? '✔' : ''}</div>
