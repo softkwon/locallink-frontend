@@ -87,28 +87,26 @@
     <main class="container">
         <h2>나의 ESG 활동 대시보드</h2>
 
+        <!-- 1. 계기판 및 점수 표시 영역 -->
         <div class="score-summary-section">
-            <div class="gauge-container" id="gauge-container"> <!-- ID 추가 -->
+            <div class="gauge-container" id="gauge-container">
                 <div id="realtime-score-gauge"></div>
-                <div class="gauge-label" id="realtime-score-text">--점</div>
-                <!-- 마우스 오버 시 보일 예상 점수 툴팁 -->
-                <div class="gauge-tooltip" id="gauge-tooltip"></div>
             </div>
             <div class="score-details">
-                <h3 id="risk-level-title">-- 등급</h3> <!-- 등급 표시 추가 -->
-                <p id="risk-level-description">데이터를 분석 중입니다...</p> <!-- 설명 표시 추가 -->
+                <h3 id="risk-level-title">-- 등급</h3>
+                <p id="risk-level-description">데이터를 분석 중입니다...</p>
                 <hr>
-                <p>최초 진단 점수: <span id="initial-score">--</span>점</p>
-                <p>프로그램 개선 점수: <span id="improvement-score">--</span>점</p>
+                <!-- E, S, G 세부 점수가 표시될 곳 -->
+                <div id="esg-scores-container"></div>
             </div>
         </div>
 
+        <!-- 2. 프로그램별 타임라인이 표시될 곳 -->
         <div id="dashboard-container">
             <p>데이터를 불러오는 중입니다...</p>
         </div>
         <hr>
-        <div id="all-applications-list">
-            </div>
+        <div id="all-applications-list"></div>
     </main>
     <footer id="footer-placeholder"></footer>
 
