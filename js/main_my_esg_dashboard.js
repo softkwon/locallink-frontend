@@ -18,6 +18,18 @@ document.addEventListener('DOMContentLoaded', async function() {
         const dashboardData = result.dashboard;
         renderScoreAndGauge(dashboardData);
         renderProgramCards(dashboardData.programs);
+        
+        // ★★★ 마일스톤 카드 클릭 이벤트 리스너 추가 ★★★
+        const container = document.getElementById('dashboard-container');
+        if (container) {
+            container.addEventListener('click', function(e) {
+                const milestoneHeader = e.target.closest('.milestone-header');
+                if (milestoneHeader) {
+                    const details = milestoneHeader.nextElementSibling;
+                    details.style.display = details.style.display === 'block' ? 'none' : 'block';
+                }
+            });
+        }
 
     } catch (error) {
         const container = document.getElementById('dashboard-container');
@@ -38,6 +50,8 @@ function renderScoreAndGauge(data) {
     const riskTitleElement = document.getElementById('risk-level-title');
     const riskDescElement = document.getElementById('risk-level-description');
     const esgScoresContainer = document.getElementById('esg-scores-container');
+    const initialScoreDisplay = document.getElementById('initial-score-display');
+    const improvementScoreDisplay = document.getElementById('improvement-score-display');
 
     if (!gaugeElement || !esgScoresContainer) return;
 
@@ -46,6 +60,8 @@ function renderScoreAndGauge(data) {
 
     riskTitleElement.textContent = `${riskInfo.level} 등급`;
     riskDescElement.textContent = riskInfo.description;
+    initialScoreDisplay.textContent = `${data.initialScores.total.toFixed(1)}점`;
+    improvementScoreDisplay.textContent = `+${data.improvementScores.total.toFixed(1)}점`;
 
     esgScoresContainer.innerHTML = `
         <div class="score-item"><span class="color-dot e"></span>환경(E): <strong>${scores.e.toFixed(1)}</strong>점</div>
@@ -59,7 +75,7 @@ function renderScoreAndGauge(data) {
             chart: { type: 'donut', height: 280 },
             labels: ['환경(E)', '사회(S)', '지배구조(G)'],
             colors: ['#28a745', '#007bff', '#6f42c1'],
-            plotOptions: { pie: { donut: { labels: { show: true, total: { show: true, label: '총점', formatter: (w) => `${w.globals.seriesTotals.reduce((a, b) => a + b, 0).toFixed(1)}점` } } } } },
+            plotOptions: { pie: { donut: { labels: { show: true, total: { show: true, label: '총점', formatter: () => `${scores.total.toFixed(1)}점` } } } } },
             legend: { show: false },
             tooltip: { y: { formatter: (val) => `${val.toFixed(1)}점` } },
             responsive: [{ breakpoint: 480, options: { chart: { width: 200 } } }]
@@ -88,25 +104,25 @@ function renderProgramCards(programs) {
         const currentStepIndex = steps.indexOf(program.status);
         const stepperHtml = steps.map((label, i) => `<div class="step ${i <= currentStepIndex ? 'completed' : ''}"><div class="step-icon">${i + 1}</div><div class="step-label">${label}</div></div>`).join('<div class="step-line"></div>');
 
-        let milestoneTableHtml = '';
+        // ★★★ 마일스톤 UI를 가로 배열 박스 형태로 변경 ★★★
+        let milestonesHtml = '';
         if ((program.status === '진행' || program.status === '완료') && program.timeline && program.timeline.length > 0) {
-            milestoneTableHtml = `
-                <h5 class="milestone-table-title">세부 진행 내용</h5>
-                <table class="milestone-table">
-                    <thead><tr><th>진행 단계</th><th>상세 내용 및 자료</th><th>상태</th></tr></thead>
-                    <tbody>
-                        ${program.timeline.map(milestone => `
-                            <tr>
-                                <td>${milestone.milestone_name}</td>
-                                <td>
-                                    <p>${milestone.content || ''}</p>
-                                    ${milestone.attachment_url ? `<img src="${milestone.attachment_url}" alt="첨부 이미지" class="milestone-image">` : ''}
-                                </td>
-                                <td>${milestone.is_completed ? '<span class="status-badge status-completed">완료</span>' : '<span class="status-badge status-pending">진행중</span>'}</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>`;
+            milestonesHtml = `
+                <h5 class="milestone-section-title">세부 진행 내용</h5>
+                <div class="milestones-wrapper">
+                    ${program.timeline.map(milestone => `
+                        <div class="milestone-box ${milestone.is_completed ? 'completed' : ''}">
+                            <div class="milestone-header">
+                                <span class="milestone-title">${milestone.milestone_name}</span>
+                                <span class="milestone-status">${milestone.is_completed ? '✔ 완료' : '진행중'}</span>
+                            </div>
+                            <div class="milestone-details">
+                                <p>${milestone.content || '세부 내용이 없습니다.'}</p>
+                                ${milestone.attachment_url ? `<a href="${milestone.attachment_url}" target="_blank" download>자료 다운로드</a>` : ''}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>`;
         }
         
         const improvement = program.potentialImprovement;
@@ -126,7 +142,7 @@ function renderProgramCards(programs) {
                 ${program.admin_message ? `<div class="admin-message"><strong>담당자 메시지:</strong> ${program.admin_message}</div>` : ''}
                 <h5>전체 진행 상태</h5>
                 <div class="status-stepper">${stepperHtml}</div>
-                ${milestoneTableHtml}
+                ${milestonesHtml}
             </div>
         `;
         container.appendChild(card);
