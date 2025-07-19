@@ -16,10 +16,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (!result.success) throw new Error(result.message);
 
         const dashboardData = result.dashboard;
-        renderScoreSection(dashboardData); // ★★★ 함수 이름 변경
+        renderScoreSection(dashboardData);
         renderProgramCards(dashboardData.programs);
         
-        // 마일스톤 카드 클릭 이벤트 리스너
         const container = document.getElementById('dashboard-container');
         if (container) {
             container.addEventListener('click', function(e) {
@@ -45,7 +44,6 @@ function getRiskLevelInfo(score) {
     return { level: '미흡', description: 'ESG 관련 규제 및 시장 요구에 대응하기 위한 적극적인 개선이 시급합니다.'};
 }
 
-// ★★★ [핵심 수정] 점수 섹션 전체를 그리는 함수 (계기판 + 분석 테이블) ★★★
 function renderScoreSection(data) {
     const gaugeElement = document.getElementById('realtime-score-gauge');
     const tableContainer = document.getElementById('score-details-table');
@@ -54,21 +52,27 @@ function renderScoreSection(data) {
     const scores = data.realtimeScores;
     const riskInfo = getRiskLevelInfo(scores.total);
 
-    // 1. 프로그램들을 E, S, G 카테고리별로 분류
+    // ★★★ [핵심 수정] "진행 중"인 프로그램만 필터링하여 테이블에 표시 ★★★
     const programsByCategory = { e: [], s: [], g: [] };
     const potentialByCategory = { e: 0, s: 0, g: 0 };
     if (data.programs) {
+        const inProgressPrograms = data.programs.filter(p => p.status === '진행');
+
+        inProgressPrograms.forEach(p => {
+            const category = (p.esg_category || '').toLowerCase();
+            if (programsByCategory[category]) {
+                programsByCategory[category].push(p.program_title);
+            }
+        });
+
+        // 예상 개선 점수는 모든 프로그램에 대해 계산
         data.programs.forEach(p => {
-            if (p.potentialImprovement.e > 0) programsByCategory.e.push(p.program_title);
-            if (p.potentialImprovement.s > 0) programsByCategory.s.push(p.program_title);
-            if (p.potentialImprovement.g > 0) programsByCategory.g.push(p.program_title);
             potentialByCategory.e += p.potentialImprovement.e;
             potentialByCategory.s += p.potentialImprovement.s;
             potentialByCategory.g += p.potentialImprovement.g;
         });
     }
 
-    // 2. 점수 분석 테이블 HTML 생성
     const categories = { e: '환경(E)', s: '사회(S)', g: '지배구조(G)' };
     let tableHtml = `
         <table class="score-table">
@@ -76,7 +80,7 @@ function renderScoreSection(data) {
                 <tr>
                     <th>구분</th>
                     <th>내 점수</th>
-                    <th>신청 프로그램</th>
+                    <th>신청 프로그램 (진행 중)</th>
                     <th>개선 점수</th>
                     <th>예상 점수</th>
                 </tr>
@@ -106,7 +110,6 @@ function renderScoreSection(data) {
     tableHtml += `</tbody></table>`;
     tableContainer.innerHTML = tableHtml;
 
-    // 3. ApexCharts 도넛 차트 그리기
     if (typeof ApexCharts !== 'undefined') {
         const options = {
             series: [scores.e, scores.s, scores.g],
