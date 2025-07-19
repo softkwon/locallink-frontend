@@ -85,13 +85,21 @@
             </div>
     </header>
     <main class="container">
-        <h1>나의 ESG 활동 대시보드</h1>
-        <p>참여중인 ESG 프로그램의 진행 상황과 성과를 확인하세요.</p>
-        <div class="dashboard-intro-box">
-            <p style="margin: 0;">진행 단계부터 프로그램의 마일스톤, 활동 내역을 확인할 수 있습니다.</p>
+        <h2>나의 ESG 활동 대시보드</h2>
+
+        <div class="score-summary-section">
+            <div class="gauge-container">
+                <div id="realtime-score-gauge"></div>
+                <div class="gauge-label" id="realtime-score-text">--점</div>
+            </div>
+            <div class="score-details">
+                <p>최초 진단 점수: <span id="initial-score">--</span>점</p>
+                <p>프로그램 개선 점수: <span id="improvement-score">--</span>점</p>
+            </div>
         </div>
-        <div id="dashboard-container" class="dashboard-container">
-            <p>신청하신 프로그램 현황을 불러오는 중입니다...</p>
+
+        <div id="dashboard-container">
+            <p>데이터를 불러오는 중입니다...</p>
         </div>
     </main>
     <footer id="footer-placeholder"></footer>
