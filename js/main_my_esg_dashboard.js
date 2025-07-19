@@ -18,15 +18,15 @@ document.addEventListener('DOMContentLoaded', async function() {
         const dashboardData = result.dashboard;
         renderScoreAndGauge(dashboardData);
         renderProgramCards(dashboardData.programs);
-        
-        // ★★★ 마일스톤 카드 클릭 이벤트 리스너 추가 ★★★
+
+        // 마일스톤 카드 클릭 시 세부 내용 보이기/숨기기 이벤트 리스너
         const container = document.getElementById('dashboard-container');
         if (container) {
             container.addEventListener('click', function(e) {
                 const milestoneHeader = e.target.closest('.milestone-header');
                 if (milestoneHeader) {
                     const details = milestoneHeader.nextElementSibling;
-                    details.style.display = details.style.display === 'block' ? 'none' : 'block';
+                    details.classList.toggle('visible');
                 }
             });
         }
@@ -38,6 +38,11 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 });
 
+/**
+ * 점수에 따른 등급, 설명 반환 함수
+ * @param {number} score - ESG 점수
+ * @returns {object} - 등급, 설명 정보
+ */
 function getRiskLevelInfo(score) {
     if (score >= 80) return { level: '우수', description: 'ESG 경영 수준이 매우 높아, 지속가능한 성장의 기회가 많습니다.'};
     if (score >= 60) return { level: '양호', description: 'ESG 경영 관리가 양호한 수준이나, 일부 개선이 필요합니다.'};
@@ -45,6 +50,10 @@ function getRiskLevelInfo(score) {
     return { level: '미흡', description: 'ESG 관련 규제 및 시장 요구에 대응하기 위한 적극적인 개선이 시급합니다.'};
 }
 
+/**
+ * 점수와 위험도 계기판을 화면에 그리는 함수
+ * @param {object} data - 대시보드 전체 데이터
+ */
 function renderScoreAndGauge(data) {
     const gaugeElement = document.getElementById('realtime-score-gauge');
     const riskTitleElement = document.getElementById('risk-level-title');
@@ -53,22 +62,25 @@ function renderScoreAndGauge(data) {
     const initialScoreDisplay = document.getElementById('initial-score-display');
     const improvementScoreDisplay = document.getElementById('improvement-score-display');
 
-    if (!gaugeElement || !esgScoresContainer) return;
+    if (!gaugeElement || !esgScoresContainer || !initialScoreDisplay || !improvementScoreDisplay) return;
 
     const scores = data.realtimeScores;
     const riskInfo = getRiskLevelInfo(scores.total);
 
+    // 1. 위험도 등급 및 설명, 점수 텍스트 표시
     riskTitleElement.textContent = `${riskInfo.level} 등급`;
     riskDescElement.textContent = riskInfo.description;
     initialScoreDisplay.textContent = `${data.initialScores.total.toFixed(1)}점`;
     improvementScoreDisplay.textContent = `+${data.improvementScores.total.toFixed(1)}점`;
 
+    // 2. E, S, G 개별 점수 표시
     esgScoresContainer.innerHTML = `
         <div class="score-item"><span class="color-dot e"></span>환경(E): <strong>${scores.e.toFixed(1)}</strong>점</div>
         <div class="score-item"><span class="color-dot s"></span>사회(S): <strong>${scores.s.toFixed(1)}</strong>점</div>
         <div class="score-item"><span class="color-dot g"></span>지배구조(G): <strong>${scores.g.toFixed(1)}</strong>점</div>
     `;
 
+    // 3. ApexCharts 도넛 차트로 계기판 그리기
     if (typeof ApexCharts !== 'undefined') {
         const options = {
             series: [scores.e, scores.s, scores.g],
@@ -89,6 +101,10 @@ function renderScoreAndGauge(data) {
     }
 }
 
+/**
+ * 프로그램 카드 전체를 그리는 함수
+ * @param {Array} programs - 사용자가 신청한 프로그램 목록
+ */
 function renderProgramCards(programs) {
     const container = document.getElementById('dashboard-container');
     if (!container) return;
@@ -100,11 +116,12 @@ function renderProgramCards(programs) {
     }
 
     programs.forEach(program => {
+        // --- 1. 상태(Status) 스텝퍼 UI 생성 ---
         const steps = ['신청', '접수', '진행', '완료'];
         const currentStepIndex = steps.indexOf(program.status);
         const stepperHtml = steps.map((label, i) => `<div class="step ${i <= currentStepIndex ? 'completed' : ''}"><div class="step-icon">${i + 1}</div><div class="step-label">${label}</div></div>`).join('<div class="step-line"></div>');
 
-        // ★★★ 마일스톤 UI를 가로 배열 박스 형태로 변경 ★★★
+        // --- 2. 상세 마일스톤 UI 생성 ---
         let milestonesHtml = '';
         if ((program.status === '진행' || program.status === '완료') && program.timeline && program.timeline.length > 0) {
             milestonesHtml = `
@@ -125,6 +142,7 @@ function renderProgramCards(programs) {
                 </div>`;
         }
         
+        // --- 3. 프로그램별 예상 개선 점수 표시 HTML 생성 ---
         const improvement = program.potentialImprovement;
         let improvementHtml = '';
         if (improvement && improvement.total > 0) {
@@ -134,6 +152,7 @@ function renderProgramCards(programs) {
             improvementHtml = `<div class="improvement-preview"><strong>완료 시 개선 예상:</strong> ${e_imp} ${s_imp} ${g_imp}</div>`;
         }
 
+        // --- 4. 최종 카드 HTML 조합 ---
         const card = document.createElement('div');
         card.className = 'program-status-card';
         card.innerHTML = `
