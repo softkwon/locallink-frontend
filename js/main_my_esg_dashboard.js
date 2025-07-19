@@ -44,21 +44,29 @@ function getRiskLevelInfo(score) {
     return { level: '미흡', description: 'ESG 관련 규제 및 시장 요구에 대응하기 위한 적극적인 개선이 시급합니다.'};
 }
 
+// ★★★ [핵심 수정] 점수 섹션 전체를 그리는 함수 (전면 개편) ★★★
 function renderScoreSection(data) {
     const gaugeElement = document.getElementById('realtime-score-gauge');
     const tableContainer = document.getElementById('score-details-table');
-    if (!gaugeElement || !tableContainer) return;
+    const initialScoreDisplay = document.getElementById('initial-score-display');
+    const improvementScoreDisplay = document.getElementById('improvement-score-display');
+
+    if (!gaugeElement || !tableContainer || !initialScoreDisplay || !improvementScoreDisplay) return;
 
     const scores = data.realtimeScores;
     const riskInfo = getRiskLevelInfo(scores.total);
 
-    // ★★★ [핵심 수정] "진행 중"인 프로그램만 필터링하여 테이블에 표시 ★★★
+    // 1. 최초/개선 점수 표시
+    initialScoreDisplay.textContent = `${data.initialScores.total.toFixed(1)}점`;
+    improvementScoreDisplay.textContent = `+${data.improvementScores.total.toFixed(1)}점`;
+
+    // 2. "진행 중"인 프로그램만 필터링 (★★★ '접수' 상태도 포함하도록 수정 ★★★)
     const programsByCategory = { e: [], s: [], g: [] };
     const potentialByCategory = { e: 0, s: 0, g: 0 };
     if (data.programs) {
-        const inProgressPrograms = data.programs.filter(p => p.status === '진행');
+        const activePrograms = data.programs.filter(p => ['접수', '진행'].includes(p.status));
 
-        inProgressPrograms.forEach(p => {
+        activePrograms.forEach(p => {
             const category = (p.esg_category || '').toLowerCase();
             if (programsByCategory[category]) {
                 programsByCategory[category].push(p.program_title);
@@ -73,6 +81,7 @@ function renderScoreSection(data) {
         });
     }
 
+    // 3. 점수 분석 테이블 HTML 생성
     const categories = { e: '환경(E)', s: '사회(S)', g: '지배구조(G)' };
     let tableHtml = `
         <table class="score-table">
@@ -110,6 +119,7 @@ function renderScoreSection(data) {
     tableHtml += `</tbody></table>`;
     tableContainer.innerHTML = tableHtml;
 
+    // 4. ApexCharts 도넛 차트 그리기
     if (typeof ApexCharts !== 'undefined') {
         const options = {
             series: [scores.e, scores.s, scores.g],
