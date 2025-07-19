@@ -88,11 +88,16 @@
         <h2>나의 ESG 활동 대시보드</h2>
 
         <div class="score-summary-section">
-            <div class="gauge-container">
+            <div class="gauge-container" id="gauge-container"> <!-- ID 추가 -->
                 <div id="realtime-score-gauge"></div>
                 <div class="gauge-label" id="realtime-score-text">--점</div>
+                <!-- 마우스 오버 시 보일 예상 점수 툴팁 -->
+                <div class="gauge-tooltip" id="gauge-tooltip"></div>
             </div>
             <div class="score-details">
+                <h3 id="risk-level-title">-- 등급</h3> <!-- 등급 표시 추가 -->
+                <p id="risk-level-description">데이터를 분석 중입니다...</p> <!-- 설명 표시 추가 -->
+                <hr>
                 <p>최초 진단 점수: <span id="initial-score">--</span>점</p>
                 <p>프로그램 개선 점수: <span id="improvement-score">--</span>점</p>
             </div>
@@ -106,7 +111,7 @@
             </div>
     </main>
     <footer id="footer-placeholder"></footer>
-    
+
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script type="module" src="js/auth.js" defer></script>
     <script type="module" src="js/main_my_esg_dashboard.js" defer></script>
