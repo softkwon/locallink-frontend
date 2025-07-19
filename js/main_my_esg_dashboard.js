@@ -19,7 +19,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         renderScoreSection(dashboardData);
         renderProgramCards(dashboardData.programs);
         
-        // ★★★ 마일스톤 카드 클릭 이벤트 리스너 추가 ★★★
         const container = document.getElementById('dashboard-container');
         if (container) {
             container.addEventListener('click', function(e) {
@@ -49,20 +48,34 @@ function getRiskLevelInfo(score) {
 function renderScoreSection(data) {
     const gaugeElement = document.getElementById('realtime-score-gauge');
     const tableContainer = document.getElementById('score-details-table');
-    if (!gaugeElement || !tableContainer) return;
+    const initialScoreDisplay = document.getElementById('initial-score-display');
+    const improvementScoreDisplay = document.getElementById('improvement-score-display');
+
+    if (!gaugeElement || !tableContainer || !initialScoreDisplay || !improvementScoreDisplay) {
+        console.error("대시보드 UI의 필수 요소(element)를 찾을 수 없습니다. HTML 구조를 확인해주세요.");
+        return;
+    }
 
     const scores = data.realtimeScores;
+    const riskInfo = getRiskLevelInfo(scores.total);
 
-    // 1. "진행 중"인 프로그램만 필터링하여 테이블에 표시
+    // 1. 최초/개선 점수 표시
+    initialScoreDisplay.textContent = `${data.initialScores.total.toFixed(1)}점`;
+    improvementScoreDisplay.textContent = `+${data.improvementScores.total.toFixed(1)}점`;
+
+    // 2. "진행 중"인 프로그램만 필터링 (★★★ '접수'와 '진행' 상태 모두 포함 ★★★)
     const programsByCategory = { e: [], s: [], g: [] };
     const potentialByCategory = { e: 0, s: 0, g: 0 };
     if (data.programs) {
-        const inProgressPrograms = data.programs.filter(p => p.status === '진행');
+        const activePrograms = data.programs.filter(p => ['접수', '진행'].includes(p.status));
 
-        inProgressPrograms.forEach(p => {
+        activePrograms.forEach(p => {
             const category = (p.esg_category || '').toLowerCase();
             if (programsByCategory[category]) {
-                programsByCategory[category].push(p.program_title);
+                // 중복되지 않게 프로그램 이름 추가
+                if (!programsByCategory[category].includes(p.program_title)) {
+                    programsByCategory[category].push(p.program_title);
+                }
             }
         });
 
@@ -74,7 +87,7 @@ function renderScoreSection(data) {
         });
     }
 
-    // 2. 점수 분석 테이블 HTML 생성
+    // 3. 점수 분석 테이블 HTML 생성
     const categories = { e: '환경(E)', s: '사회(S)', g: '지배구조(G)' };
     let tableHtml = `
         <table class="score-table">
@@ -112,7 +125,7 @@ function renderScoreSection(data) {
     tableHtml += `</tbody></table>`;
     tableContainer.innerHTML = tableHtml;
 
-    // 3. ApexCharts 도넛 차트 그리기
+    // 4. ApexCharts 도넛 차트 그리기
     if (typeof ApexCharts !== 'undefined') {
         const options = {
             series: [scores.e, scores.s, scores.g],
