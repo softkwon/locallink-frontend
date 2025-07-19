@@ -95,12 +95,21 @@
         <!-- 1. 계기판 및 점수 분석 테이블 영역 -->
         <div class="score-summary-section">
             <div class="gauge-container" id="gauge-container">
-                <div id="realtime-score-gauge"></div>
+                <div id="realtime-score-gauge">
+                    <!-- JS가 여기에 계기판을 그립니다. -->
+                </div>
             </div>
             <div class="score-details-table" id="score-details-table">
                 <!-- JS가 여기에 점수 분석 테이블을 그립니다. -->
             </div>
         </div>
+
+        <!-- 최초 점수 및 개선 점수 표시 영역 -->
+        <div class="score-breakdown">
+            <p>최초 진단 점수: <strong id="initial-score-display">--점</strong></p>
+            <p>프로그램 개선 점수: <strong id="improvement-score-display" class="imp-total">+--점</strong></p>
+        </div>
+
 
         <!-- 2. 프로그램별 타임라인이 표시될 곳 -->
         <div id="dashboard-container">
