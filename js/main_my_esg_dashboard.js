@@ -16,8 +16,10 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (!result.success) throw new Error(result.message);
 
         const dashboardData = result.dashboard;
+
+        // ★★★ 수정: customizedPrograms 대신 activePrograms를 사용하도록 변경 ★★★
         renderScoreAndGauge(dashboardData);
-        renderCustomizedTimelines(dashboardData.customizedPrograms);
+        renderCustomizedTimelines(dashboardData.activePrograms); // 이 부분 수정
         renderAllApplicationsList(dashboardData.allApplications);
 
     } catch (error) {
@@ -27,7 +29,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 });
 
-// ★★★ [신규] 점수에 따른 등급, 설명, 색상을 반환하는 함수 ★★★
+// 점수에 따른 등급, 설명, 색상을 반환하는 함수
 function getRiskLevelInfo(score) {
     if (score >= 80) return { level: '우수', description: 'ESG 경영 수준이 매우 높아, 지속가능한 성장의 기회가 많습니다.', color: '#28a745' };
     if (score >= 60) return { level: '양호', description: 'ESG 경영 관리가 양호한 수준이나, 일부 개선이 필요합니다.', color: '#17a2b8' };
@@ -50,7 +52,6 @@ function renderScoreAndGauge(data) {
     const score = data.realtimeScore || 0;
     const riskInfo = getRiskLevelInfo(score);
 
-    // 1. 위험도 설명 및 점수 표시
     riskTitleElement.textContent = `${riskInfo.level} 등급`;
     riskTitleElement.style.color = riskInfo.color;
     riskDescElement.textContent = riskInfo.description;
@@ -61,20 +62,21 @@ function renderScoreAndGauge(data) {
     if (typeof ApexCharts !== 'undefined') {
         const options = {
             series: [score],
-            chart: { type: 'radialBar', height: 250 },
+            chart: { type: 'radialBar', height: 250, events: {} }, // events 객체 초기화
             plotOptions: { radialBar: { hollow: { size: '60%' }, dataLabels: { show: false } } },
             stroke: { lineCap: 'round' },
             labels: ['실시간 점수'],
             colors: [riskInfo.color]
         };
+        
         gaugeElement.innerHTML = '';
         const chart = new ApexCharts(gaugeElement, options);
         chart.render();
 
-        // ★★★ 2. 마우스 오버 시 예상 점수 계산 및 표시 기능 ★★★
+        // ★★★ 수정: 마우스 오버 로직 안정성 강화 ★★★
         let potentialImprovement = 0;
-        if (data.customizedPrograms) {
-            data.customizedPrograms.forEach(program => {
+        if (data.activePrograms) { // customizedPrograms 대신 activePrograms 사용
+            data.activePrograms.forEach(program => {
                 if (program.timeline) {
                     program.timeline.forEach(milestone => {
                         if (!milestone.isCompleted) {
@@ -86,16 +88,16 @@ function renderScoreAndGauge(data) {
         }
         const expectedScore = score + potentialImprovement;
 
-        gaugeContainer.addEventListener('mouseover', () => {
+        gaugeContainer.addEventListener('mouseenter', () => { // mouseover 대신 mouseenter 사용
             if (potentialImprovement > 0) {
-                chart.updateSeries([expectedScore]); // 차트 바를 예상 점수까지 채움
+                chart.updateSeries([expectedScore]);
                 tooltipElement.innerHTML = `모든 프로그램 완료 시<br><strong>${expectedScore.toFixed(1)}점</strong> 예상`;
                 tooltipElement.style.opacity = 1;
             }
         });
 
-        gaugeContainer.addEventListener('mouseout', () => {
-            chart.updateSeries([score]); // 마우스 떼면 원래 점수로 복귀
+        gaugeContainer.addEventListener('mouseleave', () => { // mouseout 대신 mouseleave 사용
+            chart.updateSeries([score]);
             tooltipElement.style.opacity = 0;
         });
 
