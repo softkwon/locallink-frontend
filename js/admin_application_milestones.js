@@ -16,31 +16,47 @@ document.addEventListener('DOMContentLoaded', async () => {
     const saveAllBtn = document.getElementById('save-all-btn');
 
     let currentApplicationId = null;
+    let allQuestionsCache = []; // ★★★ 모든 질문 목록을 저장할 변수
 
-    // --- 2. 초기화: 내가 만든 프로그램 목록 불러오기 ---
+    // --- 2. 초기화: 프로그램 목록과 "전체 질문 목록" 불러오기 ---
     try {
-        const res = await fetch(`${API_BASE_URL}/admin/my-programs`, { headers: { 'Authorization': `Bearer ${token}` } });
-        const result = await res.json();
-        if (result.success) {
-            result.programs.forEach(p => {
+        const [programsRes, questionsRes] = await Promise.all([
+            fetch(`${API_BASE_URL}/admin/my-programs`, { headers: { 'Authorization': `Bearer ${token}` } }),
+            fetch(`${API_BASE_URL}/admin/survey-questions/all`, { headers: { 'Authorization': `Bearer ${token}` } })
+        ]);
+        
+        const programsResult = await programsRes.json();
+        if (programsResult.success) {
+            programsResult.programs.forEach(p => {
                 programSelect.innerHTML += `<option value="${p.id}">${p.title}</option>`;
             });
         }
-    } catch (e) { console.error("프로그램 목록 로딩 실패:", e); }
+
+        const questionsResult = await questionsRes.json();
+        if (questionsResult.success) {
+            allQuestionsCache = questionsResult.questions; // ★★★ 불러온 질문 목록 저장
+        }
+
+    } catch (e) { console.error("초기 데이터 로딩 실패:", e); }
 
     // --- 3. 이벤트 리스너 설정 ---
 
     // [이벤트] 1. 프로그램을 선택했을 때
     programSelect.addEventListener('change', async (e) => {
         const programId = e.target.value;
+        // 선택 초기화
         applicationSelect.innerHTML = '<option value="">-- 이 프로그램을 신청한 사용자를 선택하세요 --</option>';
         milestonesEditor.classList.add('hidden');
+        
         if (!programId) {
             applicationSelectContainer.classList.add('hidden');
             return;
         }
+
+        // 선택한 프로그램에 신청한 사용자 목록을 불러옴
         const res = await fetch(`${API_BASE_URL}/admin/programs/${programId}/applications`, { headers: { 'Authorization': `Bearer ${token}` } });
         const result = await res.json();
+
         if (result.success) {
             result.applications.forEach(app => {
                 applicationSelect.innerHTML += `<option value="${app.id}">${app.company_name}</option>`;
@@ -56,9 +72,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             milestonesEditor.classList.add('hidden');
             return;
         }
+        
         const programName = programSelect.options[programSelect.selectedIndex].text;
         const userName = e.target.options[e.target.selectedIndex].text;
         editorTitle.textContent = `[${userName}]님의 [${programName}] 프로그램 마일스톤`;
+
+        // 해당 신청 건의 마일스톤 목록을 불러와서 화면에 그림
         await loadMilestones(currentApplicationId);
         milestonesEditor.classList.remove('hidden');
     });
@@ -75,12 +94,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             const formData = new FormData();
             const milestonesData = [];
             let fileCounter = 0;
+            
             document.querySelectorAll('#milestone-list .milestone-card').forEach(card => {
+                // ★★★ 여러 개의 연동된 질문 코드를 배열로 수집 ★★★
+                const linked_question_codes = Array.from(card.querySelectorAll('.linked-question-code'))
+                    .map(select => select.value)
+                    .filter(Boolean); // 빈 값은 제외
+
                 const milestone = {
                     id: card.dataset.id,
                     milestone_name: card.querySelector('.milestone-name').value,
                     score_value: parseInt(card.querySelector('.milestone-score').value, 10) || 0,
-                    linked_question_code: card.querySelector('.linked-question-code').value,
+                    linked_question_codes: linked_question_codes, // 배열로 저장
                     content: card.querySelector('.milestone-content').value,
                     display_order: parseInt(card.querySelector('.milestone-order').value, 10) || 0,
                     attachment_url: card.querySelector('a')?.href || null
@@ -93,6 +118,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
                 milestonesData.push(milestone);
             });
+
             formData.append('milestonesData', JSON.stringify(milestonesData));
             const res = await fetch(`${API_BASE_URL}/admin/applications/${currentApplicationId}/milestones/batch-update`, {
                 method: 'POST',
@@ -105,17 +131,28 @@ document.addEventListener('DOMContentLoaded', async () => {
             await loadMilestones(currentApplicationId);
         } catch (error) {
             alert(`저장 실패: ${error.message}`);
-            console.error("마일스톤 저장 에러:", error);
         } finally {
             saveAllBtn.disabled = false;
             saveAllBtn.textContent = '모든 변경사항 저장';
         }
     });
     
-    // [이벤트] 5. 개별 마일스톤 삭제 버튼
+    // [이벤트] 5. 마일스톤 카드 내부의 동적 이벤트 처리 (삭제, 질문 추가 등)
     milestoneList.addEventListener('click', (e) => {
-        if(e.target.classList.contains('remove-milestone-btn')) {
-            e.target.closest('.milestone-card').remove();
+        const card = e.target.closest('.milestone-card');
+        if (!card) return;
+
+        // '연동 질문 추가' 버튼
+        if (e.target.classList.contains('add-question-link-btn')) {
+            card.querySelector('.linked-questions-container').appendChild(createQuestionLinkRow());
+        }
+        // '연동 질문 삭제' 버튼
+        if (e.target.classList.contains('remove-question-link-btn')) {
+            e.target.closest('.linked-question-row').remove();
+        }
+        // '마일스톤 카드 삭제' 버튼
+        if (e.target.classList.contains('remove-milestone-btn')) {
+            card.remove();
         }
     });
 
@@ -130,17 +167,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // ★★★ [핵심 수정] 마일스톤 카드에 '현재 사용자 점수' 표시 추가 ★★★
+    // ★★★ [핵심 수정] 마일스톤 카드 생성 함수 (전체 재작성) ★★★
     function createMilestoneCard(milestone = {}) {
         const card = document.createElement('div');
         card.className = 'milestone-card';
         card.dataset.id = milestone.id || 'new';
-        
-        // 현재 점수를 표시할 텍스트 준비
-        const currentUserScoreText = milestone.linked_question_code && milestone.current_user_score !== null
-            ? `(현재 사용자 점수: <strong>${milestone.current_user_score}</strong>)`
-            : '';
 
+        // 1. 연동된 질문 목록 HTML 생성
+        let linkedQuestionsHtml = '';
+        if (milestone.linked_questions_with_scores && milestone.linked_questions_with_scores.length > 0) {
+            milestone.linked_questions_with_scores.forEach(q => {
+                linkedQuestionsHtml += createQuestionLinkRow(q.code, q.score);
+            });
+        } else {
+            linkedQuestionsHtml = createQuestionLinkRow(); // 기본으로 빈 칸 하나 생성
+        }
+
+        // 2. 카드 전체 HTML 구조
         card.innerHTML = `
             <div class="milestone-header">
                 <strong>마일스톤 상세 설정</strong>
@@ -148,29 +191,28 @@ document.addEventListener('DOMContentLoaded', async () => {
             </div>
             <div class="form-group">
                 <label>마일스톤 이름</label>
-                <input type="text" class="form-control milestone-name" placeholder="예: 1차 개선 보고서 제출" value="${milestone.milestone_name || ''}">
-            </div>
-            <div class="form-group-inline">
-                <div class="form-group">
-                    <label>추가 개선 점수</label>
-                    <input type="number" class="form-control milestone-score" value="${milestone.score_value || 0}">
-                </div>
-                <div class="form-group">
-                    <label>연동할 진단 문항 (선택) ${currentUserScoreText}</label> 
-                    <select class="form-control linked-question-code">
-                        <option value="">-- 문항 선택 --</option>
-                        ${Array.from({length: 16}, (_, i) => `<option value="S-Q${i+1}" ${milestone.linked_question_code === `S-Q${i+1}` ? 'selected' : ''}>S-Q${i+1}</option>`).join('')}
-                    </select>
-                </div>
+                <input type="text" class="form-control milestone-name" value="${milestone.milestone_name || ''}">
             </div>
             <div class="form-group">
+                <label>추가 개선 점수</label>
+                <input type="number" class="form-control milestone-score" value="${milestone.score_value || 0}">
+            </div>
+            
+            <!-- 연동 질문 섹션 -->
+            <div class="form-group">
+                <label>연동할 진단 문항 (여러 개 추가 가능)</label>
+                <div class="linked-questions-container">${linkedQuestionsHtml}</div>
+                <button type="button" class="button-secondary button-sm add-question-link-btn" style="margin-top: 5px;">+ 연동 질문 추가</button>
+            </div>
+
+            <div class="form-group">
                 <label>상세 내용 (사용자에게 보임)</label>
-                <textarea class="form-control milestone-content" rows="3" placeholder="사용자에게 안내할 내용을 입력하세요.">${milestone.content || ''}</textarea>
+                <textarea class="form-control milestone-content" rows="3">${milestone.content || ''}</textarea>
             </div>
             <div class="form-group">
                 <label>파일 첨부</label>
                 <input type="file" class="form-control milestone-attachment">
-                ${milestone.attachment_url ? `<p>현재 파일: <a href="${milestone.attachment_url}" target="_blank" style="word-break:break-all;">${milestone.attachment_url.split('/').pop()}</a></p>` : ''}
+                ${milestone.attachment_url ? `<p>현재 파일: <a href="${milestone.attachment_url}" target="_blank">${milestone.attachment_url.split('/').pop()}</a></p>` : ''}
             </div>
              <div class="form-group">
                 <label>표시 순서</label>
@@ -178,5 +220,30 @@ document.addEventListener('DOMContentLoaded', async () => {
             </div>
         `;
         milestoneList.appendChild(card);
+    }
+
+    // ★★★ [신규] 연동 질문 한 줄(row)을 만드는 헬퍼 함수 ★★★
+    function createQuestionLinkRow(selectedCode = '', score = null) {
+        const row = document.createElement('div');
+        row.className = 'linked-question-row form-group-inline';
+
+        // 전체 질문 목록으로 <option> 태그들을 만듦
+        const optionsHtml = allQuestionsCache.map(q => 
+            `<option value="${q.question_code}" ${selectedCode === q.question_code ? 'selected' : ''}>
+                ${q.question_code}: ${q.question_text}
+            </option>`
+        ).join('');
+
+        const scoreHtml = score !== null ? `<span class="current-score-display"> (현재 점수: <strong>${score}</strong>)</span>` : '';
+
+        row.innerHTML = `
+            <select class="form-control linked-question-code">
+                <option value="">-- 문항 선택 --</option>
+                ${optionsHtml}
+            </select>
+            <span class="score-container">${scoreHtml}</span>
+            <button type="button" class="button-danger button-sm remove-question-link-btn">X</button>
+        `;
+        return row;
     }
 });
