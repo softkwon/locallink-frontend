@@ -86,18 +86,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             const formData = new FormData();
             const milestonesData = [];
             let fileCounter = 0;
-            
+
             document.querySelectorAll('#milestone-list .milestone-card').forEach(card => {
                 const milestone = {
                     id: card.dataset.id,
                     milestone_name: card.querySelector('.milestone-name').value,
                     score_value: parseInt(card.querySelector('.milestone-score').value, 10) || 0,
+                    // ★★★ [핵심 수정] improvement_category 값을 form에서 읽어오도록 수정 ★★★
                     improvement_category: card.querySelector('.improvement-category').value,
                     content: card.querySelector('.milestone-content').value,
                     display_order: parseInt(card.querySelector('.milestone-order').value, 10) || 0,
                     attachment_url: card.querySelector('a')?.href || null
                 };
-                
                 const fileInput = card.querySelector('.milestone-attachment');
                 if (fileInput.files[0]) {
                     const placeholder = `file_${fileCounter++}`;
@@ -117,10 +117,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!res.ok) throw new Error(result.message);
             alert(result.message);
             await loadMilestones(currentApplicationId);
-
         } catch (error) {
             alert(`저장 실패: ${error.message}`);
-            console.error("마일스톤 저장 에러:", error);
         } finally {
             saveAllBtn.disabled = false;
             saveAllBtn.textContent = '모든 변경사항 저장';
