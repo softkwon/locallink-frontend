@@ -63,13 +63,13 @@ function renderScoreSection(data) {
     initialScoreDisplay.textContent = `${data.initialScores.total.toFixed(1)}점`;
     improvementScoreDisplay.textContent = `+${data.improvementScores.total.toFixed(1)}점`;
 
-    // 2. "진행 중"인 프로그램만 필터링 (★★★ '접수' 상태도 포함하도록 수정 ★★★)
+    // 2. "진행 중"인 프로그램만 필터링 (★★★ '진행' 상태만 포함하도록 수정 ★★★)
     const programsByCategory = { e: [], s: [], g: [] };
     const potentialByCategory = { e: 0, s: 0, g: 0 };
     if (data.programs) {
-        const activePrograms = data.programs.filter(p => ['접수', '진행'].includes(p.status));
+        const inProgressPrograms = data.programs.filter(p => p.status === '진행');
 
-        activePrograms.forEach(p => {
+        inProgressPrograms.forEach(p => {
             const category = (p.esg_category || '').toLowerCase();
             if (programsByCategory[category]) {
                 programsByCategory[category].push(p.program_title);
