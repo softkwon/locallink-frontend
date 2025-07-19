@@ -2,14 +2,44 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>맞춤 마일스톤 관리</title>
-    <link rel="stylesheet" href="css/admin_style.css">
+    <title>관리자 페이지 - ESG 프로그램 운영관리</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
     <style>
         .milestone-item { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
         .milestone-item input { flex-grow: 1; }
     </style>
 </head>
 <body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">
+                    <img src="/images/logo_admin.png" alt="LocalLink 로고" class="header-logo-img">
+                </a>
+            </div>
+            
+            <nav class="desktop-nav">
+                <ul>
+                    <li><a href="admin_programs.html">← 프로그램 목록으로 돌아가기</a></li>
+                </ul>
+            </nav>
+
+            <div class="header-right-group">
+                <div id="user-menu-container">
+                    </div>
+                <button id="mobile-menu-toggle" class="mobile-menu-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+
+        <div id="mobile-menu-overlay" class="mobile-menu-overlay"></div>
+        <div id="mobile-menu" class="mobile-menu">
+            </div>
+    </header>
     <div class="container">
         <h1>맞춤 마일스톤 관리</h1>
         <div class="form-group">
