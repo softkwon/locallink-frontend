@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         renderScoreSection(dashboardData);
         renderProgramCards(dashboardData.programs);
         
+        // 마일스톤 카드 클릭 시 세부 내용 보이기/숨기기 이벤트 리스너
         const container = document.getElementById('dashboard-container');
         if (container) {
             container.addEventListener('click', function(e) {
