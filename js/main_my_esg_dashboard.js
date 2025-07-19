@@ -16,108 +16,69 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (!result.success) throw new Error(result.message);
 
         const dashboardData = result.dashboard;
-
         renderScoreAndGauge(dashboardData);
         renderProgramCards(dashboardData.programs);
 
     } catch (error) {
         const container = document.getElementById('dashboard-container');
-        if(container) container.innerHTML = `<h3>진행 중인 프로그램</h3><p>데이터를 불러오는 중 오류가 발생했습니다: ${error.message}</p>`;
+        if(container) container.innerHTML = `<h3>진행 중인 프로그램</h3><p>${error.message}</p>`;
         console.error("대시보드 로딩 오류:", error);
     }
 });
 
-/**
- * 점수에 따른 등급, 설명, 색상을 반환하는 함수
- * @param {number} score - ESG 점수
- * @returns {object} - 등급, 설명, 색상 정보
- */
+// 점수에 따른 등급, 설명 반환 함수
 function getRiskLevelInfo(score) {
-    if (score >= 80) return { level: '우수', description: 'ESG 경영 수준이 매우 높아, 지속가능한 성장의 기회가 많습니다.', color: '#28a745' };
-    if (score >= 60) return { level: '양호', description: 'ESG 경영 관리가 양호한 수준이나, 일부 개선이 필요합니다.', color: '#17a2b8' };
-    if (score >= 40) return { level: '보통', description: 'ESG 관련 리스크 관리를 위한 개선 노력이 필요합니다.', color: '#ffc107' };
-    return { level: '미흡', description: 'ESG 관련 규제 및 시장 요구에 대응하기 위한 적극적인 개선이 시급합니다.', color: '#dc3545' };
+    if (score >= 80) return { level: '우수', description: 'ESG 경영 수준이 매우 높아, 지속가능한 성장의 기회가 많습니다.'};
+    if (score >= 60) return { level: '양호', description: 'ESG 경영 관리가 양호한 수준이나, 일부 개선이 필요합니다.'};
+    if (score >= 40) return { level: '보통', description: 'ESG 관련 리스크 관리를 위한 개선 노력이 필요합니다.'};
+    return { level: '미흡', description: 'ESG 관련 규제 및 시장 요구에 대응하기 위한 적극적인 개선이 시급합니다.'};
 }
 
-/**
- * 점수와 위험도 계기판을 화면에 그리는 함수
- * @param {object} data - 대시보드 전체 데이터
- */
+// 점수 및 계기판 렌더링 함수
 function renderScoreAndGauge(data) {
     const gaugeContainer = document.getElementById('gauge-container');
     const gaugeElement = document.getElementById('realtime-score-gauge');
-    const scoreTextElement = document.getElementById('realtime-score-text');
-    const initialScoreElement = document.getElementById('initial-score');
-    const improvementScoreElement = document.getElementById('improvement-score');
     const riskTitleElement = document.getElementById('risk-level-title');
     const riskDescElement = document.getElementById('risk-level-description');
-    const tooltipElement = document.getElementById('gauge-tooltip');
+    const esgScoresContainer = document.getElementById('esg-scores-container');
 
-    if (!gaugeContainer) return;
+    if (!gaugeContainer || !esgScoresContainer) return;
 
-    const score = data.realtimeScore || 0;
-    const riskInfo = getRiskLevelInfo(score);
+    const scores = data.realtimeScores;
+    const riskInfo = getRiskLevelInfo(scores.total);
 
-    // 1. 위험도 설명 및 점수 텍스트 표시
+    // 1. 위험도 등급 및 설명 표시
     riskTitleElement.textContent = `${riskInfo.level} 등급`;
-    riskTitleElement.style.color = riskInfo.color;
     riskDescElement.textContent = riskInfo.description;
-    scoreTextElement.textContent = `${score.toFixed(1)}점`;
-    initialScoreElement.textContent = (data.initialScore || 0).toFixed(1);
-    improvementScoreElement.textContent = `+${data.improvementScore || 0}`;
 
-    // 2. ApexCharts 라이브러리로 계기판 그리기
+    // 2. E, S, G 개별 점수 표시
+    esgScoresContainer.innerHTML = `
+        <div class="score-item"><span class="color-dot e"></span>환경(E): <strong>${scores.e.toFixed(1)}</strong>점</div>
+        <div class="score-item"><span class="color-dot s"></span>사회(S): <strong>${scores.s.toFixed(1)}</strong>점</div>
+        <div class="score-item"><span class="color-dot g"></span>지배구조(G): <strong>${scores.g.toFixed(1)}</strong>점</div>
+    `;
+
+    // 3. ApexCharts 도넛 차트로 계기판 그리기
     if (typeof ApexCharts !== 'undefined') {
         const options = {
-            series: [score],
-            chart: { type: 'radialBar', height: 250 },
-            plotOptions: { radialBar: { hollow: { size: '60%' }, dataLabels: { show: false } } },
-            stroke: { lineCap: 'round' },
-            labels: ['실시간 점수'],
-            colors: [riskInfo.color]
+            series: [scores.e, scores.s, scores.g],
+            chart: { type: 'donut', height: 280 },
+            labels: ['환경(E)', '사회(S)', '지배구조(G)'],
+            colors: ['#28a745', '#007bff', '#6f42c1'], // E, S, G 대표 색상
+            plotOptions: { pie: { donut: { labels: { show: true, total: { show: true, label: '총점', formatter: () => `${scores.total.toFixed(1)}점` } } } } },
+            legend: { show: false },
+            responsive: [{ breakpoint: 480, options: { chart: { width: 200 } } }]
         };
         
         gaugeElement.innerHTML = '';
         const chart = new ApexCharts(gaugeElement, options);
         chart.render();
-
-        // 3. 마우스 오버 시 예상 점수 계산 및 표시 기능
-        let potentialImprovement = 0;
-        if (data.programs) {
-            data.programs.forEach(program => {
-                if (program.timeline) {
-                    program.timeline.forEach(milestone => {
-                        if (!milestone.isCompleted) {
-                            potentialImprovement += milestone.scoreValue || 0;
-                        }
-                    });
-                }
-            });
-        }
-        const expectedScore = score + potentialImprovement;
-
-        gaugeContainer.addEventListener('mouseenter', () => {
-            if (potentialImprovement > 0) {
-                chart.updateSeries([expectedScore]);
-                tooltipElement.innerHTML = `모든 프로그램 완료 시<br><strong>${expectedScore.toFixed(1)}점</strong> 예상`;
-                tooltipElement.style.opacity = 1;
-            }
-        });
-
-        gaugeContainer.addEventListener('mouseleave', () => {
-            chart.updateSeries([score]);
-            tooltipElement.style.opacity = 0;
-        });
-
     } else {
         console.warn('ApexCharts 라이브러리가 로드되지 않았습니다.');
     }
 }
 
-/**
- * 프로그램 카드 전체를 그리는 함수 (모든 기능 통합)
- * @param {Array} programs - 사용자가 신청한 프로그램 목록
- */
+// 프로그램 카드 렌더링 함수
 function renderProgramCards(programs) {
     const container = document.getElementById('dashboard-container');
     if (!container) return;
@@ -168,11 +129,24 @@ function renderProgramCards(programs) {
                 </table>`;
         }
         
-        // --- 3. 최종 카드 HTML 조합 ---
+        // --- 3. 프로그램별 예상 개선 점수 표시 HTML 생성 ---
+        const improvement = program.potentialImprovement;
+        let improvementHtml = '';
+        if (improvement && improvement.total > 0) {
+            const e_imp = improvement.e > 0 ? `<span class="imp-e">+${improvement.e.toFixed(1)}</span>` : '';
+            const s_imp = improvement.s > 0 ? `<span class="imp-s">+${improvement.s.toFixed(1)}</span>` : '';
+            const g_imp = improvement.g > 0 ? `<span class="imp-g">+${improvement.g.toFixed(1)}</span>` : '';
+            improvementHtml = `<div class="improvement-preview"><strong>완료 시 개선 예상:</strong> ${e_imp} ${s_imp} ${g_imp}</div>`;
+        }
+
+        // --- 4. 최종 카드 HTML 조합 ---
         const card = document.createElement('div');
         card.className = 'program-status-card';
         card.innerHTML = `
-            <div class="card-header"><h4>${program.program_title}</h4></div>
+            <div class="card-header">
+                <h4>${program.program_title}</h4>
+                ${improvementHtml} 
+            </div>
             <div class="card-body">
                 ${program.admin_message ? `<div class="admin-message"><strong>담당자 메시지:</strong> ${program.admin_message}</div>` : ''}
                 <h5>전체 진행 상태</h5>
