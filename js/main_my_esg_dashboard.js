@@ -17,9 +17,9 @@ document.addEventListener('DOMContentLoaded', async function() {
 
         const dashboardData = result.dashboard;
 
-        // ★★★ 수정: customizedPrograms 대신 activePrograms를 사용하도록 변경 ★★★
+        // ★★★ 수정: activePrograms -> customizedPrograms 로 올바르게 변경 ★★★
         renderScoreAndGauge(dashboardData);
-        renderCustomizedTimelines(dashboardData.activePrograms); // 이 부분 수정
+        renderCustomizedTimelines(dashboardData.customizedPrograms); // 이 부분 수정
         renderAllApplicationsList(dashboardData.allApplications);
 
     } catch (error) {
@@ -62,7 +62,7 @@ function renderScoreAndGauge(data) {
     if (typeof ApexCharts !== 'undefined') {
         const options = {
             series: [score],
-            chart: { type: 'radialBar', height: 250, events: {} }, // events 객체 초기화
+            chart: { type: 'radialBar', height: 250, events: {} },
             plotOptions: { radialBar: { hollow: { size: '60%' }, dataLabels: { show: false } } },
             stroke: { lineCap: 'round' },
             labels: ['실시간 점수'],
@@ -73,10 +73,10 @@ function renderScoreAndGauge(data) {
         const chart = new ApexCharts(gaugeElement, options);
         chart.render();
 
-        // ★★★ 수정: 마우스 오버 로직 안정성 강화 ★★★
+        // ★★★ 수정: activePrograms -> customizedPrograms 로 올바르게 변경 ★★★
         let potentialImprovement = 0;
-        if (data.activePrograms) { // customizedPrograms 대신 activePrograms 사용
-            data.activePrograms.forEach(program => {
+        if (data.customizedPrograms) { // 이 부분 수정
+            data.customizedPrograms.forEach(program => {
                 if (program.timeline) {
                     program.timeline.forEach(milestone => {
                         if (!milestone.isCompleted) {
@@ -88,7 +88,7 @@ function renderScoreAndGauge(data) {
         }
         const expectedScore = score + potentialImprovement;
 
-        gaugeContainer.addEventListener('mouseenter', () => { // mouseover 대신 mouseenter 사용
+        gaugeContainer.addEventListener('mouseenter', () => {
             if (potentialImprovement > 0) {
                 chart.updateSeries([expectedScore]);
                 tooltipElement.innerHTML = `모든 프로그램 완료 시<br><strong>${expectedScore.toFixed(1)}점</strong> 예상`;
@@ -96,7 +96,7 @@ function renderScoreAndGauge(data) {
             }
         });
 
-        gaugeContainer.addEventListener('mouseleave', () => { // mouseout 대신 mouseleave 사용
+        gaugeContainer.addEventListener('mouseleave', () => {
             chart.updateSeries([score]);
             tooltipElement.style.opacity = 0;
         });
