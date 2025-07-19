@@ -51,7 +51,10 @@ function renderScoreSection(data) {
     const initialScoreDisplay = document.getElementById('initial-score-display');
     const improvementScoreDisplay = document.getElementById('improvement-score-display');
 
-    if (!gaugeElement || !tableContainer || !initialScoreDisplay || !improvementScoreDisplay) return;
+    if (!gaugeElement || !tableContainer || !initialScoreDisplay || !improvementScoreDisplay) {
+        console.error("대시보드 UI의 필수 요소(element)를 찾을 수 없습니다. HTML 구조를 확인해주세요.");
+        return;
+    }
 
     const scores = data.realtimeScores;
     const riskInfo = getRiskLevelInfo(scores.total);
