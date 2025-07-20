@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     if (!token) {
         alert('로그인이 필요합니다.');
         window.location.href = 'main_login.html';
-        return;
+        return
     }
 
     try {
@@ -19,7 +19,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         renderScoreSection(dashboardData);
         renderProgramCards(dashboardData.programs);
         
-        // 마일스톤 카드 클릭 시 세부 내용 보이기/숨기기 이벤트 리스너
         const container = document.getElementById('dashboard-container');
         if (container) {
             container.addEventListener('click', function(e) {
@@ -66,25 +65,16 @@ function renderScoreSection(data) {
 
     // 2. "진행 중"인 프로그램만 필터링 (★★★ '접수'와 '진행' 상태 모두 포함 ★★★)
     const programsByCategory = { e: [], s: [], g: [] };
-    const potentialByCategory = { e: 0, s: 0, g: 0 };
     if (data.programs) {
         const activePrograms = data.programs.filter(p => ['접수', '진행'].includes(p.status));
 
         activePrograms.forEach(p => {
             const category = (p.esg_category || '').toLowerCase();
             if (programsByCategory[category]) {
-                // 중복되지 않게 프로그램 이름 추가
                 if (!programsByCategory[category].includes(p.program_title)) {
                     programsByCategory[category].push(p.program_title);
                 }
             }
-        });
-
-        // 예상 개선 점수는 모든 프로그램에 대해 계산
-        data.programs.forEach(p => {
-            potentialByCategory.e += p.potentialImprovement.e;
-            potentialByCategory.s += p.potentialImprovement.s;
-            potentialByCategory.g += p.potentialImprovement.g;
         });
     }
 
@@ -104,7 +94,8 @@ function renderScoreSection(data) {
             <tbody>
     `;
     for (const cat in categories) {
-        const expectedScore = scores[cat] + potentialByCategory[cat];
+        // ★★★ 백엔드에서 계산해준 예상 점수(expectedScores)를 사용 ★★★
+        const expectedScore = data.expectedScores[cat]; 
         const expectedGrade = getRiskLevelInfo(expectedScore).level;
         tableHtml += `
             <tr>
