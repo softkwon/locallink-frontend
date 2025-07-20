@@ -52,17 +52,8 @@ function renderScoreSection(data) {
     const initialScoreDisplay = document.getElementById('initial-score-display');
     const improvementScoreDisplay = document.getElementById('improvement-score-display');
 
-    // 필수 HTML 요소가 없으면 함수를 중단하여 오류를 방지합니다.
     if (!gaugeElement || !tableContainer || !initialScoreDisplay || !improvementScoreDisplay) {
         console.error("대시보드 UI의 필수 요소(element)를 찾을 수 없습니다. HTML 구조를 확인해주세요.");
-        return;
-    }
-
-    // API 응답 데이터가 유효한지 확인합니다.
-    if (!data || !data.realtimeScores || !data.initialScores || !data.improvementScores || !data.expectedScores) {
-        console.error("API로부터 유효한 점수 데이터를 받지 못했습니다.");
-        // 사용자에게 보여줄 에러 메시지를 테이블에 표시할 수 있습니다.
-        tableContainer.innerHTML = '<p>점수 정보를 불러오는 데 실패했습니다.</p>';
         return;
     }
 
@@ -73,15 +64,27 @@ function renderScoreSection(data) {
     initialScoreDisplay.textContent = `${data.initialScores.total.toFixed(1)}점`;
     improvementScoreDisplay.textContent = `+${data.improvementScores.total.toFixed(1)}점`;
 
-    // 2. "진행 중"인 프로그램만 필터링
+    // 2. "진행 중"인 프로그램만 필터링 (★★★ '접수'와 '진행' 상태 모두 포함 ★★★)
     const programsByCategory = { e: [], s: [], g: [] };
+    const potentialByCategory = { e: 0, s: 0, g: 0 };
     if (data.programs) {
         const activePrograms = data.programs.filter(p => ['접수', '진행'].includes(p.status));
+
         activePrograms.forEach(p => {
             const category = (p.esg_category || '').toLowerCase();
-            if (programsByCategory[category] && !programsByCategory[category].includes(p.program_title)) {
-                programsByCategory[category].push(p.program_title);
+            if (programsByCategory[category]) {
+                // 중복되지 않게 프로그램 이름 추가
+                if (!programsByCategory[category].includes(p.program_title)) {
+                    programsByCategory[category].push(p.program_title);
+                }
             }
+        });
+
+        // 예상 개선 점수는 모든 프로그램에 대해 계산
+        data.programs.forEach(p => {
+            potentialByCategory.e += p.potentialImprovement.e;
+            potentialByCategory.s += p.potentialImprovement.s;
+            potentialByCategory.g += p.potentialImprovement.g;
         });
     }
 
@@ -101,7 +104,7 @@ function renderScoreSection(data) {
             <tbody>
     `;
     for (const cat in categories) {
-        const expectedScore = data.expectedScores[cat]; 
+        const expectedScore = scores[cat] + potentialByCategory[cat];
         const expectedGrade = getRiskLevelInfo(expectedScore).level;
         tableHtml += `
             <tr>
