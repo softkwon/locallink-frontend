@@ -49,91 +49,104 @@ function getRiskLevelInfo(score) {
 function renderScoreSection(data) {
     const gaugeElement = document.getElementById('realtime-score-gauge');
     const tableContainer = document.getElementById('score-details-table');
-    const initialScoreDisplay = document.getElementById('initial-score-display');
-    const improvementScoreDisplay = document.getElementById('improvement-score-display');
-
-    if (!gaugeElement || !tableContainer || !initialScoreDisplay || !improvementScoreDisplay) {
+    
+    if (!gaugeElement || !tableContainer) {
         console.error("대시보드 UI의 필수 요소(element)를 찾을 수 없습니다. HTML 구조를 확인해주세요.");
         return;
     }
 
-    const scores = data.realtimeScores;
-    const riskInfo = getRiskLevelInfo(scores.total);
+    const QUESTION_COUNTS = { e: 4, s: 6, g: 6 };
+    const currentScores = data.realtimeScores;
+    const rawTotalScores = data.rawTotalScores || {
+        e: currentScores.e * QUESTION_COUNTS.e,
+        s: currentScores.s * QUESTION_COUNTS.s,
+        g: currentScores.g * QUESTION_COUNTS.g
+    };
 
-    // 1. 최초/개선 점수 표시
-    initialScoreDisplay.textContent = `${data.initialScores.total.toFixed(1)}점`;
-    improvementScoreDisplay.textContent = `+${data.improvementScores.total.toFixed(1)}점`;
-
-    // 2. "진행 중"인 프로그램만 필터링 (★★★ '접수'와 '진행' 상태 모두 포함 ★★★)
-    const programsByCategory = { e: [], s: [], g: [] };
     const potentialByCategory = { e: 0, s: 0, g: 0 };
+    const activeProgramsForTable = [];
     if (data.programs) {
         const activePrograms = data.programs.filter(p => ['접수', '진행'].includes(p.status));
-
         activePrograms.forEach(p => {
             const category = (p.esg_category || '').toLowerCase();
-            if (programsByCategory[category]) {
-                // 중복되지 않게 프로그램 이름 추가
-                if (!programsByCategory[category].includes(p.program_title)) {
-                    programsByCategory[category].push(p.program_title);
+            if (potentialByCategory.hasOwnProperty(category)) {
+                potentialByCategory[category] += p.potentialImprovement[category] || 0;
+                if (!activeProgramsForTable.find(item => item.category === category && item.title === p.program_title)) {
+                    activeProgramsForTable.push({ category, title: p.program_title });
                 }
             }
         });
-
-        // 예상 개선 점수는 모든 프로그램에 대해 계산
-        data.programs.forEach(p => {
-            potentialByCategory.e += p.potentialImprovement.e;
-            potentialByCategory.s += p.potentialImprovement.s;
-            potentialByCategory.g += p.potentialImprovement.g;
-        });
     }
 
-    // 3. 점수 분석 테이블 HTML 생성
+    const expectedScoreByCategory = {};
+    const improvementScoreByCategory = {};
+
+    for (const cat in QUESTION_COUNTS) {
+        const futureRawTotal = (rawTotalScores[cat] || 0) + (potentialByCategory[cat] || 0);
+        expectedScoreByCategory[cat] = futureRawTotal / QUESTION_COUNTS[cat];
+        improvementScoreByCategory[cat] = expectedScoreByCategory[cat] - currentScores[cat];
+    }
+    
+    // 점수 분석 테이블 HTML 생성 
     const categories = { e: '환경(E)', s: '사회(S)', g: '지배구조(G)' };
     let tableHtml = `
         <table class="score-table">
             <thead>
                 <tr>
-                    <th>구분</th>
-                    <th>내 점수</th>
-                    <th>신청 프로그램 (진행 중)</th>
-                    <th>개선 점수</th>
-                    <th>예상 점수</th>
+                    <th>구분</th><th>내 점수</th><th>신청 프로그램 (진행 중)</th><th>개선 점수</th><th>예상 점수</th>
                 </tr>
             </thead>
             <tbody>
     `;
     for (const cat in categories) {
-        const expectedScore = scores[cat] + potentialByCategory[cat];
+        const expectedScore = expectedScoreByCategory[cat];
         const expectedGrade = getRiskLevelInfo(expectedScore).level;
+        const improvementScore = improvementScoreByCategory[cat];
+        const programsForCategory = activeProgramsForTable.filter(p => p.category === cat).map(p => `<li>${p.title}</li>`).join('');
+
         tableHtml += `
             <tr>
                 <td class="category-header">${categories[cat]}</td>
-                <td><strong>${scores[cat].toFixed(1)}점</strong></td>
-                <td>
-                    <ul class="program-list">
-                        ${programsByCategory[cat].length > 0 ? programsByCategory[cat].map(title => `<li>${title}</li>`).join('') : '<li>-</li>'}
-                    </ul>
-                </td>
-                <td><span class="imp-score">+${data.improvementScores[cat].toFixed(1)}점</span></td>
-                <td>
-                    <strong>${expectedScore.toFixed(1)}점</strong>
-                    <span class="expected-grade">(${expectedGrade} 등급)</span>
-                </td>
+                <td><strong>${currentScores[cat].toFixed(1)}점</strong></td>
+                <td><ul class="program-list">${programsForCategory.length > 0 ? programsForCategory : '<li>-</li>'}</ul></td>
+                <td><span class="imp-score">+${improvementScore.toFixed(1)}점</span></td>
+                <td><strong>${expectedScore.toFixed(1)}점</strong><span class="expected-grade">(${expectedGrade} 등급)</span></td>
             </tr>
         `;
     }
     tableHtml += `</tbody></table>`;
     tableContainer.innerHTML = tableHtml;
 
-    // 4. ApexCharts 도넛 차트 그리기
+    // ApexCharts 도넛 차트 그리기
     if (typeof ApexCharts !== 'undefined') {
         const options = {
-            series: [scores.e, scores.s, scores.g],
+            series: [currentScores.e, currentScores.s, currentScores.g],
             chart: { type: 'donut', height: 280 },
             labels: ['환경(E)', '사회(S)', '지배구조(G)'],
             colors: ['#28a745', '#007bff', '#6f42c1'],
-            plotOptions: { pie: { donut: { labels: { show: true, total: { show: true, label: '총점', formatter: () => `${scores.total.toFixed(1)}점` } } } } },
+            // 🚨 [1번 요청] plotOptions를 수정하여 차트의 '%'를 '점'으로 변경
+            plotOptions: {
+                pie: {
+                    donut: {
+                        labels: {
+                            show: true,
+                            // value formatter를 추가해 각 항목의 값을 점수로 표시
+                            value: {
+                                show: true,
+                                formatter: function (val) {
+                                    return `${parseFloat(val).toFixed(1)}점`;
+                                }
+                            },
+                            // 중앙의 총점은 기존과 동일하게 표시
+                            total: {
+                                show: true,
+                                label: '총점',
+                                formatter: () => `${currentScores.total.toFixed(1)}점`
+                            }
+                        }
+                    }
+                }
+            },
             legend: { show: false },
             tooltip: { y: { formatter: (val) => `${val.toFixed(1)}점` } },
             responsive: [{ breakpoint: 480, options: { chart: { width: 200 } } }]
