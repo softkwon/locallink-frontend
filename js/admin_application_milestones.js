@@ -82,6 +82,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!currentApplicationId) return;
         saveAllBtn.disabled = true;
         saveAllBtn.textContent = '저장 중...';
+
         try {
             const formData = new FormData();
             const milestonesData = [];
@@ -92,31 +93,47 @@ document.addEventListener('DOMContentLoaded', async () => {
                     id: card.dataset.id,
                     milestone_name: card.querySelector('.milestone-name').value,
                     score_value: parseInt(card.querySelector('.milestone-score').value, 10) || 0,
-                    // ★★★ [핵심 수정] improvement_category 값을 form에서 읽어오도록 수정 ★★★
                     improvement_category: card.querySelector('.improvement-category').value,
                     content: card.querySelector('.milestone-content').value,
                     display_order: parseInt(card.querySelector('.milestone-order').value, 10) || 0,
-                    attachment_url: card.querySelector('a')?.href || null
+                    // 기존 파일 URL도 함께 전송
+                    image_url: card.querySelector('a[href*="'+ (card.querySelector('.milestone-image')?.nextElementSibling?.querySelector('a')?.href || 'none') +'"]')?.href || null,
+                    attachment_url: card.querySelector('a[href*="'+ (card.querySelector('.milestone-attachment')?.nextElementSibling?.querySelector('a')?.href || 'none') +'"]')?.href || null
                 };
-                const fileInput = card.querySelector('.milestone-attachment');
-                if (fileInput.files[0]) {
-                    const placeholder = `file_${fileCounter++}`;
-                    formData.append(placeholder, fileInput.files[0]);
-                    milestone.filePlaceholder = placeholder;
+
+                // 👇 1. 이미지 파일 처리
+                const imageInput = card.querySelector('.milestone-image');
+                if (imageInput.files[0]) {
+                    const imagePlaceholder = `image_${fileCounter}`;
+                    formData.append(imagePlaceholder, imageInput.files[0]);
+                    milestone.imagePlaceholder = imagePlaceholder;
                 }
+
+                // 👇 2. 첨부 문서 파일 처리
+                const attachmentInput = card.querySelector('.milestone-attachment');
+                if (attachmentInput.files[0]) {
+                    const attachmentPlaceholder = `attachment_${fileCounter}`;
+                    formData.append(attachmentPlaceholder, attachmentInput.files[0]);
+                    milestone.attachmentPlaceholder = attachmentPlaceholder;
+                }
+                
+                fileCounter++;
                 milestonesData.push(milestone);
             });
 
             formData.append('milestonesData', JSON.stringify(milestonesData));
+
             const res = await fetch(`${API_BASE_URL}/admin/applications/${currentApplicationId}/milestones/batch-update`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` },
                 body: formData
             });
+
             const result = await res.json();
             if (!res.ok) throw new Error(result.message);
             alert(result.message);
             await loadMilestones(currentApplicationId);
+
         } catch (error) {
             alert(`저장 실패: ${error.message}`);
         } finally {
@@ -149,6 +166,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const card = document.createElement('div');
         card.className = 'milestone-card';
         card.dataset.id = milestone.id || 'new';
+
+        // [수정] '이미지 첨부'와 '파일 첨부' UI를 추가하고 순서를 정리합니다.
         card.innerHTML = `
             <div class="milestone-header">
                 <strong>마일스톤 상세 설정</strong>
@@ -173,16 +192,24 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <input type="number" class="form-control milestone-score" value="${milestone.score_value || 0}">
                 </div>
             </div>
+
+            <div class="form-group">
+                <label>이미지 첨부 (사용자에게 보일 대표 이미지)</label>
+                <input type="file" class="form-control milestone-image" accept="image/*">
+                ${milestone.image_url ? `<p>현재 이미지: <a href="${milestone.image_url}" target="_blank">${milestone.image_url.split('/').pop()}</a></p>` : ''}
+            </div>
+
             <div class="form-group">
                 <label>상세 내용 (사용자에게 보임)</label>
                 <textarea class="form-control milestone-content" rows="3">${milestone.content || ''}</textarea>
             </div>
+
             <div class="form-group">
-                <label>파일 첨부</label>
+                <label>문서 첨부 (다운로드용 파일)</label>
                 <input type="file" class="form-control milestone-attachment">
                 ${milestone.attachment_url ? `<p>현재 파일: <a href="${milestone.attachment_url}" target="_blank">${milestone.attachment_url.split('/').pop()}</a></p>` : ''}
             </div>
-             <div class="form-group">
+            <div class="form-group">
                 <label>표시 순서</label>
                 <input type="number" class="form-control milestone-order" value="${milestone.display_order || 0}">
             </div>

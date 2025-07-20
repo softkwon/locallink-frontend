@@ -34,9 +34,99 @@
         .step-line { flex-grow: 1; height: 4px; background-color: #e9ecef; margin: 13px 0; }
         .step.completed + .step-line { background-color: #007bff; }
 
-        .milestones-wrapper { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 15px; }
-        .milestone-box { cursor: pointer; border: 1px solid #ddd; border-radius: 8px; padding: 15px; min-width: 220px; background: #fff; transition: all 0.2s ease; }
-        .milestone-box.completed { border-left: 5px solid #28a745; background-color: #f8f9fa; }
+        /* === [수정] 마일스톤 박스 스타일 === */
+        .milestones-wrapper {
+            display: grid; /* 가로 스크롤 대신 바둑판 모양으로 변경 */
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+        .milestone-box {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden; /* 이미지가 둥근 모서리를 넘어가지 않도록 */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex; /* 내부 요소 정렬을 위해 추가 */
+            flex-direction: column; /* 내부 요소를 세로로 쌓음 */
+        }
+        .milestone-box.completed { 
+            border-left: 5px solid #28a745; 
+        }
+        .milestone-preview-image {
+            width: 100%;
+            height: 150px;
+            background-size: cover;
+            background-position: center;
+            background-color: #f0f0f0;
+        }
+        .milestone-preview-content {
+            padding: 1rem;
+            flex-grow: 1; /* 남는 공간을 모두 차지하도록 */
+            display: flex;
+            flex-direction: column;
+        }
+        .milestone-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        .milestone-summary {
+            font-size: 0.9rem;
+            color: #666;
+            margin: 0.5rem 0;
+            flex-grow: 1; /* 버튼을 항상 맨 아래에 위치시키기 위해 */
+        }
+        .milestone-actions {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+
+
+        /* === [추가] 모달 스타일 === */
+        .modal {
+            display: none; 
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: 10% auto;
+            padding: 30px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 8px;
+            position: relative;
+            animation: fadeIn 0.3s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .modal-close-btn {
+            color: #aaa;
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .modal-image {
+            width: 100%;
+            max-height: 300px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
         .milestone-header { display: flex; justify-content: space-between; font-weight: bold; }
         .milestone-details { display: none; margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px; }
         .milestone-details.visible { display: block; } /* JS로 이 클래스를 토글 */
@@ -117,5 +207,14 @@
     <script type="module" src="js/auth.js" defer></script>
     <script type="module" src="js/admin_common.js" defer></script> 
     <script type="module" src="js/main_my_esg_dashboard.js" defer></script>
+
+    <div id="milestone-modal" class="modal">
+            <div class="modal-content">
+                <span class="modal-close-btn">&times;</span>
+                <div id="modal-details-content">
+                    </div>
+            </div>
+        </div>
+
 </body>
 </html>

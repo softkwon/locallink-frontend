@@ -19,17 +19,39 @@ document.addEventListener('DOMContentLoaded', async function() {
         renderScoreSection(dashboardData);
         renderProgramCards(dashboardData.programs);
         
-        // 마일스톤 카드 클릭 시 세부 내용 보이기/숨기기 이벤트 리스너
-        const container = document.getElementById('dashboard-container');
-        if (container) {
-            container.addEventListener('click', function(e) {
-                const milestoneHeader = e.target.closest('.milestone-header');
-                if (milestoneHeader) {
-                    const details = milestoneHeader.nextElementSibling;
-                    details.classList.toggle('visible');
+        // 👇 [추가할 부분 시작] 모달 제어 이벤트 리스너 👇
+        const modal = document.getElementById('milestone-modal');
+        const modalContent = document.getElementById('modal-details-content');
+        const closeModalBtn = document.querySelector('.modal-close-btn');
+
+        if (modal) {
+            // 모달 닫기 버튼
+            closeModalBtn.addEventListener('click', () => modal.style.display = 'none');
+            // 모달 바깥 클릭 시 닫기
+            window.addEventListener('click', (e) => {
+                if (e.target == modal) {
+                    modal.style.display = 'none';
                 }
             });
-        }
+
+            // '자세히 보기' 버튼 클릭 시
+            const container = document.getElementById('dashboard-container');
+            container.addEventListener('click', function(e) {
+                if (e.target.classList.contains('open-milestone-modal')) {
+                    const progIdx = e.target.dataset.programIndex;
+                    const mileIdx = e.target.dataset.milestoneIndex;
+                    const milestone = dashboardData.programs[progIdx].timeline[mileIdx];
+
+                    modalContent.innerHTML = `
+                        <h2>${milestone.milestone_name}</h2>
+                        ${milestone.image_url ? `<img src="${milestone.image_url}" alt="${milestone.milestone_name}" class="modal-image">` : ''}
+                        <p>${milestone.content || '상세 내용이 없습니다.'}</p>
+                        ${milestone.attachment_url ? `<a href="${milestone.attachment_url}" target="_blank" download class="button button-primary">첨부 문서 다운로드</a>` : ''}
+                    `;
+                    modal.style.display = 'block';
+                }
+            });
+        }        
 
     } catch (error) {
         const container = document.getElementById('dashboard-container');
@@ -176,24 +198,27 @@ function renderProgramCards(programs) {
 
         let milestonesHtml = '';
         if ((program.status === '진행' || program.status === '완료') && program.timeline && program.timeline.length > 0) {
+            // [수정] 마일스톤을 박스 형태로 렌더링
             milestonesHtml = `
                 <h5 class="milestone-section-title">세부 진행 내용</h5>
                 <div class="milestones-wrapper">
-                    ${program.timeline.map(milestone => `
+                    ${program.timeline.map((milestone, index) => `
                         <div class="milestone-box ${milestone.is_completed ? 'completed' : ''}">
-                            <div class="milestone-header">
+                            <div class="milestone-preview-image" style="background-image: url('${milestone.image_url || 'placeholder.jpg'}')"></div>
+                            <div class="milestone-preview-content">
                                 <span class="milestone-title">${milestone.milestone_name}</span>
-                                <span class="milestone-status">${milestone.is_completed ? '✔ 완료' : '진행중'}</span>
-                            </div>
-                            <div class="milestone-details">
-                                <p>${milestone.content || '세부 내용이 없습니다.'}</p>
-                                ${milestone.attachment_url ? `<a href="${milestone.attachment_url}" target="_blank" download>자료 다운로드</a>` : ''}
+                                <p class="milestone-summary">${(milestone.content || '').substring(0, 40)}...</p>
+                                <div class="milestone-actions">
+                                    ${milestone.attachment_url ? `<a href="${milestone.attachment_url}" target="_blank" download class="button-sm">자료 다운로드</a>` : ''}
+                                    <button class="button-sm button-primary open-milestone-modal" data-program-index="${programs.indexOf(program)}" data-milestone-index="${index}">자세히 보기</button>
+                                </div>
                             </div>
                         </div>
                     `).join('')}
                 </div>`;
         }
         
+        // ... (improvementHtml 로직은 기존과 동일) ...
         const improvement = program.potentialImprovement;
         let improvementHtml = '';
         if (improvement && improvement.total > 0) {
@@ -202,6 +227,7 @@ function renderProgramCards(programs) {
             const g_imp = improvement.g > 0 ? `<span class="imp-g" title="지배구조 점수 ${improvement.g.toFixed(1)}점 개선">+${improvement.g.toFixed(1)}</span>` : '';
             improvementHtml = `<div class="improvement-preview"><strong>완료 시 개선 예상:</strong> ${e_imp} ${s_imp} ${g_imp}</div>`;
         }
+
 
         const card = document.createElement('div');
         card.className = 'program-status-card';
