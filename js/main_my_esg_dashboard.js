@@ -12,21 +12,20 @@ document.addEventListener('DOMContentLoaded', async function() {
         // 대시보드 정보와 규제 정보를 동시에 요청합니다.
         const [dashboardRes, regulationsRes] = await Promise.all([
             fetch(`${API_BASE_URL}/users/me/dashboard`, { headers: { 'Authorization': `Bearer ${token}` } }),
-            // ✅ [핵심 수정] API 주소의 오타를 수정합니다.
-            fetch(`${API_BASE_URL}/regulations`, { headers: { 'Authorization': `Bearer ${token}` } })
+            // ✅ [핵심 수정] API 주소에 '/admin'을 추가합니다.
+            fetch(`${API_BASE_URL}/admin/regulations`, { headers: { 'Authorization': `Bearer ${token}` } })
         ]);
 
         // 1. 대시보드 데이터 처리
         const dashboardResult = await dashboardRes.json();
         if (!dashboardResult.success) {
-            // 대시보드 로딩 실패 시, 진행중인 프로그램 섹션에 메시지 표시
             document.getElementById('dashboard-container').innerHTML = `<h3>진행 중인 프로그램</h3><p>${dashboardResult.message || '데이터를 불러오는 데 실패했습니다.'}</p>`;
         } else {
             const dashboardData = dashboardResult.dashboard;
             renderScoreSection(dashboardData);
             renderProgramCards(dashboardData.programs);
 
-            // 모달 제어 로직은 성공 시에만 설정
+            // 모달 제어 로직
             const modal = document.getElementById('milestone-modal');
             const modalContent = document.getElementById('modal-details-content');
             const closeModalBtn = document.querySelector('.modal-close-btn');
