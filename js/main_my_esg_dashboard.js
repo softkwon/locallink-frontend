@@ -260,18 +260,17 @@ function renderRegulationTimeline(regulations) {
         container.innerHTML = '<p>현재 등록된 규제 정보가 없습니다.</p>';
         return;
     }
-    
+
     // 한글-영문 매핑 객체
     const sizeMap = {
         'large': '대기업', 'medium': '중견기업', 'small_medium': '중소기업', 'small_micro': '소기업/소상공인'
     };
 
-    let timelineHtml = '';
-    regulations.forEach(reg => {
+    let timelineHtml = '<div class="timeline-row">'; // 타임라인 아이템들을 감싸는 행 컨테이너 추가
+    regulations.forEach((reg, index) => {
         const targetSizesKorean = (reg.target_sizes || []).map(size => sizeMap[size] || size).join(', ');
-
         timelineHtml += `
-            <div class="timeline-item">
+            <div class="timeline-item-horizontal">
                 <div class="timeline-date">${new Date(reg.effective_date).toLocaleDateString()}</div>
                 <div class="timeline-title">${reg.regulation_name}</div>
                 
@@ -287,7 +286,11 @@ function renderRegulationTimeline(regulations) {
                 </div>
             </div>
         `;
+        if ((index + 1) % 3 === 0 && index < regulations.length - 1) {
+            timelineHtml += '</div><div class="timeline-row">'; // 3개마다 새로운 행 시작
+        }
     });
+    timelineHtml += '</div>'; // 마지막 행 닫기
 
     container.innerHTML = timelineHtml;
 }
