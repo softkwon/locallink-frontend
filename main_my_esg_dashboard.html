@@ -131,6 +131,74 @@
         .milestone-details { display: none; margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px; }
         .milestone-details.visible { display: block; } /* JS로 이 클래스를 토글 */
         .milestone-image { max-width: 100%; border-radius: 4px; margin-top: 10px; }
+        /* === [추가] 규제 타임라인 스타일 === */
+        .section-container {
+            margin-top: 50px;
+        }
+        .regulation-timeline-container {
+            position: relative;
+            padding: 20px 0;
+            margin-top: 20px;
+        }
+        .regulation-timeline-container::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: #e9ecef;
+            border-radius: 2px;
+        }
+        .timeline-item {
+            position: relative;
+            padding-left: 40px;
+            margin-bottom: 30px;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 5px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #fff;
+            border: 4px solid #007bff;
+        }
+        .timeline-date {
+            font-weight: bold;
+            color: #007bff;
+        }
+        .timeline-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin: 5px 0;
+            cursor: default;
+        }
+        /* 마우스 올리면 나타나는 상세 정보 박스 */
+        .timeline-details-box {
+            display: none;
+            position: absolute;
+            left: 40px;
+            top: 30px;
+            width: 350px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10;
+            text-align: left;
+            font-size: 0.9em;
+        }
+        .timeline-item:hover .timeline-details-box {
+            display: block; /* 마우스를 올리면 보이도록 설정 */
+        }
+        .timeline-details-box h4 { margin-top: 0; }
+        .timeline-details-box p { margin: 5px 0; }
+        .timeline-details-box a { color: #007bff; text-decoration: none; }
+        .timeline-details-box a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -198,6 +266,13 @@
         <div id="dashboard-container">
             <p>데이터를 불러오는 중입니다...</p>
         </div>
+
+        <section class="section-container">
+            <h2>규제 타임라인</h2>
+            <p>시행 예정인 주요 ESG 관련 규제를 확인하고 대비하세요.</p>
+            <div id="regulation-timeline-container">
+                </div>
+        </section>        
         <hr>
         <div id="all-applications-list"></div>
     </main>

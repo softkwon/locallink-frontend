@@ -9,39 +9,43 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     try {
-        const response = await fetch(`${API_BASE_URL}/users/me/dashboard`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const result = await response.json();
-        if (!result.success) throw new Error(result.message);
+        // [수정] 대시보드 정보와 규제 정보를 동시에 요청
+        const [dashboardRes, regulationsRes] = await Promise.all([
+            fetch(`${API_BASE_URL}/users/me/dashboard`, { headers: { 'Authorization': `Bearer ${token}` } }),
+            fetch(`${API_BASE_URL}/regulations`, { headers: { 'Authorization': `Bearer ${token}` } })
+        ]);
 
-        const dashboardData = result.dashboard;
+        // 1. 대시보드 데이터 처리
+        const dashboardResult = await dashboardRes.json();
+        if (!dashboardResult.success) throw new Error(dashboardResult.message);
+        const dashboardData = dashboardResult.dashboard;
         renderScoreSection(dashboardData);
         renderProgramCards(dashboardData.programs);
+
+        // 2. 규제 타임라인 데이터 처리
+        const regulationsResult = await regulationsRes.json();
+        if (regulationsResult.success) {
+            renderRegulationTimeline(regulationsResult.regulations);
+        } else {
+            // 규제 정보 로딩 실패 시 에러 메시지 표시
+            document.getElementById('regulation-timeline-container').innerHTML = '<p>규제 정보를 불러오는 데 실패했습니다.</p>';
+        }
         
-        // 👇 [추가할 부분 시작] 모달 제어 이벤트 리스너 👇
+        // 3. 모달 제어 이벤트 리스너 (기존 코드와 동일)
         const modal = document.getElementById('milestone-modal');
         const modalContent = document.getElementById('modal-details-content');
         const closeModalBtn = document.querySelector('.modal-close-btn');
-
         if (modal) {
-            // 모달 닫기 버튼
             closeModalBtn.addEventListener('click', () => modal.style.display = 'none');
-            // 모달 바깥 클릭 시 닫기
             window.addEventListener('click', (e) => {
-                if (e.target == modal) {
-                    modal.style.display = 'none';
-                }
+                if (e.target == modal) modal.style.display = 'none';
             });
-
-            // '자세히 보기' 버튼 클릭 시
             const container = document.getElementById('dashboard-container');
             container.addEventListener('click', function(e) {
                 if (e.target.classList.contains('open-milestone-modal')) {
                     const progIdx = e.target.dataset.programIndex;
                     const mileIdx = e.target.dataset.milestoneIndex;
                     const milestone = dashboardData.programs[progIdx].timeline[mileIdx];
-
                     modalContent.innerHTML = `
                         <h2>${milestone.milestone_name}</h2>
                         ${milestone.image_url ? `<img src="${milestone.image_url}" alt="${milestone.milestone_name}" class="modal-image">` : ''}
@@ -51,12 +55,12 @@ document.addEventListener('DOMContentLoaded', async function() {
                     modal.style.display = 'block';
                 }
             });
-        }        
+        }
 
     } catch (error) {
         const container = document.getElementById('dashboard-container');
         if(container) container.innerHTML = `<h3>진행 중인 프로그램</h3><p>${error.message}</p>`;
-        console.error("대시보드 로딩 오류:", error);
+        console.error("데이터 로딩 오류:", error);
     }
 });
 
@@ -242,4 +246,44 @@ function renderProgramCards(programs) {
         `;
         container.appendChild(card);
     });
+}
+
+function renderRegulationTimeline(regulations) {
+    const container = document.getElementById('regulation-timeline-container');
+    if (!container) return;
+
+    if (!regulations || regulations.length === 0) {
+        container.innerHTML = '<p>현재 등록된 규제 정보가 없습니다.</p>';
+        return;
+    }
+    
+    // 한글-영문 매핑 객체
+    const sizeMap = {
+        'large': '대기업', 'medium': '중견기업', 'small_medium': '중소기업', 'small_micro': '소기업/소상공인'
+    };
+
+    let timelineHtml = '';
+    regulations.forEach(reg => {
+        const targetSizesKorean = (reg.target_sizes || []).map(size => sizeMap[size] || size).join(', ');
+
+        timelineHtml += `
+            <div class="timeline-item">
+                <div class="timeline-date">${new Date(reg.effective_date).toLocaleDateString()}</div>
+                <div class="timeline-title">${reg.regulation_name}</div>
+                
+                <div class="timeline-details-box">
+                    <h4>${reg.regulation_name}</h4>
+                    <p><strong>시행일:</strong> ${new Date(reg.effective_date).toLocaleDateString()}</p>
+                    <p><strong>적용 대상:</strong> ${targetSizesKorean}</p>
+                    <hr>
+                    <p><strong>설명:</strong> ${reg.description || '-'}</p>
+                    <p><strong>제재사항:</strong> ${reg.sanctions || '-'}</p>
+                    <p><strong>대응방안:</strong> ${reg.countermeasures || '-'}</p>
+                    ${reg.link_url ? `<p><a href="${reg.link_url}" target="_blank">자세히 보기</a></p>` : ''}
+                </div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = timelineHtml;
 }
