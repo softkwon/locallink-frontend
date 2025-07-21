@@ -9,58 +9,63 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     try {
-        // [수정] 대시보드 정보와 규제 정보를 동시에 요청
+        // 대시보드 정보와 규제 정보를 동시에 요청합니다.
         const [dashboardRes, regulationsRes] = await Promise.all([
             fetch(`${API_BASE_URL}/users/me/dashboard`, { headers: { 'Authorization': `Bearer ${token}` } }),
+            // ✅ [핵심 수정] API 주소의 오타를 수정합니다.
             fetch(`${API_BASE_URL}/regulations`, { headers: { 'Authorization': `Bearer ${token}` } })
         ]);
 
         // 1. 대시보드 데이터 처리
         const dashboardResult = await dashboardRes.json();
-        if (!dashboardResult.success) throw new Error(dashboardResult.message);
-        const dashboardData = dashboardResult.dashboard;
-        renderScoreSection(dashboardData);
-        renderProgramCards(dashboardData.programs);
+        if (!dashboardResult.success) {
+            // 대시보드 로딩 실패 시, 진행중인 프로그램 섹션에 메시지 표시
+            document.getElementById('dashboard-container').innerHTML = `<h3>진행 중인 프로그램</h3><p>${dashboardResult.message || '데이터를 불러오는 데 실패했습니다.'}</p>`;
+        } else {
+            const dashboardData = dashboardResult.dashboard;
+            renderScoreSection(dashboardData);
+            renderProgramCards(dashboardData.programs);
+
+            // 모달 제어 로직은 성공 시에만 설정
+            const modal = document.getElementById('milestone-modal');
+            const modalContent = document.getElementById('modal-details-content');
+            const closeModalBtn = document.querySelector('.modal-close-btn');
+            if (modal) {
+                closeModalBtn.addEventListener('click', () => modal.style.display = 'none');
+                window.addEventListener('click', (e) => {
+                    if (e.target == modal) modal.style.display = 'none';
+                });
+                const container = document.getElementById('dashboard-container');
+                container.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('open-milestone-modal')) {
+                        const progIdx = e.target.dataset.programIndex;
+                        const mileIdx = e.target.dataset.milestoneIndex;
+                        const milestone = dashboardData.programs[progIdx].timeline[mileIdx];
+                        modalContent.innerHTML = `
+                            <h2>${milestone.milestone_name}</h2>
+                            ${milestone.image_url ? `<img src="${milestone.image_url}" alt="${milestone.milestone_name}" class="modal-image">` : ''}
+                            <p>${milestone.content || '상세 내용이 없습니다.'}</p>
+                            ${milestone.attachment_url ? `<a href="${milestone.attachment_url}" target="_blank" download class="button button-primary">첨부 문서 다운로드</a>` : ''}
+                        `;
+                        modal.style.display = 'block';
+                    }
+                });
+            }
+        }
 
         // 2. 규제 타임라인 데이터 처리
         const regulationsResult = await regulationsRes.json();
         if (regulationsResult.success) {
             renderRegulationTimeline(regulationsResult.regulations);
         } else {
-            // 규제 정보 로딩 실패 시 에러 메시지 표시
-            document.getElementById('regulation-timeline-container').innerHTML = '<p>규제 정보를 불러오는 데 실패했습니다.</p>';
-        }
-        
-        // 3. 모달 제어 이벤트 리스너 (기존 코드와 동일)
-        const modal = document.getElementById('milestone-modal');
-        const modalContent = document.getElementById('modal-details-content');
-        const closeModalBtn = document.querySelector('.modal-close-btn');
-        if (modal) {
-            closeModalBtn.addEventListener('click', () => modal.style.display = 'none');
-            window.addEventListener('click', (e) => {
-                if (e.target == modal) modal.style.display = 'none';
-            });
-            const container = document.getElementById('dashboard-container');
-            container.addEventListener('click', function(e) {
-                if (e.target.classList.contains('open-milestone-modal')) {
-                    const progIdx = e.target.dataset.programIndex;
-                    const mileIdx = e.target.dataset.milestoneIndex;
-                    const milestone = dashboardData.programs[progIdx].timeline[mileIdx];
-                    modalContent.innerHTML = `
-                        <h2>${milestone.milestone_name}</h2>
-                        ${milestone.image_url ? `<img src="${milestone.image_url}" alt="${milestone.milestone_name}" class="modal-image">` : ''}
-                        <p>${milestone.content || '상세 내용이 없습니다.'}</p>
-                        ${milestone.attachment_url ? `<a href="${milestone.attachment_url}" target="_blank" download class="button button-primary">첨부 문서 다운로드</a>` : ''}
-                    `;
-                    modal.style.display = 'block';
-                }
-            });
+            document.getElementById('regulation-timeline-container').innerHTML = `<p>${regulationsResult.message || '규제 정보를 불러오는 데 실패했습니다.'}</p>`;
         }
 
     } catch (error) {
+        // 네트워크 오류 등 Promise.all 자체의 실패 처리
         const container = document.getElementById('dashboard-container');
-        if(container) container.innerHTML = `<h3>진행 중인 프로그램</h3><p>${error.message}</p>`;
-        console.error("데이터 로딩 오류:", error);
+        if(container) container.innerHTML = `<h3>오류 발생</h3><p>데이터를 불러오는 중 문제가 발생했습니다. 페이지를 새로고침 해주세요.</p>`;
+        console.error("데이터 로딩 중 심각한 오류:", error);
     }
 });
 
