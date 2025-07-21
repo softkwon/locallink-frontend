@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>규제 정보 관리</title>
+    <link rel="stylesheet" href="css/admin_style.css">
+    <style>
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
+        .modal-content { background-color: #fefefe; margin: 5% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 700px; border-radius: 8px; }
+        .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .target-size-group label { margin-right: 15px; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">
+                    <img src="/images/logo_admin.png" alt="LocalLink 로고" class="header-logo-img">
+                </a>
+            </div>
+            
+            <nav class="desktop-nav">
+                <ul>
+                    <li><a href="index.html">ESGlink로 돌아가기</a></li>
+                    <li><a href="admin_dashboard.html">관리자 대시보드</a></li>
+                </ul>
+            </nav>
+
+            <div class="header-right-group">
+                <div id="user-menu-container">
+                    </div>
+                <button id="mobile-menu-toggle" class="mobile-menu-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+
+        <div id="mobile-menu-overlay" class="mobile-menu-overlay"></div>
+        <div id="mobile-menu" class="mobile-menu">
+            </div>
+    </header>
+    <div class="container">
+        <div class="header">
+            <h1>규제 정보 관리</h1>
+            <button id="add-regulation-btn" class="button-primary">새 규제 추가</button>
+        </div>
+        <table class="styled-table">
+            <thead>
+                <tr>
+                    <th>시행일</th>
+                    <th>규제명</th>
+                    <th>적용 대상</th>
+                    <th>관리</th>
+                </tr>
+            </thead>
+            <tbody id="regulations-table-body"></tbody>
+        </table>
+    </div>
+
+    <!-- 규제 추가/수정용 모달 -->
+    <div id="regulation-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2 id="modal-title">새 규제 추가</h2>
+            <form id="regulation-form">
+                <input type="hidden" id="regulation-id">
+                <div class="form-group">
+                    <label for="regulation-name">규제명</label>
+                    <input type="text" id="regulation-name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="effective-date">시행일</label>
+                    <input type="date" id="effective-date" class="form-control" required>
+                </div>
+                <!-- ★★★ [핵심 수정] 상세 설명, 제재사항, 대응방안 텍스트 영역 추가 ★★★ -->
+                <div class="form-group">
+                    <label for="description">설명</label>
+                    <textarea id="description" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="sanctions">제재사항</label>
+                    <textarea id="sanctions" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="countermeasures">대응방안</label>
+                    <textarea id="countermeasures" class="form-control" rows="3"></textarea>
+                </div>
+                <!-- ★★★ [핵심 수정] '소기업/소상공인' 체크박스 추가 ★★★ -->
+                <div class="form-group">
+                    <label>규제 적용 기업 규모</label>
+                    <div class="target-size-group">
+                        <label><input type="checkbox" name="target_size" value="large"> 대기업</label>
+                        <label><input type="checkbox" name="target_size" value="medium"> 중견기업</label>
+                        <label><input type="checkbox" name="target_size" value="small_medium"> 중소기업</label>
+                        <label><input type="checkbox" name="target_size" value="small_micro"> 소기업/소상공인</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="link-url">관련 정보 링크</label>
+                    <input type="url" id="link-url" class="form-control" placeholder="https://example.com">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="button-primary">저장</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer id="footer-placeholder"></footer>
+    <script type="module" src="js/auth.js" defer></script>
+    <script type="module" src="js/admin_common.js"></script>
+    <script type="module" src="js/admin_regulations.js"></script>
+</body>
+</html>
