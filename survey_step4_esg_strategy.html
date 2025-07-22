@@ -293,15 +293,29 @@
             }
         }
 
-        /* === [추가] 규제 타임라인 스타일 === */
+        /* === [수정] 규제 타임라인 스타일 (여백 축소) === */
+        #regulationTimelineSection {
+            padding: 20px 25px; /* 내부 상하 여백 유지, 좌우는 살짝 넓게 */
+        }
+
+        #regulationTimelineSection h3 {
+            margin-top: 0;
+            margin-bottom: 10px; /* 제목과 설명 사이 간격 축소 */
+        }
+
+        #regulationTimelineSection p {
+            margin-bottom: 10px; /* 설명과 타임라인 사이 간격 축소 */
+        }
+
         #regulation-timeline-container {
             position: relative;
             width: 100%;
-            height: 180px;
+            height: 100px; /* 타임라인 자체의 높이를 줄여 전체 여백 감소 */
             padding: 0;
             box-sizing: border-box;
-            margin-top: 40px;
+            margin-top: 20px; /* 제목/설명과의 간격 */
         }
+
         .timeline-line {
             position: absolute;
             top: 50%;
@@ -311,6 +325,7 @@
             background-color: #e9ecef;
             transform: translateY(-50%);
         }
+
         .timeline-node {
             position: absolute;
             top: 50%;
@@ -321,6 +336,7 @@
             display: flex;
             justify-content: center;
         }
+
         .timeline-dot {
             width: 15px;
             height: 15px;
@@ -328,10 +344,11 @@
             border: 3px solid #007bff;
             border-radius: 50%;
         }
+
         .timeline-label {
             position: absolute;
             left: 50%;
-            top: 25px;
+            top: 25px; /* 항상 점 아래에 위치 */
             transform: translateX(-50%);
             text-align: center;
             width: 120px;
@@ -346,6 +363,7 @@
             font-weight: bold;
             display: block;
         }
+
         .timeline-details-box {
             display: none;
             position: absolute;
@@ -366,6 +384,7 @@
         .timeline-node:hover .timeline-details-box {
             display: block;
         }
+
         .timeline-details-box h4 { margin-top: 0; }
         .timeline-details-box p { margin: 5px 0; }
         .timeline-details-box a { color: #007bff; text-decoration: none; }
