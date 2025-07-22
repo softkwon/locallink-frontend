@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         // 1. 대시보드 데이터 처리
         const dashboardResult = await dashboardRes.json();
         if (!dashboardResult.success) {
-            document.getElementById('dashboard-container').innerHTML = `<h3>진행 중인 프로그램</h3><p>${dashboardResult.message || '데이터를 불러오는 데 실패했습니다.'}</p>`;
+            document.getElementById('dashboard-container').innerHTML = `<h2>진행 중인 프로그램</h2><p>${dashboardResult.message || '데이터를 불러오는 데 실패했습니다.'}</p>`;
         } else {
             const dashboardData = dashboardResult.dashboard;
             renderScoreSection(dashboardData);
@@ -192,7 +192,7 @@ function renderScoreSection(data) {
 function renderProgramCards(programs) {
     const container = document.getElementById('dashboard-container');
     if (!container) return;
-    container.innerHTML = '<h3>진행 중인 프로그램</h3>';
+    container.innerHTML = '<h2>진행 중인 프로그램</h2>';
 
     if (!programs || programs.length === 0) {
         container.innerHTML += "<p>현재 진행 중인 프로그램이 없습니다.</p>";
@@ -256,7 +256,6 @@ function renderRegulationTimeline(regulations) {
     const container = document.getElementById('regulation-timeline-container');
     if (!container) return;
 
-    // 타임라인 선을 먼저 추가
     container.innerHTML = '<div class="timeline-line"></div>';
 
     if (!regulations || regulations.length < 1) {
@@ -264,51 +263,68 @@ function renderRegulationTimeline(regulations) {
         return;
     }
 
-    // --- [핵심 로직] 날짜를 기준으로 각 아이템의 위치(%) 계산 ---
+    // --- 1. 각 아이템의 이상적인 위치 계산 ---
     const dates = regulations.map(reg => new Date(reg.effective_date).getTime());
     const minDate = Math.min(...dates);
     const maxDate = Math.max(...dates);
     const totalDuration = maxDate - minDate;
 
-    // 한글-영문 매핑 객체
-    const sizeMap = {
-        'large': '대기업', 'medium': '중견기업', 'small_medium': '중소기업', 'small_micro': '소기업/소상공인'
-    };
-
-    let timelineHtml = '';
-    regulations.forEach(reg => {
+    let items = regulations.map((reg, index) => {
         const currentDate = new Date(reg.effective_date).getTime();
-        let positionPercent = 0;
-        
-        // 날짜가 모두 같을 경우 등간격으로 배치
+        let idealPosition = 0;
         if (totalDuration === 0) {
-            positionPercent = (regulations.indexOf(reg) + 1) / (regulations.length + 1) * 100;
+            idealPosition = (index + 1) / (regulations.length + 1) * 100;
         } else {
-            // 전체 기간 대비 현재 날짜의 위치를 계산
-            positionPercent = ((currentDate - minDate) / totalDuration) * 100;
+            idealPosition = ((currentDate - minDate) / totalDuration) * 100;
         }
-        
-        // 양 끝에 여유 공간을 주기 위해 스케일 조정 (5% ~ 95%)
-        positionPercent = 5 + (positionPercent * 0.9);
+        return { ...reg, idealPosition, finalPosition: idealPosition, placement: index % 2 === 0 ? 'placement-bottom' : 'placement-top' };
+    });
 
-        const targetSizesKorean = (reg.target_sizes || []).map(size => sizeMap[size] || size).join(', ');
+    // --- 2. [핵심] 위치 보정 로직 (겹침 방지) ---
+    const MIN_GAP_PERCENT = 12; // 최소 간격 (라벨 너비 120px 고려)
+    items.sort((a, b) => a.idealPosition - b.idealPosition); // 위치 순으로 정렬
+
+    for (let i = 1; i < items.length; i++) {
+        const prevItem = items[i - 1];
+        const currentItem = items[i];
+        const gap = currentItem.finalPosition - prevItem.finalPosition;
+
+        if (gap < MIN_GAP_PERCENT) {
+            // 이전 아이템과 너무 가까우면 최소 간격만큼 밀어냄
+            currentItem.finalPosition = prevItem.finalPosition + MIN_GAP_PERCENT;
+        }
+    }
+    // 전체 너비가 100%를 초과할 경우, 모든 아이템을 비율에 맞게 압축
+    const lastPos = items[items.length - 1]?.finalPosition;
+    if (lastPos > 100) {
+        const scaleFactor = 100 / lastPos;
+        items.forEach(item => item.finalPosition *= scaleFactor);
+    }
+
+
+    // --- 3. 최종 계산된 위치로 HTML 렌더링 ---
+    const sizeMap = { 'large': '대기업', 'medium': '중견기업', 'small_medium': '중소기업', 'small_micro': '소기업/소상공인' };
+    let timelineHtml = '';
+
+    items.forEach(item => {
+        const targetSizesKorean = (item.target_sizes || []).map(size => sizeMap[size] || size).join(', ');
 
         timelineHtml += `
-            <div class="timeline-node" style="left: ${positionPercent}%;">
+            <div class="timeline-node ${item.placement}" style="left: ${item.finalPosition}%;">
                 <div class="timeline-dot"></div>
                 <div class="timeline-label">
-                    <span class="date">${new Date(reg.effective_date).toLocaleDateString()}</span>
-                    <span class="title">${reg.regulation_name}</span>
+                    <span class="date">${new Date(item.effective_date).toLocaleDateString()}</span>
+                    <span class="title">${item.regulation_name}</span>
                 </div>
                 <div class="timeline-details-box">
-                    <h4>${reg.regulation_name}</h4>
-                    <p><strong>시행일:</strong> ${new Date(reg.effective_date).toLocaleDateString()}</p>
+                    <h4>${item.regulation_name}</h4>
+                    <p><strong>시행일:</strong> ${new Date(item.effective_date).toLocaleDateString()}</p>
                     <p><strong>적용 대상:</strong> ${targetSizesKorean}</p>
                     <hr>
-                    <p><strong>설명:</strong> ${reg.description || '-'}</p>
-                    <p><strong>제재사항:</strong> ${reg.sanctions || '-'}</p>
-                    <p><strong>대응방안:</strong> ${reg.countermeasures || '-'}</p>
-                    ${reg.link_url ? `<p><a href="${reg.link_url}" target="_blank" class="details-link">자세히 보기</a></p>` : ''}
+                    <p><strong>설명:</strong> ${item.description || '-'}</p>
+                    <p><strong>제재사항:</strong> ${item.sanctions || '-'}</p>
+                    <p><strong>대응방안:</strong> ${item.countermeasures || '-'}</p>
+                    ${item.link_url ? `<p><a href="${item.link_url}" target="_blank" class="details-link">자세히 보기</a></p>` : ''}
                 </div>
             </div>
         `;
