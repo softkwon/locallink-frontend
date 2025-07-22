@@ -256,28 +256,50 @@ function renderRegulationTimeline(regulations) {
     const container = document.getElementById('regulation-timeline-container');
     if (!container) return;
 
-    if (!regulations || regulations.length === 0) {
-        container.innerHTML = '<p>현재 등록된 규제 정보가 없습니다.</p>';
+    // 타임라인 선을 먼저 추가
+    container.innerHTML = '<div class="timeline-line"></div>';
+
+    if (!regulations || regulations.length < 1) {
+        container.innerHTML += '<p>현재 등록된 규제 정보가 없습니다.</p>';
         return;
     }
 
+    // --- [핵심 로직] 날짜를 기준으로 각 아이템의 위치(%) 계산 ---
+    const dates = regulations.map(reg => new Date(reg.effective_date).getTime());
+    const minDate = Math.min(...dates);
+    const maxDate = Math.max(...dates);
+    const totalDuration = maxDate - minDate;
+
     // 한글-영문 매핑 객체
     const sizeMap = {
-        'large': '대기업',
-        'medium': '중견기업',
-        'small_medium': '중소기업',
-        'small_micro': '소기업/소상공인'
+        'large': '대기업', 'medium': '중견기업', 'small_medium': '중소기업', 'small_micro': '소기업/소상공인'
     };
 
     let timelineHtml = '';
     regulations.forEach(reg => {
+        const currentDate = new Date(reg.effective_date).getTime();
+        let positionPercent = 0;
+        
+        // 날짜가 모두 같을 경우 등간격으로 배치
+        if (totalDuration === 0) {
+            positionPercent = (regulations.indexOf(reg) + 1) / (regulations.length + 1) * 100;
+        } else {
+            // 전체 기간 대비 현재 날짜의 위치를 계산
+            positionPercent = ((currentDate - minDate) / totalDuration) * 100;
+        }
+        
+        // 양 끝에 여유 공간을 주기 위해 스케일 조정 (5% ~ 95%)
+        positionPercent = 5 + (positionPercent * 0.9);
+
         const targetSizesKorean = (reg.target_sizes || []).map(size => sizeMap[size] || size).join(', ');
 
         timelineHtml += `
-            <div class="timeline-item">
-                <div class="timeline-date">${new Date(reg.effective_date).toLocaleDateString()}</div>
-                <div class="timeline-title">${reg.regulation_name}</div>
-
+            <div class="timeline-node" style="left: ${positionPercent}%;">
+                <div class="timeline-dot"></div>
+                <div class="timeline-label">
+                    <span class="date">${new Date(reg.effective_date).toLocaleDateString()}</span>
+                    <span class="title">${reg.regulation_name}</span>
+                </div>
                 <div class="timeline-details-box">
                     <h4>${reg.regulation_name}</h4>
                     <p><strong>시행일:</strong> ${new Date(reg.effective_date).toLocaleDateString()}</p>
@@ -291,5 +313,6 @@ function renderRegulationTimeline(regulations) {
             </div>
         `;
     });
-    container.innerHTML = timelineHtml;
+
+    container.innerHTML += timelineHtml;
 }

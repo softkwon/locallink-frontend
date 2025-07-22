@@ -132,54 +132,85 @@
         .milestone-details.visible { display: block; } /* JS로 이 클래스를 토글 */
         .milestone-image { max-width: 100%; border-radius: 4px; margin-top: 10px; }
         
-        /* === [수정] 규제 타임라인 스타일 (가로 스크롤) === */
+        /* === [수정] 규제 타임라인 스타일 (가로-선형) === */
         .section-container {
             margin-top: 50px;
         }
 
         #regulation-timeline-container {
-            display: flex; /* 아이템을 가로로 배치 */
-            flex-wrap: nowrap; /* 절대로 줄바꿈하지 않음 */
-            overflow-x: auto; /* 내용이 넘치면 가로 스크롤바 생성 */
-            gap: 20px; /* 아이템 사이의 간격 */
-            padding-bottom: 20px; /* 스크롤바를 위한 하단 여백 */
-            margin-top: 20px;
+            position: relative; /* 모든 타임라인 요소의 위치 기준 */
+            width: 100%;
+            height: 150px; /* 타임라인 전체 높이 */
+            padding: 0 20px;
+            box-sizing: border-box;
+            margin-top: 40px;
         }
 
-        #regulation-timeline-container .timeline-item {
-            flex: 0 0 300px; /* 아이템의 너비를 300px로 고정 (늘어나거나 줄어들지 않음) */
-            position: relative; /* 상세 정보 박스의 위치 기준 */
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            padding: 15px;
+        /* 중앙을 가로지르는 선 */
+        .timeline-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background-color: #e0e0e0;
+            transform: translateY(-50%);
+        }
+
+        /* 타임라인 점(노드) */
+        .timeline-node {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+        }
+
+        .timeline-dot {
+            width: 15px;
+            height: 15px;
             background-color: #fff;
-            transition: box-shadow 0.2s ease-in-out;
+            border: 3px solid #007bff;
+            border-radius: 50%;
+            margin-left: -7.5px; /* 점의 중앙을 위치에 맞춤 */
+        }
+
+        /* 날짜와 제목을 담는 라벨 */
+        .timeline-label {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
             text-align: center;
+            width: 150px;
         }
-        #regulation-timeline-container .timeline-item:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        .timeline-label .date {
+            font-size: 0.85em;
+            color: #555;
+            display: block;
         }
-
-        .timeline-date {
+        .timeline-label .title {
+            font-size: 0.95em;
             font-weight: bold;
-            color: #007bff;
-            font-size: 0.9em;
+            display: block;
         }
 
-        .timeline-title {
-            font-size: 1.1em;
-            font-weight: bold;
-            margin: 5px 0;
-            cursor: default;
+        /* 짝수번째 라벨은 위로, 홀수번째는 아래로 배치 (겹침 방지) */
+        .timeline-node:nth-child(odd) .timeline-label {
+            top: 25px;
+        }
+        .timeline-node:nth-child-of-type(even) .timeline-label {
+            bottom: 25px;
         }
 
+
+        /* 마우스 올리면 나타나는 상세 정보 박스 */
         .timeline-details-box {
             display: none;
             position: absolute;
-            left: 0;
-            top: 100%; /* 아이템 바로 아래에 표시 */
-            width: 100%; /* 부모 아이템과 동일한 너비 */
-            min-width: 300px; /* 최소 너비 지정 */
+            bottom: 100%; /* 기본적으로 점 위에 표시 */
+            left: 50%;
+            transform: translateX(-50%);
+            margin-bottom: 20px; /* 라벨과의 간격 */
+            width: 320px;
             background-color: #fff;
             border: 1px solid #ddd;
             border-radius: 8px;
@@ -188,18 +219,22 @@
             z-index: 10;
             text-align: left;
             font-size: 0.9em;
-            margin-top: 5px;
         }
-
-        .timeline-item:hover .timeline-details-box {
-            display: block; /* 마우스를 올리면 보이도록 설정 */
+        .timeline-node:hover .timeline-details-box {
+            display: block;
+        }
+        /* 홀수번째 (아래쪽 라벨) 아이템에 호버 시에는 박스를 아래에 표시 */
+        .timeline-node:nth-child(odd):hover .timeline-details-box {
+            top: 100%;
+            bottom: auto;
+            margin-top: 20px;
+            margin-bottom: 0;
         }
 
         .timeline-details-box h4 { margin-top: 0; }
         .timeline-details-box p { margin: 5px 0; }
         .timeline-details-box a { color: #007bff; text-decoration: none; }
-        .timeline-details-box a:hover { text-decoration: underline; }
-        
+        .timeline-details-box a:hover { text-decoration: underline; }     
         
         
     </style>
