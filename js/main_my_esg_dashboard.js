@@ -263,17 +263,21 @@ function renderRegulationTimeline(regulations) {
 
     // 한글-영문 매핑 객체
     const sizeMap = {
-        'large': '대기업', 'medium': '중견기업', 'small_medium': '중소기업', 'small_micro': '소기업/소상공인'
+        'large': '대기업',
+        'medium': '중견기업',
+        'small_medium': '중소기업',
+        'small_micro': '소기업/소상공인'
     };
 
-    let timelineHtml = '<div class="timeline-row">'; // 타임라인 아이템들을 감싸는 행 컨테이너 추가
-    regulations.forEach((reg, index) => {
+    let timelineHtml = '';
+    regulations.forEach(reg => {
         const targetSizesKorean = (reg.target_sizes || []).map(size => sizeMap[size] || size).join(', ');
+
         timelineHtml += `
-            <div class="timeline-item-horizontal">
+            <div class="timeline-item">
                 <div class="timeline-date">${new Date(reg.effective_date).toLocaleDateString()}</div>
                 <div class="timeline-title">${reg.regulation_name}</div>
-                
+
                 <div class="timeline-details-box">
                     <h4>${reg.regulation_name}</h4>
                     <p><strong>시행일:</strong> ${new Date(reg.effective_date).toLocaleDateString()}</p>
@@ -282,15 +286,10 @@ function renderRegulationTimeline(regulations) {
                     <p><strong>설명:</strong> ${reg.description || '-'}</p>
                     <p><strong>제재사항:</strong> ${reg.sanctions || '-'}</p>
                     <p><strong>대응방안:</strong> ${reg.countermeasures || '-'}</p>
-                    ${reg.link_url ? `<p><a href="${reg.link_url}" target="_blank">자세히 보기</a></p>` : ''}
+                    ${reg.link_url ? `<p><a href="${reg.link_url}" target="_blank" class="details-link">자세히 보기</a></p>` : ''}
                 </div>
             </div>
         `;
-        if ((index + 1) % 3 === 0 && index < regulations.length - 1) {
-            timelineHtml += '</div><div class="timeline-row">'; // 3개마다 새로운 행 시작
-        }
     });
-    timelineHtml += '</div>'; // 마지막 행 닫기
-
     container.innerHTML = timelineHtml;
 }
