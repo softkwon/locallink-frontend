@@ -277,12 +277,13 @@ function renderRegulationTimeline(regulations) {
         } else {
             idealPosition = ((currentDate - minDate) / totalDuration) * 100;
         }
-        return { ...reg, idealPosition, finalPosition: idealPosition, placement: index % 2 === 0 ? 'placement-bottom' : 'placement-top' };
+        // [수정] 불필요한 placement 속성 제거
+        return { ...reg, idealPosition, finalPosition: idealPosition };
     });
 
-    // --- 2. [핵심] 위치 보정 로직 (겹침 방지) ---
-    const MIN_GAP_PERCENT = 12; // 최소 간격 (라벨 너비 120px 고려)
-    items.sort((a, b) => a.idealPosition - b.idealPosition); // 위치 순으로 정렬
+    // --- 2. 위치 보정 로직 (겹침 방지) ---
+    const MIN_GAP_PERCENT = 12;
+    items.sort((a, b) => a.idealPosition - b.idealPosition);
 
     for (let i = 1; i < items.length; i++) {
         const prevItem = items[i - 1];
@@ -290,17 +291,14 @@ function renderRegulationTimeline(regulations) {
         const gap = currentItem.finalPosition - prevItem.finalPosition;
 
         if (gap < MIN_GAP_PERCENT) {
-            // 이전 아이템과 너무 가까우면 최소 간격만큼 밀어냄
             currentItem.finalPosition = prevItem.finalPosition + MIN_GAP_PERCENT;
         }
     }
-    // 전체 너비가 100%를 초과할 경우, 모든 아이템을 비율에 맞게 압축
     const lastPos = items[items.length - 1]?.finalPosition;
     if (lastPos > 100) {
         const scaleFactor = 100 / lastPos;
         items.forEach(item => item.finalPosition *= scaleFactor);
     }
-
 
     // --- 3. 최종 계산된 위치로 HTML 렌더링 ---
     const sizeMap = { 'large': '대기업', 'medium': '중견기업', 'small_medium': '중소기업', 'small_micro': '소기업/소상공인' };
@@ -309,8 +307,9 @@ function renderRegulationTimeline(regulations) {
     items.forEach(item => {
         const targetSizesKorean = (item.target_sizes || []).map(size => sizeMap[size] || size).join(', ');
 
+        // [수정] 불필요한 placement 클래스 제거
         timelineHtml += `
-            <div class="timeline-node ${item.placement}" style="left: ${item.finalPosition}%;">
+            <div class="timeline-node" style="left: ${item.finalPosition}%;">
                 <div class="timeline-dot"></div>
                 <div class="timeline-label">
                     <span class="date">${new Date(item.effective_date).toLocaleDateString()}</span>

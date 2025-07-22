@@ -132,7 +132,7 @@
         .milestone-details.visible { display: block; } /* JS로 이 클래스를 토글 */
         .milestone-image { max-width: 100%; border-radius: 4px; margin-top: 10px; }
         
-        /* === [수정] 규제 타임라인 스타일 (겹침 방지) === */
+        /* === [수정] 규제 타임라인 스타일 (레이아웃 통일) === */
         .section-container {
             margin-top: 50px;
         }
@@ -140,7 +140,7 @@
         #regulation-timeline-container {
             position: relative; /* 모든 타임라인 요소의 위치 기준 */
             width: 100%;
-            height: 180px; /* 라벨 높이를 고려해 전체 높이 증가 */
+            height: 120px; /* 라벨을 아래에만 표시하므로 높이 감소 */
             padding: 0;
             box-sizing: border-box;
             margin-top: 40px;
@@ -157,14 +157,14 @@
             transform: translateY(-50%);
         }
 
-        /* 타임라인 점(노드) - JS가 left 속성을 직접 제어 */
+        /* 타임라인 점(노드) */
         .timeline-node {
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
             cursor: pointer;
-            width: 120px; /* 라벨 너비와 연관된 상호작용 영역 */
-            margin-left: -60px; /* 영역의 중앙을 위치에 맞춤 */
+            width: 120px;
+            margin-left: -60px;
             display: flex;
             justify-content: center;
         }
@@ -177,29 +177,34 @@
             border-radius: 50%;
         }
 
-        /* 날짜와 제목을 담는 라벨 */
+        /* 날짜와 제목을 담는 라벨 (항상 아래에 위치) */
         .timeline-label {
             position: absolute;
             left: 50%;
+            top: 25px; /* 항상 점 아래에 위치 */
             transform: translateX(-50%);
             text-align: center;
-            width: 120px; /* 라벨 너비 고정 */
+            width: 120px;
+        }
+        .timeline-label .date {
+            font-size: 0.85em;
+            color: #555;
+            display: block;
+        }
+        .timeline-label .title {
+            font-size: 0.95em;
+            font-weight: bold;
+            display: block;
         }
 
-        /* 짝수번째는 위로, 홀수번째는 아래로 배치 (겹침 방지) */
-        .timeline-node.placement-top .timeline-label {
-            bottom: 25px;
-        }
-        .timeline-node.placement-bottom .timeline-label {
-            top: 25px;
-        }
-
-        /* 마우스 올리면 나타나는 상세 정보 박스 */
+        /* 마우스 올리면 나타나는 상세 정보 박스 (항상 위에 위치) */
         .timeline-details-box {
             display: none;
             position: absolute;
+            bottom: 100%; /* 항상 점 위에 표시 */
             left: 50%;
             transform: translateX(-50%);
+            margin-bottom: 15px; /* 점과의 간격 */
             width: 320px;
             background-color: #fff;
             border: 1px solid #ddd;
@@ -210,19 +215,14 @@
             text-align: left;
             font-size: 0.9em;
         }
+        .timeline-node:hover .timeline-details-box {
+            display: block;
+        }
 
-        /* 위쪽 라벨에 호버 시 박스를 더 위로 */
-        .timeline-node.placement-top:hover .timeline-details-box {
-            display: block;
-            bottom: 100%;
-            margin-bottom: 15px;
-        }
-        /* 아래쪽 라벨에 호버 시 박스를 더 아래로 */
-        .timeline-node.placement-bottom:hover .timeline-details-box {
-            display: block;
-            top: 100%;
-            margin-top: 15px;
-        }
+        .timeline-details-box h4 { margin-top: 0; }
+        .timeline-details-box p { margin: 5px 0; }
+        .timeline-details-box a { color: #007bff; text-decoration: none; }
+        .timeline-details-box a:hover { text-decoration: underline; }
         
         
     </style>
