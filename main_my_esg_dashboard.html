@@ -7,12 +7,10 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/components.css">
     <style>
-        /* 대시보드 전체 레이아웃 */
         .score-summary-section { display: flex; flex-wrap: wrap; gap: 30px; align-items: flex-start; margin-bottom: 40px; }
         .gauge-container { flex: 1; min-width: 280px; }
         .score-details-table { flex: 2; min-width: 400px; }
 
-        /* 점수 분석 테이블 */
         .score-table { width: 100%; border-collapse: collapse; font-size: 0.95em; }
         .score-table th, .score-table td { border: 1px solid #e9ecef; padding: 12px; text-align: left; vertical-align: middle; }
         .score-table th { background-color: #f8f9fa; font-weight: bold; }
@@ -22,7 +20,6 @@
         .score-table .imp-score { color: #007bff; font-weight: bold; }
         .score-table .expected-grade { font-size: 0.85em; color: #6c757d; margin-left: 5px; }
 
-        /* 프로그램 카드 및 마일스톤 */
         .program-status-card { background-color: #fff; border: 1px solid #e9ecef; border-radius: 8px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden; }
         .card-header { padding: 15px 20px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; display: flex; justify-content: space-between; align-items: center; }
         .card-header h4 { margin: 0; color: #0056b3; }
@@ -34,9 +31,8 @@
         .step-line { flex-grow: 1; height: 4px; background-color: #e9ecef; margin: 13px 0; }
         .step.completed + .step-line { background-color: #007bff; }
 
-        /* === [수정] 마일스톤 박스 스타일 === */
         .milestones-wrapper {
-            display: grid; /* 가로 스크롤 대신 바둑판 모양으로 변경 */
+            display: grid; 
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 1.5rem;
             margin-top: 1rem;
@@ -44,10 +40,10 @@
         .milestone-box {
             border: 1px solid #e0e0e0;
             border-radius: 8px;
-            overflow: hidden; /* 이미지가 둥근 모서리를 넘어가지 않도록 */
+            overflow: hidden; 
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            display: flex; /* 내부 요소 정렬을 위해 추가 */
-            flex-direction: column; /* 내부 요소를 세로로 쌓음 */
+            display: flex; 
+            flex-direction: column;
         }
         .milestone-box.completed { 
             border-left: 5px solid #28a745; 
@@ -61,7 +57,7 @@
         }
         .milestone-preview-content {
             padding: 1rem;
-            flex-grow: 1; /* 남는 공간을 모두 차지하도록 */
+            flex-grow: 1; 
             display: flex;
             flex-direction: column;
         }
@@ -73,7 +69,7 @@
             font-size: 0.9rem;
             color: #666;
             margin: 0.5rem 0;
-            flex-grow: 1; /* 버튼을 항상 맨 아래에 위치시키기 위해 */
+            flex-grow: 1; 
         }
         .milestone-actions {
             margin-top: 1rem;
@@ -83,7 +79,6 @@
         }
 
 
-        /* === [추가] 모달 스타일 === */
         .modal {
             display: none; 
             position: fixed;
@@ -129,7 +124,7 @@
 
         .milestone-header { display: flex; justify-content: space-between; font-weight: bold; }
         .milestone-details { display: none; margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px; }
-        .milestone-details.visible { display: block; } /* JS로 이 클래스를 토글 */
+        .milestone-details.visible { display: block; }
         .milestone-image { max-width: 100%; border-radius: 4px; margin-top: 10px; }
         
         /* === [수정] 규제 타임라인 스타일 (레이아웃 통일) === */
@@ -138,15 +133,14 @@
         }
 
         #regulation-timeline-container {
-            position: relative; /* 모든 타임라인 요소의 위치 기준 */
+            position: relative;
             width: 100%;
-            height: 120px; /* 라벨을 아래에만 표시하므로 높이 감소 */
+            height: 120px; 
             padding: 0;
             box-sizing: border-box;
             margin-top: 40px;
         }
 
-        /* 중앙을 가로지르는 선 */
         .timeline-line {
             position: absolute;
             top: 50%;
@@ -157,7 +151,6 @@
             transform: translateY(-50%);
         }
 
-        /* 타임라인 점(노드) */
         .timeline-node {
             position: absolute;
             top: 50%;
@@ -177,11 +170,10 @@
             border-radius: 50%;
         }
 
-        /* 날짜와 제목을 담는 라벨 (항상 아래에 위치) */
         .timeline-label {
             position: absolute;
             left: 50%;
-            top: 25px; /* 항상 점 아래에 위치 */
+            top: 25px; 
             transform: translateX(-50%);
             text-align: center;
             width: 120px;
@@ -197,14 +189,13 @@
             display: block;
         }
 
-        /* 마우스 올리면 나타나는 상세 정보 박스 (항상 위에 위치) */
         .timeline-details-box {
             display: none;
             position: absolute;
-            bottom: 100%; /* 항상 점 위에 표시 */
+            bottom: 100%; 
             left: 50%;
             transform: translateX(-50%);
-            margin-bottom: 15px; /* 점과의 간격 */
+            margin-bottom: 15px; 
             width: 320px;
             background-color: #fff;
             border: 1px solid #ddd;
@@ -276,15 +267,12 @@
     <main class="container">
         <h2>나의 ESG 활동 대시보드</h2>
 
-        <!-- 1. 계기판 및 점수 분석 테이블 영역 -->
         <div class="score-summary-section">
             <div class="gauge-container" id="gauge-container">
                 <div id="realtime-score-gauge">
-                    <!-- JS가 여기에 계기판을 그립니다. -->
                 </div>
             </div>
             <div class="score-details-table" id="score-details-table">
-                <!-- JS가 여기에 점수 분석 테이블을 그립니다. -->
             </div>
         </div>
         <section class="section-container">

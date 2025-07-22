@@ -1,8 +1,3 @@
-/**
- * 파일명: js/survey_step4_strategy.js
- * 수정 위치: import 구문 추가
- * 수정 일시: 2025-07-03 11:51
- */
 import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
 import { getCompanySizeName } from './admin_common.js'; 
 
@@ -33,39 +28,45 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     try {
-        // --- 2. 백엔드 '추천 엔진' API 호출 ---
-        const response = await fetch(`${API_BASE_URL}/strategy/${diagnosisId}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        
-        if (!response.ok) {
-            const errorResult = await response.json().catch(() => ({ message: '전략 데이터를 불러오는 중 서버에 문제가 발생했습니다.' }));
+        // [수정] 전략 데이터와 규제 데이터를 동시에 요청
+        const [strategyRes, regulationsRes] = await Promise.all([
+            fetch(`${API_BASE_URL}/strategy/${diagnosisId}`, { headers: { 'Authorization': `Bearer ${token}` } }),
+            fetch(`${API_BASE_URL}/admin/regulations`, { headers: { 'Authorization': `Bearer ${token}` } })
+        ]);
+
+        // --- 1. 전략 데이터 처리 (기존 로직) ---
+        if (!strategyRes.ok) {
+            const errorResult = await strategyRes.json().catch(() => ({ message: '전략 데이터를 불러오는 중 서버에 문제가 발생했습니다.' }));
             throw new Error(errorResult.message);
         }
-        
-        const result = await response.json();
-        if (!result.success) {
-            throw new Error(result.message);
+        const strategyResult = await strategyRes.json();
+        if (!strategyResult.success) {
+            throw new Error(strategyResult.message);
         }
+        const data = strategyResult.strategyData;
 
-        const data = result.strategyData;
-
-        // ★★★ 여기에 이벤트 리스너를 추가하거나, 별도의 attachEventListeners 함수를 만듭니다. ★★★
         const taskContainer = document.getElementById('taskAnalysisContainer');
         if (taskContainer) {
             taskContainer.addEventListener('click', e => {
                 if (e.target.classList.contains('program-proposal-btn')) {
                     const programId = e.target.dataset.programId;
                     const diagId = new URLSearchParams(window.location.search).get('diagId');
-                    
                     const url = `esg_program_detail.html?id=${programId}&from=strategy&diagId=${diagId}`;
                     const windowFeatures = 'width=1024,height=768,scrollbars=yes,resizable=yes';
                     window.open(url, 'programDetailWindow', windowFeatures);
                 }
             });
         }
-        
-        // --- 3. 받아온 데이터로 각 섹션을 그리는 함수들을 호출합니다. ---
+
+        // --- 2. [추가] 규제 타임라인 데이터 처리 ---
+        const regulationsResult = await regulationsRes.json();
+        if (regulationsResult.success) {
+            renderRegulationTimeline(regulationsResult.regulations);
+        } else {
+            document.getElementById('regulation-timeline-container').innerHTML = '<p>규제 정보를 불러오는 데 실패했습니다.</p>';
+        }
+
+        // --- 3. 받아온 데이터로 각 섹션을 그리는 함수들을 호출합니다. (기존 로직) ---
         renderAiAnalysis(data.aiAnalysis); 
         renderBenchmarkCharts(data.userDiagnosis, data.benchmarkScores, data.userAnswers, data.allQuestions);
         renderIndustryIssues(data.industryIssues, data.userDiagnosis);
@@ -73,7 +74,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         renderRegionalMapAndIssues(data.userDiagnosis, data.regionalIssues); 
         renderCompanySizeIssues(data.companySizeIssue, data.userDiagnosis.company_size);
 
-        // 로딩 메시지 숨기고 콘텐츠 표시
         if(loadingEl) loadingEl.style.display = 'none';
         if(contentEl) contentEl.classList.remove('hidden');
         
@@ -513,4 +513,75 @@ function getFinancialImpactText(program, industryAverageData) {
     }
 
     return { risk, opportunities };
+}
+
+function renderRegulationTimeline(regulations) {
+    const container = document.getElementById('regulation-timeline-container');
+    if (!container) return;
+
+    container.innerHTML = '<div class="timeline-line"></div>';
+
+    if (!regulations || regulations.length < 1) {
+        container.innerHTML += '<p>현재 등록된 규제 정보가 없습니다.</p>';
+        return;
+    }
+
+    const dates = regulations.map(reg => new Date(reg.effective_date).getTime());
+    const minDate = Math.min(...dates);
+    const maxDate = Math.max(...dates);
+    const totalDuration = maxDate - minDate;
+
+    let items = regulations.map((reg, index) => {
+        const currentDate = new Date(reg.effective_date).getTime();
+        let idealPosition = 0;
+        if (totalDuration === 0) {
+            idealPosition = (index + 1) / (regulations.length + 1) * 100;
+        } else {
+            idealPosition = ((currentDate - minDate) / totalDuration) * 100;
+        }
+        return { ...reg, idealPosition, finalPosition: idealPosition };
+    });
+
+    const MIN_GAP_PERCENT = 12;
+    items.sort((a, b) => a.idealPosition - b.idealPosition);
+
+    for (let i = 1; i < items.length; i++) {
+        const prevItem = items[i - 1];
+        const currentItem = items[i];
+        const gap = currentItem.finalPosition - prevItem.finalPosition;
+        if (gap < MIN_GAP_PERCENT) {
+            currentItem.finalPosition = prevItem.finalPosition + MIN_GAP_PERCENT;
+        }
+    }
+    const lastPos = items[items.length - 1]?.finalPosition;
+    if (lastPos > 100) {
+        const scaleFactor = 100 / lastPos;
+        items.forEach(item => item.finalPosition *= scaleFactor);
+    }
+
+    const sizeMap = { 'large': '대기업', 'medium': '중견기업', 'small_medium': '중소기업', 'small_micro': '소기업/소상공인' };
+    let timelineHtml = '';
+    items.forEach(item => {
+        const targetSizesKorean = (item.target_sizes || []).map(size => sizeMap[size] || size).join(', ');
+        timelineHtml += `
+            <div class="timeline-node" style="left: ${item.finalPosition}%;">
+                <div class="timeline-dot"></div>
+                <div class="timeline-label">
+                    <span class="date">${new Date(item.effective_date).toLocaleDateString()}</span>
+                    <span class="title">${item.regulation_name}</span>
+                </div>
+                <div class="timeline-details-box">
+                    <h4>${item.regulation_name}</h4>
+                    <p><strong>시행일:</strong> ${new Date(item.effective_date).toLocaleDateString()}</p>
+                    <p><strong>적용 대상:</strong> ${targetSizesKorean}</p>
+                    <hr>
+                    <p><strong>설명:</strong> ${item.description || '-'}</p>
+                    <p><strong>제재사항:</strong> ${item.sanctions || '-'}</p>
+                    <p><strong>대응방안:</strong> ${item.countermeasures || '-'}</p>
+                    ${item.link_url ? `<p><a href="${item.link_url}" target="_blank" class="details-link">자세히 보기</a></p>` : ''}
+                </div>
+            </div>
+        `;
+    });
+    container.innerHTML += timelineHtml;
 }
