@@ -40,21 +40,25 @@ document.addEventListener('DOMContentLoaded', async function() {
         const data = strategyResult.strategyData;
 
         const userName = data.userDiagnosis.company_name || '고객';
-        document.getElementById('marketStatusTitle').textContent = `${userName}님이 속한 시장현황`;
-        document.getElementById('customStrategyTitle').textContent = `${userName}님의 맞춤 ESG 대응`;
-        document.getElementById('customStrategyDescription').innerHTML = `설문결과를 기반하여 <strong>${userName}님</strong>의 ESG경영 개선을 도와 ESG 투자비용절감, 신규수익창출 및 국내외 ESG규제에 효과적으로 대응하기 위한 맞춤형 프로그램 분야를 제안합니다.`;
-        
-        const taskContainer = document.getElementById('taskAnalysisContainer');
-        if (taskContainer) {
-            taskContainer.addEventListener('click', e => {
-                if (e.target.classList.contains('program-proposal-btn')) {
-                    const programId = e.target.dataset.programId;
-                    const diagId = new URLSearchParams(window.location.search).get('diagId');
-                    const url = `esg_program_detail.html?id=${programId}&from=strategy&diagId=${diagId}`;
-                    const windowFeatures = 'width=1024,height=768,scrollbars=yes,resizable=yes';
-                    window.open(url, 'programDetailWindow', windowFeatures);
-                }
-            });
+
+        const marketStatusTitleEl = document.getElementById('marketStatusTitle');
+        if (marketStatusTitleEl) {
+            marketStatusTitleEl.textContent = `${userName}님이 속한 시장현황`;
+        }
+
+        const marketStatusDescEl = document.getElementById('marketStatusDescription');
+        if (marketStatusDescEl) {
+            marketStatusDescEl.innerHTML = `설문결과를 기반하여 <strong>${userName}님</strong>의 동종업계 대비 현황, 현재 확정된 ESG 규제 타임라인을 분석하여 대응방안을 분석합니다.`;
+        }
+
+        const customStrategyTitleEl = document.getElementById('customStrategyTitle');
+        if (customStrategyTitleEl) {
+            customStrategyTitleEl.textContent = `${userName}님의 맞춤 ESG 대응`;
+        }
+
+        const customStrategyDescEl = document.getElementById('customStrategyDescription');
+        if (customStrategyDescEl) {
+            customStrategyDescEl.innerHTML = `설문결과를 기반하여 <strong>${userName}님</strong>의 ESG경영 개선을 도와 ESG 투자비용절감, 신규수익창출 및 국내외 ESG규제에 효과적으로 대응하기 위한 맞춤형 프로그램 분야를 제안합니다.`;
         }
 
         const regulationsResult = await regulationsRes.json();
@@ -64,16 +68,16 @@ document.addEventListener('DOMContentLoaded', async function() {
             document.getElementById('regulation-timeline-container').innerHTML = '<p>규제 정보를 불러오는 데 실패했습니다.</p>';
         }
 
-        renderAiAnalysis(data.aiAnalysis);
+        renderAiAnalysis(data.aiAnalysis); 
         renderBenchmarkCharts(data.userDiagnosis, data.benchmarkScores, data.userAnswers, data.allQuestions);
         renderIndustryIssues(data.industryIssues, data.userDiagnosis);
-        renderTasksAndAnalysis(data.recommendedPrograms, data.allSolutionCategories);
-        renderRegionalMapAndIssues(data.userDiagnosis, data.regionalIssues);
+        renderTasksAndAnalysis(data.recommendedPrograms, data.allSolutionCategories); // allSolutionCategories 인자 전달 확인
+        renderRegionalMapAndIssues(data.userDiagnosis, data.regionalIssues); 
         renderCompanySizeIssues(data.companySizeIssue, data.userDiagnosis.company_size);
 
         if(loadingEl) loadingEl.style.display = 'none';
         if(contentEl) contentEl.classList.remove('hidden');
-
+        
         equalizeSectionHeights();
 
     } catch (error) {

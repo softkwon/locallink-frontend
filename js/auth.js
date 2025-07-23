@@ -96,7 +96,7 @@ async function checkLoginAndRenderHeader() {
     // 로그인 상태일 경우
     try {
         const response = await fetch(`${API_BASE_URL}/users/me`, { headers: { 'Authorization': `Bearer ${token}` } });
-        if (!response.ok) return logout('세션이 만료되었습니다.');
+        if (!response.ok) return logout('로그인 시간이 만료되었습니다. 다시 로그인 해주세요.');
         
         const result = await response.json();
         if (!result.success) return logout('사용자 정보를 가져올 수 없습니다.');
@@ -234,7 +234,7 @@ function attachHeaderLinkListeners() {
                 alert('세션이 1시간 연장되었습니다.');
             } else { throw new Error(refreshResult.message); }
         } catch(error) {
-            alert('세션 연장에 실패했습니다. 다시 로그인해주세요.');
+            alert('로그인 연장이 필요합니다. 다시 로그인해주세요.');
             logout();
         }
     });
