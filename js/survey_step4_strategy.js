@@ -391,13 +391,6 @@ function equalizeSectionHeights() {
     }, 100); 
 }
 
-
-/**
- * 추천 과제 및 기대효과를 표시하는 함수 (★★★ 최종 수정본 ★★★)
- * @param {object} program - ESG 프로그램 객체
- * @param {object} diagnosis - 사용자 진단 정보
- * @param {object} industryAverageData - 산업 평균 데이터
- */
 function renderTasksAndAnalysis(programs, diagnosis, industryAverageData) {
     const container = document.getElementById('taskAnalysisContainer');
     if (!container) return;
@@ -407,49 +400,55 @@ function renderTasksAndAnalysis(programs, diagnosis, industryAverageData) {
         return;
     }
 
-    let html = '';
-    programs.forEach(program => {
-        const overviewText = program.program_overview || '프로그램에 대한 상세 설명은 맞춤 프로그램 보기에서 확인하세요.';
+    const groupedPrograms = programs.reduce((acc, program) => {
+        const categories = program.solution_categories || ['기타']; // 카테고리가 없으면 '기타'로 분류
         
-        // impact 객체에는 리스크와 기대효과 정보가 구조적으로 담겨 있습니다.
-        const impact = getFinancialImpactText(program, industryAverageData);
-        
-        // 1. 방치 시 리스크 툴팁 HTML 생성
-        // 상세 설명(details)이 있을 경우에만 툴팁을 만듭니다.
-        const riskHtml = impact.risk.details 
-            ? `<span class="tooltip-container">${impact.risk.summary}<span class="tooltip-text">${impact.risk.details}</span></span>`
-            : impact.risk.summary;
-            
-        // 2. 개선 시 효과 툴팁 HTML 생성
-        // 여러 개의 기대효과를 <br>로 연결하여 두 줄 이상으로 표시합니다.
-        const opportunityHtml = impact.opportunities.map(opp => {
-            return opp.details
-                ? `<span class="tooltip-container">${opp.summary}<span class="tooltip-text">${opp.details}</span></span>`
-                : opp.summary;
-        }).join('<br>');
+        categories.forEach(category => {
+            if (!acc[category]) {
+                acc[category] = [];
+            }
+            if (!acc[category].some(p => p.id === program.id)) {
+                acc[category].push(program);
+            }
+        });
+        return acc;
+    }, {});
 
-        html += `
-            <div class="task-analysis-pair">
-                <div class="task-box category-${program.esg_category}">
-                    <h5>[${program.esg_category}] ${program.title}</h5>
-                    <p>${overviewText}</p>
-                </div>
-                <div class="analysis-card">
-                    <div class="summary-content">
-                        <p><strong>방치 시 리스크:</strong> <span class="risk-value">${impact.risk.summary}</span></p>
-                        <p><strong>개선 시 효과:</strong> <span class="opportunity-value">${opportunityHtml}</span></p>
+    let finalHtml = '';
+
+    for (const category in groupedPrograms) {
+        finalHtml += `<h4 class="solution-category-title">${category}</h4>`;
+
+        groupedPrograms[category].forEach(program => {
+            const overviewText = program.program_overview || '프로그램에 대한 상세 설명은 맞춤 프로그램 보기에서 확인하세요.';
+            const impact = getFinancialImpactText(program, industryAverageData);
+            const opportunityHtml = impact.opportunities.map(opp => {
+                return opp.details
+                    ? `<span class="tooltip-container">${opp.summary}<span class="tooltip-text">${opp.details}</span></span>`
+                    : opp.summary;
+            }).join('<br>');
+
+            finalHtml += `
+                <div class="task-analysis-pair">
+                    <div class="task-box category-${program.esg_category}">
+                        <h5>[${program.esg_category}] ${program.title}</h5>
+                        <p>${overviewText}</p>
                     </div>
-                    <button type="button" 
-                            class="program-proposal-btn" 
-                            data-program-id="${program.id}"
-                            title="클릭 시 '${program.title}' 프로그램의 상세 페이지가 새 창으로 열립니다.">
-                       프로그램 보기
-                    </button>
+                    <div class="analysis-card">
+                        <div class="summary-content">
+                            <p><strong>방치 시 리스크:</strong> <span class="risk-value">${impact.risk.summary}</span></p>
+                            <p><strong>개선 시 효과:</strong> <span class="opportunity-value">${opportunityHtml}</span></p>
+                        </div>
+                        <button type="button" class="program-proposal-btn" data-program-id="${program.id}" title="클릭 시 '${program.title}' 프로그램의 상세 페이지가 새 창으로 열립니다.">
+                            프로그램 보기
+                        </button>
+                    </div>
                 </div>
-            </div>
-        `;
-    });
-    container.innerHTML = html;
+            `;
+        });
+    }
+
+    container.innerHTML = finalHtml;
 }
 
 
