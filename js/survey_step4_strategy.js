@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
         const userName = data.userDiagnosis.company_name || '고객';
         document.getElementById('marketStatusTitle').textContent = `${userName}님이 속한 시장현황`;
-        document.getElementById('customStrategyTitle').textContent = `${userName}님의 맞춤 ESG 전략`;
+        document.getElementById('customStrategyTitle').textContent = `${userName}님의 맞춤 ESG 대응`;
         document.getElementById('customStrategyDescription').innerHTML = `설문결과를 기반하여 <strong>${userName}님</strong>의 ESG경영 개선을 도와 ESG 투자비용절감, 신규수익창출 및 국내외 ESG규제에 효과적으로 대응하기 위한 맞춤형 프로그램 분야를 제안합니다.`;
         
         const taskContainer = document.getElementById('taskAnalysisContainer');
