@@ -390,6 +390,23 @@
         .timeline-details-box a { color: #007bff; text-decoration: none; }
         .timeline-details-box a:hover { text-decoration: underline; }
 
+        /* === [추가] 신규 소제목 및 설명 스타일 === */
+        .section-title {
+            font-size: 1.7em;
+            color: #343a40;
+            text-align: center;
+            margin-top: 60px; /* 위 섹션과의 간격 */
+            margin-bottom: 10px;
+        }
+        .section-description {
+            font-size: 1.05em;
+            color: #6c757d;
+            text-align: center;
+            max-width: 750px;
+            margin: 0 auto 40px auto; /* 위아래, 좌우 간격 및 가운데 정렬 */
+            line-height: 1.7;
+        }
+
     </style>
 </head>
 <body>
@@ -438,6 +455,8 @@
                 <h2>AI기반 ESG 전략 수립</h2>
                 <p>진단 결과를 바탕으로 맞춤형 ESG 전략을 수립하고 기업의 지속가능한 성장을 계획하세요.</p>
                 
+                <h2 id="marketStatusTitle" class="section-title"></h2>
+
                 <div id="benchmarkSection" class="strategy-section">
                     <h3>동종업계 성과 비교 (*통계청 데이터 기반 업계평균)</h3>
 
@@ -482,6 +501,10 @@
                             </div>
                     </div>
                 </div>
+
+                <h2 id="customStrategyTitle" class="section-title"></h2>
+                      <p id="customStrategyDescription" class="section-description"></p>
+
                 <div class="strategy-section" id="task-section-wrapper">
                     <div class="strategy-grid-header">
                         <h3>우리 회사의 ESG 과제</h3>
