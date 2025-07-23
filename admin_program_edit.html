@@ -1,4 +1,3 @@
-<!-- admin_program_edit.html (2025-06-27 20:00:00) -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -7,7 +6,6 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/components.css">
     <style>
-        /* --- 폼 기본 레이아웃 --- */
         .form-section {
             max-width: 900px;
             margin: auto;
@@ -22,13 +20,12 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
         .form-fieldset legend {
-            font-weight: 600; /* 600은 semi-bold */
+            font-weight: 600; 
             font-size: 1.25em;
             padding: 0 10px;
             color: #343a40;
         }
 
-        /* --- 폼 그룹 및 라벨 --- */
         .form-group {
             margin-bottom: 20px;
         }
@@ -46,7 +43,6 @@
             align-items: flex-end;
         }
 
-        /* --- 입력 필드 스타일 (input, textarea, select) --- */
         .form-control {
             width: 100%;
             padding: 10px 12px;
@@ -66,7 +62,6 @@
             min-height: 100px;
         }
 
-        /* --- 동적 추가/삭제 섹션 스타일 --- */
         .content-section, 
         #opportunity-effects-container .form-fieldset {
             border: 1px solid #e9ecef;
@@ -100,17 +95,15 @@
             right: -8px;
         }
 
-        /* --- 최종 버튼 --- */
         .form-actions {
             text-align: right;
             margin-top: 30px;
         }
-        /* --- 서비스 지역 체크박스 그룹 스타일 --- */
+
         .checkbox-group {
             display: grid;
-            /* 3개의 열을 만들고, 각 열이 동일한 공간을 차지하도록 설정 */
             grid-template-columns: repeat(6, 1fr); 
-            gap: 8px 15px; /* 세로(8px) 및 가로(15px) 간격 */
+            gap: 8px 15px; 
             padding: 15px;
             background-color: #f8f9fa;
             border: 1px solid #dee2e6;
@@ -120,17 +113,46 @@
         .checkbox-group label {
             display: flex;
             align-items: center;
-            gap: 6px; /* 체크박스와 텍스트 사이 간격 */
-            font-weight: 400; /* 라벨 폰트 두께를 보통으로 조정 */
+            gap: 6px; 
+            font-weight: 400; 
             cursor: pointer;
-            margin-bottom: 0; /* form-group의 기본 margin-bottom 제거 */
+            margin-bottom: 0; 
         }
 
-        /* 체크박스 자체의 크기와 위치 미세 조정 */
         .checkbox-group input[type="checkbox"] {
             width: 15px;
             height: 15px;
             margin: 0;
+        }
+
+        .checkbox-group-container {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .checkbox-group-container strong {
+            font-size: 1.1em;
+            color: #333;
+        }
+        .checkbox-group-container .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 0px; 
+            margin-top: 10px;
+            grid-template-columns: none;
+            padding: 0;
+            border: none;
+            background-color: transparent;
+        }
+        .checkbox-group-container .checkbox-group label {
+            margin-right: 20px;
+            font-weight: normal;
+        }
+        .checkbox-group-container hr {
+            margin: 15px 0;
+            border: 0;
+            border-top: 1px solid #eee;
         }
 
     </style>
@@ -178,6 +200,41 @@
                         <div class="form-group"><label for="program_code">프로그램 코드 *</label><input type="text" id="program_code" class="form-control" required></div>
                         <div class="form-group"><label for="esg_category">ESG 카테고리 *</label><select id="esg_category" class="form-control" required><option value="E">E</option><option value="S">S</option><option value="G">G</option></select></div>
                     </div>
+
+                    <div class="form-group">
+                        <label>솔루션 카테고리 (복수 선택 가능)</label>
+                        <div id="solution-category-checkboxes" class="checkbox-group-container">
+                            <div>
+                                <strong>환경(E)</strong>
+                                <div class="checkbox-group">
+                                    <label><input type="checkbox" name="solution_category" value="환경경영"> 환경경영</label>
+                                    <label><input type="checkbox" name="solution_category" value="온실가스"> 온실가스</label>
+                                    <label><input type="checkbox" name="solution_category" value="에너지"> 에너지</label>
+                                    <label><input type="checkbox" name="solution_category" value="폐기물"> 폐기물</label>
+                                    <label><input type="checkbox" name="solution_category" value="환경 공급망관리(자원순환)"> 환경 공급망관리(자원순환)</label>
+                                </div>
+                            </div>
+                            <hr>
+                            <div>
+                                <strong>사회(S)</strong>
+                                <div class="checkbox-group">
+                                    <label><input type="checkbox" name="solution_category" value="노동·인권"> 노동·인권</label>
+                                    <label><input type="checkbox" name="solution_category" value="다양성 및 양성평등"> 다양성 및 양성평등</label>
+                                    <label><input type="checkbox" name="solution_category" value="산업안전"> 산업안전</label>
+                                    <label><input type="checkbox" name="solution_category" value="사회 공급망관리(동반성장,소비자,지역사회)"> 사회 공급망관리(동반성장,소비자,지역사회)</label>
+                                </div>
+                            </div>
+                            <hr>
+                            <div>
+                                <strong>지배구조(G)</strong>
+                                <div class="checkbox-group">
+                                    <label><input type="checkbox" name="solution_category" value="이사회"> 이사회</label>
+                                    <label><input type="checkbox" name="solution_category" value="주주"> 주주</label>
+                                    <label><input type="checkbox" name="solution_category" value="경영진"> 경영진</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label for="program_overview">프로그램 개요</label>
                         <textarea id="program_overview" class="form-control" rows="4" placeholder="프로그램에 대한 간단한 한 줄 요약이나 개요를 입력하세요."></textarea>
@@ -223,7 +280,6 @@
                     <button type="button" id="add-organization-btn" class="button-secondary">+ 단체 추가</button>
                 </fieldset>   
                 
-                <!-- ★★★ 아래 '방치 시 리스크 및 개선 효과' 섹션 전체 추가 ★★★ -->
                 <fieldset class="form-fieldset">
                     <legend>방치 시 리스크 및 개선 효과</legend>
 

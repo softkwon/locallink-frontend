@@ -1,20 +1,14 @@
-/**
- * 파일명: js/admin_program_edit.js
- * 수정 위치: 파일 최상단 import 구문
- * 수정 일시: 2025-07-04 01:28
- */
+
 import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
 import { checkAdminPermission, getCompanySizeName } from './admin_common.js';
 
 document.addEventListener('DOMContentLoaded', function() {
     
-    // --- 1. 기본 변수 선언 ---
     const token = localStorage.getItem('locallink-token');
     const programId = new URLSearchParams(window.location.search).get('id');
     const isEditMode = !!programId;
     const form = document.getElementById(isEditMode ? 'editProgramForm' : 'createProgramForm');
     
-    // 페이지 요소 찾기
     const loadingMessage = document.getElementById('loadingMessage');
     const sectionsContainer = document.getElementById('sections-container');
     const addSectionBtn = document.getElementById('add-section-btn');
@@ -25,11 +19,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const opportunityEffectsContainer = document.getElementById('opportunity-effects-container');
     const addOpportunityEffectBtn = document.getElementById('add-opportunity-effect-btn');
     
-    // 상태 관리 변수
     let existingImages = {}; 
     let newSectionFiles = {}; 
 
-    // --- 2. 페이지 초기화 ---
     async function initializePage() {
         if (!form) {
             console.error('오류: 폼 요소를 찾을 수 없습니다. HTML의 form 태그 id를 확인해주세요.');
@@ -38,12 +30,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const hasPermission = await checkAdminPermission(['super_admin', 'content_manager']);
         if (!hasPermission) return;
         
-        attachEventListeners(); // 모든 이벤트 리스너를 먼저 연결합니다.
+        attachEventListeners(); 
 
         if (isEditMode) {
-            await loadAndRenderProgramData(); // 수정 모드일 경우 데이터 로드
+            await loadAndRenderProgramData(); 
         } else {
-            // 생성 모드일 경우 기본 빈 행들을 추가
             addSectionRow(); 
             addEffectRow(); 
             addOrganizationRow(); 
@@ -51,7 +42,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // --- 3. 데이터 로딩 및 렌더링 (수정 페이지 전용) ---
     async function loadAndRenderProgramData() {
         try {
             const response = await fetch(`${API_BASE_URL}/admin/programs/${programId}`, {
@@ -106,6 +96,16 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
+        // --- 👇 [추가] 솔루션 카테고리 체크박스 설정 로직 👇 ---
+        const selectedSolutionCategories = program.solution_categories || [];
+        document.querySelectorAll('input[name="solution_category"]').forEach(checkbox => {
+            if (selectedSolutionCategories.includes(checkbox.value)) {
+                checkbox.checked = true; 
+            } else {
+                checkbox.checked = false;
+            }
+        });
+
         opportunityEffectsContainer.innerHTML = '';
         if (program.opportunity_effects && program.opportunity_effects.length > 0) {
             program.opportunity_effects.forEach(effect => addOpportunityEffectRow(effect));
@@ -127,12 +127,6 @@ document.addEventListener('DOMContentLoaded', function() {
         } else { addOrganizationRow(); }
     }
 
-    // --- 4. 동적 UI 생성 및 헬퍼 함수들 ---
-    /**
-     * 파일명: js/admin_program_edit.js
-     * 수정 위치: addSectionRow 함수 전체
-     * 수정 일시: 2025-07-06 10:35
-     */
     function addSectionRow(section = {}) {
         const sectionId = 'section-' + Date.now() + Math.random().toString(36).substr(2, 9);
         newSectionFiles[sectionId] = [];
@@ -173,7 +167,6 @@ document.addEventListener('DOMContentLoaded', function() {
         sectionsContainer.appendChild(newSection);
 
         if (isEditMode) {
-            // 'text-right'로 저장된 옛날 데이터를 'img-left'로 호환시켜줍니다.
             const layoutValue = section.layout === 'text-right' ? 'img-left' : section.layout;
             newSection.querySelector('.section-layout').value = layoutValue || 'img-top';
             renderImagePreviews(sectionId);
@@ -257,11 +250,6 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) { console.error('산업 평균 컬럼 목록 로딩 실패:', error); }
     }
 
-    /**
-     * 파일명: js/admin_program_edit.js
-     * 수정 위치: renderImagePreviews 함수 전체
-     * 수정 일시: 2025-07-06 07:44
-     */
     function renderImagePreviews(sectionId) {
         const sectionDiv = document.getElementById(sectionId);
         if (!sectionDiv) return;
@@ -280,9 +268,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const wrapper = document.createElement('div');
             wrapper.className = 'image-preview-wrapper';
             
-            // ★★★ 수정된 부분 ★★★
-            // 이제 백엔드가 항상 완벽한 전체 S3 주소를 보내주므로,
-            // 프론트에서는 받은 주소를 그대로 사용하기만 하면 됩니다.
+            
             const imageUrl = url;
 
             wrapper.innerHTML = `<img src="${imageUrl}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px;"><button type="button" class="remove-preview-btn" data-type="existing" data-index="${index}">X</button>`;
@@ -313,7 +299,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return element.value;
     }
 
-    // --- 5. 이벤트 리스너 연결 ---
     function attachEventListeners() {
         if(addSectionBtn) addSectionBtn.addEventListener('click', () => addSectionRow());
         if(addEffectBtn) addEffectBtn.addEventListener('click', () => addEffectRow());
@@ -328,19 +313,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 const sectionDiv = target.closest('.content-section');
                 if (!sectionDiv) return;
                 
-                // 섹션 삭제
                 if (target.matches('.remove-section-btn')) {
                     if (confirm('이 섹션을 삭제하시겠습니까?')) sectionDiv.remove();
                 }
                 
-                // 이미지 미리보기 삭제
                 if (target.matches('.remove-preview-btn')) {
                     const type = target.dataset.type;
                     const indexToRemove = parseInt(target.dataset.index, 10);
                     
-                    if (type === 'new') { // 새로 추가한 파일 삭제
+                    if (type === 'new') { 
                         newSectionFiles[sectionDiv.id].splice(indexToRemove, 1);
-                    } else { // 기존 이미지 삭제
+                    } else { 
                         const hiddenInput = sectionDiv.querySelector('.kept-image-urls');
                         let imageUrls = hiddenInput.value.split(',');
                         imageUrls.splice(indexToRemove, 1);
@@ -392,15 +375,10 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
         
-        // 폼 제출 이벤트를 여기에 연결
         form.addEventListener('submit', handleProgramSubmit);
     }
         
-    /**
-     * 파일명: js/admin_program_create.js & js/admin_program_edit.js
-     * 수정 위치: handleProgramSubmit 함수 전체
-     * 수정 일시: 2025-07-06 23:40
-     */
+    
     async function handleProgramSubmit(event) {
         event.preventDefault();
         const submitButton = form.querySelector('button[type="submit"]');
@@ -431,6 +409,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const serviceRegions = Array.from(document.querySelectorAll('input[name="service_region"]:checked')).map(checkbox => checkbox.value);
             formData.append('service_regions', serviceRegions.join(','));
             
+            // --- 👇 [추가] 체크된 솔루션 카테고리들을 수집하여 추가 👇 ---
+            const selectedSolutionCategories = Array.from(document.querySelectorAll('input[name="solution_category"]:checked'))
+                                            .map(cb => cb.value);
+            // 콤마로 구분된 문자열로 변환하여 API로 전송 (백엔드에서 .split(',')으로 처리)
+            formData.append('solution_categories', selectedSolutionCategories.join(','));
+            // --- 👆 [추가] 여기까지 👆 ---
+            
             const opportunityEffects = [];
             document.querySelectorAll('#opportunity-effects-container .form-fieldset').forEach(row => {
                 const type = row.querySelector('.opportunity-type-select').value;
@@ -444,7 +429,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             formData.append('opportunity_effects', JSON.stringify(opportunityEffects));
 
-            // 3. 콘텐츠 섹션 데이터와 이미지 파일을 '뉴스'와 동일한 방식으로 처리
+            // 3. 콘텐츠 섹션 데이터와 이미지 파일을 처리
             const finalContent = [];
             let imageCounter = 0; 
 
@@ -456,10 +441,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 const newImagePlaceholders = [];
 
                 newFiles.forEach(file => {
-                    // 'new_image_0', 'new_image_1' ... 과 같은 고유한 이름표 생성
                     const placeholder = `new_image_${imageCounter++}`;
-                    formData.append(placeholder, file, file.name); // 이름표와 함께 파일 추가
-                    newImagePlaceholders.push(placeholder); // 이름표를 content에 포함
+                    formData.append(placeholder, file, file.name);
+                    newImagePlaceholders.push(placeholder);
                 });
                 
                 finalContent.push({
@@ -467,7 +451,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     description: section.querySelector('.section-description').value,
                     layout: section.querySelector('.section-layout').value,
                     description_size: parseInt(section.querySelector('.section-desc-size').value, 10),
-                    images: [...keptImages, ...newImagePlaceholders] // 유지할 이미지 URL + 새 이미지 이름표
+                    images: [...keptImages, ...newImagePlaceholders]
                 });
             });
             
@@ -494,10 +478,9 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('프로그램 정보 저장 중 오류가 발생했습니다: ' + err.message);
         } finally {
             submitButton.disabled = false;
-            submitButton.textContent = isEditMode ? '수정 완료' : '저장하기';
+            submitButton.textContent = isEditMode ? '변경사항 저장' : '저장하기'; // '수정 완료'에서 '변경사항 저장'으로 통일
         }
     }
 
-    // --- 7. 페이지 시작 ---
     initializePage();
 });
