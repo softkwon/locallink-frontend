@@ -407,36 +407,47 @@
             line-height: 1.7;
         }
 
+        #taskAnalysisContainer {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* 반응형 그리드 */
+            gap: 25px; /* 카드 사이 간격 */
+        }
+
         .solution-card {
             background-color: #ffffff;
-            border: 1px solid #dee2e6;
             border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
             padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            position: relative; /* 호버 효과의 기준점 */
+            overflow: hidden; /* 호버 효과를 위해 추가 */
+            border-top: 5px solid #ccc; /* 기본 상단 색상 */
         }
+
+        /* E, S, G 카테고리별 색상 */
+        .solution-card.category-E { border-top-color: #28a745; } /* 녹색 계열 */
+        .solution-card.category-S { border-top-color: #ffc107; } /* 노란색 계열 */
+        .solution-card.category-G { border-top-color: #6f42c1; } /* 보라색 계열 (붉은 계열보다 가독성 좋음) */
+
         .solution-category-title {
             font-size: 1.4em;
-            color: #0056b3;
+            color: #343a40;
             margin-top: 0;
             margin-bottom: 10px;
         }
         .solution-category-description {
-            font-size: 1em;
+            font-size: 0.95em;
             color: #6c757d;
-            margin-bottom: 25px;
-            border-bottom: 1px solid #e9ecef;
-            padding-bottom: 20px;
-        }
-        .solution-card-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
+            margin-bottom: 20px;
+            flex-grow: 1; /* 내용이 적어도 카드가 같은 높이를 유지하도록 */
         }
         .solution-card-content h5 {
             font-size: 1.1em;
-            margin-top: 0;
+            margin-top: 15px;
             margin-bottom: 10px;
+            padding-top: 15px;
+            border-top: 1px solid #e9ecef;
         }
         .solution-card-content ul {
             list-style-type: none;
@@ -445,6 +456,7 @@
         }
         .solution-card-content ul li {
             margin-bottom: 8px;
+            font-size: 0.9em;
         }
         .solution-program-list a {
             text-decoration: none;
@@ -455,9 +467,29 @@
             text-decoration: underline;
         }
         .solution-risk-list li {
-            color: #dc3545; /* 리스크를 강조하는 색상 */
+            color: #dc3545;
         }
 
+        /* 마우스 호버 시 나타나는 상세 내용 */
+        .details-on-hover {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 25px;
+            box-sizing: border-box;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            overflow-y: auto;
+        }
+        .solution-card:hover .details-on-hover {
+            opacity: 1;
+            visibility: visible;
+        }
 
     </style>
 </head>
@@ -557,11 +589,7 @@
                 <h2 id="customStrategyTitle" class="section-title"></h2>
                       <p id="customStrategyDescription" class="section-description"></p>
 
-                <div class="strategy-section" id="task-section-wrapper">
-                    <div class="strategy-grid-header">
-                        <h3>우리 회사의 ESG 과제</h3>
-                        <h3>ESG 개선 시 기대효과</h3>
-                    </div>
+                <div class="strategy-section" id="task-section-wrapper">                    
                     <div id="taskAnalysisContainer">
                         <p><em>진단 결과를 바탕으로 맞춤 과제와 기대효과를 분석 중입니다...</em></p>
                     </div>
