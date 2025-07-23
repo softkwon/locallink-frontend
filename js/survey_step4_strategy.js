@@ -28,72 +28,60 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     try {
-        // --- 2. 백엔드 '추천 엔진' API 호출 ---
-        const response = await fetch(`${API_BASE_URL}/strategy/${diagnosisId}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        
-        if (!response.ok) {
-            const errorResult = await response.json().catch(() => ({ message: '전략 데이터를 불러오는 중 서버에 문제가 발생했습니다.' }));
+        // 전략 데이터와 규제 데이터를 동시에 요청
+        const [strategyRes, regulationsRes] = await Promise.all([
+            fetch(`${API_BASE_URL}/strategy/${diagnosisId}`, { headers: { 'Authorization': `Bearer ${token}` } }),
+            fetch(`${API_BASE_URL}/admin/regulations`, { headers: { 'Authorization': `Bearer ${token}` } })
+        ]);
+
+        // --- 1. 전략 데이터 처리 ---
+        if (!strategyRes.ok) {
+            const errorResult = await strategyRes.json().catch(() => ({ message: '전략 데이터를 불러오는 중 서버에 문제가 발생했습니다.' }));
             throw new Error(errorResult.message);
         }
+        const strategyResult = await strategyRes.json();
+        if (!strategyResult.success) {
+            throw new Error(strategyResult.message);
+        }
+        const data = strategyResult.strategyData;
+
+        const userName = data.userDiagnosis.company_name || '고객';
+        document.getElementById('marketStatusTitle').textContent = `${userName}님이 속한 시장현황`;
+        document.getElementById('customStrategyTitle').textContent = `${userName}님의 맞춤 ESG 전략`;
+        document.getElementById('customStrategyDescription').innerHTML = `설문결과를 기반하여 <strong>${userName}님</strong>의 ESG경영 개선을 도와 ESG 투자비용절감, 신규수익창출 및 국내외 ESG규제에 효과적으로 대응하기 위한 맞춤형 프로그램 분야를 제안합니다.`;
         
-        const result = await response.json();
-        if (!result.success) {
-            throw new Error(result.message);
-        }
-
-        const data = result.strategyData;
-
-        // --- [추가] 사용자 이름을 가져와 새로 추가한 제목과 설명을 채웁니다. ---
-        const userName = data.userDiagnosis.company_name || '고객'; // 사용자 이름이 없으면 '고객'으로 표시
-
-        // 1. '시장현황' 소제목 채우기
-        const marketStatusTitleEl = document.getElementById('marketStatusTitle');
-        if (marketStatusTitleEl) {
-            marketStatusTitleEl.textContent = `${userName}님이 속한 시장현황`;
-        }
-
-        // 2. '맞춤 ESG 전략' 소제목 채우기
-        const customStrategyTitleEl = document.getElementById('customStrategyTitle');
-        if (customStrategyTitleEl) {
-            customStrategyTitleEl.textContent = `${userName}님의 맞춤 ESG 전략`;
-        }
-
-        // 3. '맞춤 ESG 전략' 설명 채우기
-        const customStrategyDescEl = document.getElementById('customStrategyDescription');
-        if (customStrategyDescEl) {
-            customStrategyDescEl.innerHTML = `설문결과를 기반하여 <strong>${userName}님</strong>의 ESG경영 개선을 도와 ESG 투자비용절감, 신규수익창출 및 국내외 ESG규제에 효과적으로 대응하기 위한 맞춤형 프로그램 분야를 제안합니다.`;
-        }
-
-
-        // 이벤트 리스너 연결 (기존과 동일)
         const taskContainer = document.getElementById('taskAnalysisContainer');
         if (taskContainer) {
             taskContainer.addEventListener('click', e => {
                 if (e.target.classList.contains('program-proposal-btn')) {
                     const programId = e.target.dataset.programId;
                     const diagId = new URLSearchParams(window.location.search).get('diagId');
-                    
                     const url = `esg_program_detail.html?id=${programId}&from=strategy&diagId=${diagId}`;
                     const windowFeatures = 'width=1024,height=768,scrollbars=yes,resizable=yes';
                     window.open(url, 'programDetailWindow', windowFeatures);
                 }
             });
         }
-        
-        // --- 3. 받아온 데이터로 각 섹션을 그리는 함수들을 호출합니다. ---
-        renderAiAnalysis(data.aiAnalysis); 
+
+        // --- 2. [핵심] 규제 타임라인 데이터 처리 (이 부분이 누락된 것으로 보입니다) ---
+        const regulationsResult = await regulationsRes.json();
+        if (regulationsResult.success) {
+            renderRegulationTimeline(regulationsResult.regulations);
+        } else {
+            document.getElementById('regulation-timeline-container').innerHTML = '<p>규제 정보를 불러오는 데 실패했습니다.</p>';
+        }
+
+        // --- 3. 받아온 데이터로 나머지 섹션을 그리는 함수들 호출 ---
+        renderAiAnalysis(data.aiAnalysis);
         renderBenchmarkCharts(data.userDiagnosis, data.benchmarkScores, data.userAnswers, data.allQuestions);
         renderIndustryIssues(data.industryIssues, data.userDiagnosis);
         renderTasksAndAnalysis(data.recommendedPrograms, data.userDiagnosis, data.industryAverageData);
-        renderRegionalMapAndIssues(data.userDiagnosis, data.regionalIssues); 
+        renderRegionalMapAndIssues(data.userDiagnosis, data.regionalIssues);
         renderCompanySizeIssues(data.companySizeIssue, data.userDiagnosis.company_size);
 
-        // 로딩 메시지 숨기고 콘텐츠 표시
         if(loadingEl) loadingEl.style.display = 'none';
         if(contentEl) contentEl.classList.remove('hidden');
-        
+
         equalizeSectionHeights();
 
     } catch (error) {
