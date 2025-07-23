@@ -407,15 +407,55 @@
             line-height: 1.7;
         }
 
+        .solution-card {
+            background-color: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
         .solution-category-title {
-            font-size: 1.3em;
+            font-size: 1.4em;
             color: #0056b3;
-            margin-top: 30px;
-            margin-bottom: 15px;
-            padding-bottom: 5px;
-            border-bottom: 1px solid #dee2e6;
-            /* 그리드 레이아웃의 전체 너비를 차지하도록 설정 */
-            grid-column: 1 / -1; 
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        .solution-category-description {
+            font-size: 1em;
+            color: #6c757d;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #e9ecef;
+            padding-bottom: 20px;
+        }
+        .solution-card-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        .solution-card-content h5 {
+            font-size: 1.1em;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        .solution-card-content ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        .solution-card-content ul li {
+            margin-bottom: 8px;
+        }
+        .solution-program-list a {
+            text-decoration: none;
+            color: #007bff;
+            font-weight: 500;
+        }
+        .solution-program-list a:hover {
+            text-decoration: underline;
+        }
+        .solution-risk-list li {
+            color: #dc3545; /* 리스크를 강조하는 색상 */
         }
 
 

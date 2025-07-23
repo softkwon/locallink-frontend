@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         renderAiAnalysis(data.aiAnalysis);
         renderBenchmarkCharts(data.userDiagnosis, data.benchmarkScores, data.userAnswers, data.allQuestions);
         renderIndustryIssues(data.industryIssues, data.userDiagnosis);
-        renderTasksAndAnalysis(data.recommendedPrograms, data.userDiagnosis, data.industryAverageData);
+        renderTasksAndAnalysis(data.recommendedPrograms, data.allSolutionCategories);
         renderRegionalMapAndIssues(data.userDiagnosis, data.regionalIssues);
         renderCompanySizeIssues(data.companySizeIssue, data.userDiagnosis.company_size);
 
@@ -391,18 +391,22 @@ function equalizeSectionHeights() {
     }, 100); 
 }
 
-function renderTasksAndAnalysis(programs, diagnosis, industryAverageData) {
+function renderTasksAndAnalysis(programs, allSolutionCategories) {
     const container = document.getElementById('taskAnalysisContainer');
     if (!container) return;
 
+    // 추천된 프로그램이 없을 경우의 메시지
     if (!programs || programs.length === 0) {
-        container.innerHTML = '<div class="task-box" style="grid-column: 1 / -1; text-align: center; border-left-color: #28a745;"><p><strong>축하합니다!</strong><br>현재 분석된 데이터를 기반으로 추천되는 시급한 ESG 개선 과제가 없습니다.</p></div>';
+        container.innerHTML = '<div class="solution-card" style="text-align: center;"><h4 class="solution-category-title">👍 축하합니다!</h4><p>현재 분석된 데이터를 기반으로 추천되는 시급한 ESG 개선 과제가 없습니다.</p></div>';
         return;
     }
 
+    // 1. 카테고리 이름으로 설명을 쉽게 찾기 위한 Map 생성
+    const categoryDescriptionMap = new Map((allSolutionCategories || []).map(cat => [cat.category_name, cat.description]));
+
+    // 2. 프로그램을 카테고리별로 그룹화
     const groupedPrograms = programs.reduce((acc, program) => {
-        const categories = program.solution_categories || ['기타']; // 카테고리가 없으면 '기타'로 분류
-        
+        const categories = program.solution_categories || ['기타'];
         categories.forEach(category => {
             if (!acc[category]) {
                 acc[category] = [];
@@ -416,36 +420,35 @@ function renderTasksAndAnalysis(programs, diagnosis, industryAverageData) {
 
     let finalHtml = '';
 
+    // 3. 그룹화된 데이터를 바탕으로 새로운 '솔루션 카드' UI 생성
     for (const category in groupedPrograms) {
-        finalHtml += `<h4 class="solution-category-title">${category}</h4>`;
+        const categoryPrograms = groupedPrograms[category];
+        const description = categoryDescriptionMap.get(category) || `${category} 관련 개선이 필요합니다.`;
 
-        groupedPrograms[category].forEach(program => {
-            const overviewText = program.program_overview || '프로그램에 대한 상세 설명은 맞춤 프로그램 보기에서 확인하세요.';
-            const impact = getFinancialImpactText(program, industryAverageData);
-            const opportunityHtml = impact.opportunities.map(opp => {
-                return opp.details
-                    ? `<span class="tooltip-container">${opp.summary}<span class="tooltip-text">${opp.details}</span></span>`
-                    : opp.summary;
-            }).join('<br>');
+        // 각 프로그램의 리스크 요약 (중복 제거)
+        const riskSummaries = [...new Set(categoryPrograms.map(p => p.risk_text).filter(Boolean))];
 
-            finalHtml += `
-                <div class="task-analysis-pair">
-                    <div class="task-box category-${program.esg_category}">
-                        <h5>[${program.esg_category}] ${program.title}</h5>
-                        <p>${overviewText}</p>
+        finalHtml += `
+            <div class="solution-card">
+                <h4 class="solution-category-title">${category}</h4>
+                <p class="solution-category-description">${description}</p>
+                
+                <div class="solution-card-content">
+                    <div>
+                        <h5>추천 프로그램</h5>
+                        <ul class="solution-program-list">
+                            ${categoryPrograms.map(p => `<li><a href="esg_program_detail.html?id=${p.id}&from=strategy&diagId=${new URLSearchParams(window.location.search).get('diagId')}" target="_blank">${p.title}</a></li>`).join('')}
+                        </ul>
                     </div>
-                    <div class="analysis-card">
-                        <div class="summary-content">
-                            <p><strong>방치 시 리스크:</strong> <span class="risk-value">${impact.risk.summary}</span></p>
-                            <p><strong>개선 시 효과:</strong> <span class="opportunity-value">${opportunityHtml}</span></p>
-                        </div>
-                        <button type="button" class="program-proposal-btn" data-program-id="${program.id}" title="클릭 시 '${program.title}' 프로그램의 상세 페이지가 새 창으로 열립니다.">
-                            프로그램 보기
-                        </button>
+                    <div>
+                        <h5>주요 리스크</h5>
+                        <ul class="solution-risk-list">
+                            ${riskSummaries.length > 0 ? riskSummaries.map(risk => `<li>${risk}</li>`).join('') : '<li>-</li>'}
+                        </ul>
                     </div>
                 </div>
-            `;
-        });
+            </div>
+        `;
     }
 
     container.innerHTML = finalHtml;
