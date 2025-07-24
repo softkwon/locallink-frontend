@@ -71,6 +71,9 @@ document.addEventListener('DOMContentLoaded', function() {
         safeSetValue('program_overview', program.program_overview);
         safeSetValue('risk_text', program.risk_text);
         safeSetValue('risk_description', program.risk_description);
+        safeSetValue('potential_e', program.potential_e);
+        safeSetValue('potential_s', program.potential_s);
+        safeSetValue('potential_g', program.potential_g);
         
         if (program.execution_type) {
             const radioBtn = document.querySelector(`input[name="executionType"][value="${program.execution_type}"]`);
