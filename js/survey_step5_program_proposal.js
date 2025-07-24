@@ -178,13 +178,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateSimulator() {
-        if (!initialScores) return;
-        const myPlan = JSON.parse(localStorage.getItem('esgMyPlan')) || [];
-        const planProgramIds = new Set(myPlan.map(p => p.id));
-        const planPrograms = allProgramsCache.filter(p => planProgramIds.has(p.id));
-        
-        renderScoreSimulator(initialScores, planPrograms);
-        displayMyPlan();
+    if (!initialScores) return;
+    const myPlan = JSON.parse(localStorage.getItem('esgMyPlan')) || [];
+    const planProgramIds = new Set(myPlan.map(p => p.id));
+    const planPrograms = allProgramsCache.filter(p => planProgramIds.has(p.id));
+    
+    // --- 👇 디버깅을 위한 코드 추가 👇 ---
+    console.log("플랜에 담긴 프로그램 상세 정보:", planPrograms); 
+    // --- 👆 여기까지 추가 👆 ---
+
+    renderScoreSimulator(initialScores, planPrograms);
+    displayMyPlan();
         
         document.querySelectorAll('.add-to-plan-btn').forEach(btn => {
             const programId = parseInt(btn.dataset.programId, 10);
