@@ -451,12 +451,26 @@
         }
 
         /* 카테고리 모달 */
-        .modal-content.large {
-            max-width: 800px;
+        #categories-modal { 
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0; top: 0; 
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.4); 
+        }
+
+        #categories-modal .modal-content.large {
+            max-width: 800px; /* 모달 창 너비를 넓게 */
         }
 
         .accordion-item {
             border-bottom: 1px solid #dee2e6;
+        }
+        .accordion-item:last-child {
+            border-bottom: none;
         }
 
         .accordion-header {
@@ -468,16 +482,20 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            transition: background-color 0.2s ease;
+        }
+        .accordion-header:hover {
+            background-color: #e9ecef;
         }
 
         .accordion-header::after {
-            content: '\\25BC';
+            content: '\\25BC'; /* 아래쪽 화살표 */
             font-size: 0.8em;
             transition: transform 0.2s ease;
         }
 
         .accordion-header.active::after {
-            transform: rotate(180deg); 
+            transform: rotate(180deg); /* 위쪽 화살표 */
         }
 
         .accordion-panel {
@@ -485,14 +503,21 @@
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+            background-color: #fff;
         }
 
         .category-detail-item {
             margin: 15px 0;
+            padding: 15px 0;
+            border-top: 1px solid #f1f1f1;
+        }
+        .category-detail-item:first-child {
+            border-top: none;
         }
 
         .category-detail-item strong {
             color: #0056b3;
+            font-size: 1.05em;
         }
 
         .category-detail-item p {
@@ -501,6 +526,8 @@
             margin-top: 5px;
             line-height: 1.6;
         }
+
+        
 
     </style>
 </head>
