@@ -1,19 +1,22 @@
+// js/survey_step5_program_proposal.js (최종 기능 통합본)
 
 import { API_BASE_URL, STATIC_BASE_URL } from './config.js'; 
 
 document.addEventListener('DOMContentLoaded', function() {
     
+    // --- 1. 페이지 요소 및 전역 변수 ---
     const token = localStorage.getItem('locallink-token');
     const diagId = new URLSearchParams(window.location.search).get('diagId');
     const mainContainer = document.querySelector('main.container');
     const recommendedContainer = document.getElementById('recommended-programs-container');
-    const allProgramsContainer = document.getElementById('all-programs-container');
     const regionalContainer = document.getElementById('regional-programs-container');
-    const myPlanContainer = document.getElementById('myPlanContainer'); 
+    const allProgramsContainer = document.getElementById('all-programs-container');
+    const myPlanContainer = document.getElementById('myPlanContainer');
 
-    let allProgramsCache = []; 
+    let allProgramsCache = [];
     let initialScores = null;
 
+    // --- 2. 페이지 초기화 ---
     async function initializePage() {
         if (!mainContainer || !diagId || !token) {
             mainContainer.innerHTML = '<h2>잘못된 접근입니다.</h2><p>Step4 페이지를 통해 접근해주세요.</p>';
@@ -24,6 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
         attachEventListeners();
     }
 
+    // --- 3. 데이터 로딩 및 전체 화면 렌더링 ---
     async function loadAndRenderAll() {
         try {
             const [programsRes, dashboardRes, userRes] = await Promise.all([
@@ -40,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (dashboardResult.success) {
                 initialScores = dashboardResult.dashboard.realtimeScores;
             } else {
-                initialScores = { e: 50, s: 50, g: 50, total: 50 }; 
+                initialScores = { e: 50, s: 50, g: 50, total: 50 };
             }
 
             const statusRes = await fetch(`${API_BASE_URL}/users/me/diagnosis-status?diagId=${diagId}`, { headers: { 'Authorization': `Bearer ${token}` } });
@@ -57,9 +61,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             const recommendedIds = new Set(diagnosisStatus.recommended_program_ids || []);
+            const recommendedPrograms = allProgramsCache.filter(p => recommendedIds.has(p.id));
             const regionalPrograms = allProgramsCache.filter(p => !recommendedIds.has(p.id) && p.service_regions && userRegion && (p.service_regions.includes(userRegion) || p.service_regions.includes('전국')));
             const regionalIds = new Set(regionalPrograms.map(p => p.id));
-            const recommendedPrograms = allProgramsCache.filter(p => recommendedIds.has(p.id));
             const otherPrograms = allProgramsCache.filter(p => !recommendedIds.has(p.id) && !regionalIds.has(p.id));
             
             renderProgramSection(recommendedContainer, recommendedPrograms, "진단 결과에 따른 맞춤 추천 프로그램이 없습니다.");
@@ -74,6 +78,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // --- 4. 렌더링 함수들 ---
+
     function renderProgramSection(container, programs, emptyMessage) {
         if (!container) return;
         container.innerHTML = '';
@@ -87,7 +93,6 @@ document.addEventListener('DOMContentLoaded', function() {
             let image = '/images/default_program.png';
             const firstImage = program.content && program.content[0]?.images?.length > 0 ? program.content[0].images[0] : null;
             if (firstImage) image = firstImage.startsWith('http') ? firstImage : `${STATIC_BASE_URL}/${firstImage}`;
-            
             const programBox = document.createElement('div');
             programBox.className = 'program-box';
             const isInPlan = planIds.has(program.id);
@@ -117,7 +122,7 @@ document.addEventListener('DOMContentLoaded', function() {
         myPlan.forEach(planItem => {
             const tag = document.createElement('div');
             tag.className = 'application-status-tag';
-            tag.innerHTML = `<span>${planItem.title}</span>`;
+            tag.innerHTML = `<span>${planItem.title}</span><button type="button" class="cancel-application-btn remove-from-plan-btn" data-program-id="${planItem.id}" title="플랜에서 제거">&times;</button>`;
             myPlanContainer.appendChild(tag);
         });
     }
@@ -134,8 +139,6 @@ document.addEventListener('DOMContentLoaded', function() {
             improvement.e += parseFloat(p.potential_e) || 0;
             improvement.s += parseFloat(p.potential_s) || 0;
             improvement.g += parseFloat(p.potential_g) || 0;
-            
-            // --- 👇 [핵심 수정] esg_category가 null이거나 없을 경우를 대비한 안전장치 추가 👇 ---
             const categoryKey = (p.esg_category || '').toLowerCase();
             if (programsByCategory[categoryKey]) {
                 programsByCategory[categoryKey].push(p.title);
@@ -182,13 +185,23 @@ document.addEventListener('DOMContentLoaded', function() {
         
         renderScoreSimulator(initialScores, planPrograms);
         displayMyPlan();
+        
+        document.querySelectorAll('.add-to-plan-btn').forEach(btn => {
+            const programId = parseInt(btn.dataset.programId, 10);
+            if (planProgramIds.has(programId)) {
+                btn.textContent = '플랜에서 제거';
+                btn.classList.replace('button-secondary', 'button-primary');
+            } else {
+                btn.textContent = '내 플랜에 담기';
+                btn.classList.replace('button-primary', 'button-secondary');
+            }
+        });
     }
 
+    // --- 5. 헬퍼 함수 및 이벤트 리스너 ---
     function getRiskLevelInfo(score) {
-        if (score >= 80) return { level: '우수' };
-        if (score >= 60) return { level: '양호' };
-        if (score >= 40) return { level: '보통' };
-        return { level: '미흡' };
+        if (score >= 80) return { level: '우수' }; if (score >= 60) return { level: '양호' };
+        if (score >= 40) return { level: '보통' }; return { level: '미흡' };
     }
     
     function setupHeaderLinks() {
@@ -199,39 +212,40 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function attachEventListeners() {
-        if (!mainContainer) return;
-        
         document.addEventListener('click', async e => {
             const target = e.target;
             
-            // --- '나의 ESG 활동' 또는 헤더의 '완료' 링크 클릭 처리 ---
-            const dashboardLink = target.closest('a[href="main_my_esg_dashboard.html"]');
-            if (dashboardLink) {
-                e.preventDefault();
-                alert("'AI기반 ESG 전략 수립', 'ESG 프로그램 제안'은 회원정보의 '나의 진단이력' 결과보기를 통해 다시 보실 수 있습니다.");
-                window.location.href = dashboardLink.href;
-                return;
-            }
-
-            // --- 프로그램 카드(자세히 보기) 클릭 처리 ---
             const cardWrapper = target.closest('.program-link-wrapper');
-            if (cardWrapper && cardWrapper.dataset.programId) {
+            if (cardWrapper) {
                 const programId = cardWrapper.dataset.programId;
                 const url = `esg_program_detail.html?id=${programId}&diagId=${diagId}`;
                 window.open(url, 'programDetailWindow', 'width=1024,height=768,scrollbars=yes,resizable=yes');
                 return; 
             }
             
-            // --- 버튼 클릭 공통 처리 ---
             const button = target.closest('button');
             if (!button) return;
 
-            // --- '시뮬레이터 실행하기' 버튼 클릭 처리 ---
-            if (button.id === 'openSimulatorBtn') {
+            if (button.classList.contains('add-to-plan-btn') || button.classList.contains('remove-from-plan-btn')) {
+                const programId = parseInt(button.dataset.programId);
+                const program = allProgramsCache.find(p => p.id === programId);
+                if (!program) return;
+
+                let myPlan = JSON.parse(localStorage.getItem('esgMyPlan')) || [];
+                if (myPlan.some(p => p.id === programId)) {
+                    myPlan = myPlan.filter(p => p.id !== programId);
+                    alert(`'${program.title}' 프로그램을 내 플랜에서 제거했습니다.`);
+                } else {
+                    myPlan.push({ id: programId, title: program.title });
+                    alert(`'${program.title}' 프로그램이 내 플랜에 추가되었습니다.`);
+                }
+                localStorage.setItem('esgMyPlan', JSON.stringify(myPlan));
+                updateSimulator();
+            }
+            else if (button.id === 'openSimulatorBtn') {
                 try {
                     const response = await fetch(`${API_BASE_URL}/diagnoses/${diagId}/results`, { headers: { 'Authorization': `Bearer ${token}` } });
                     const result = await response.json();
-                    
                     if (result.success) {
                         sessionStorage.setItem('latestDiagnosisData', JSON.stringify(result.results.diagnosis));
                         window.open('function_simulator.html', 'BudgetSimulator', 'width=900,height=800,scrollbars=yes,resizable=yes');
@@ -241,54 +255,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 } catch (error) {
                     alert('오류가 발생했습니다.');
                 }
-                return;
             }
-            
-            const programId = button.dataset.programId;
-
-            // --- '내 플랜에 담기' 및 '신청하기' 버튼 처리 ---
-            if (programId) {
+            else if (button.classList.contains('apply-btn')) {
+                const programId = button.dataset.programId;
                 const programTitle = button.dataset.programTitle;
-
-                // '내 플랜에 담기'
-                if (button.classList.contains('add-to-plan-btn')) {
-                    let myPlan = JSON.parse(localStorage.getItem('esgMyPlan')) || [];
-                    const programIdInt = parseInt(programId);
-
-                    if (myPlan.some(p => p.id === programIdInt)) {
-                        myPlan = myPlan.filter(p => p.id !== programIdInt);
-                        alert(`'${programTitle}' 프로그램을 내 플랜에서 제거했습니다.`);
-                        button.textContent = '내 플랜에 담기';
-                        button.classList.replace('button-primary', 'button-secondary');
+                if (!confirm(`'${programTitle}' 프로그램을 신청하시겠습니까?`)) return;
+                try {
+                    const response = await fetch(`${API_BASE_URL}/applications/me`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify({ programId: parseInt(programId) })
+                    });
+                    const result = await response.json();
+                    if (response.ok) {
+                        alert(`'${programTitle}' 프로그램 신청이 완료되었습니다.\n'나의 ESG 활동' 페이지에서 상세 현황을 확인하세요.`);
                     } else {
-                        myPlan.push({ id: programIdInt, title: programTitle });
-                        alert(`'${programTitle}' 프로그램이 내 플랜에 추가되었습니다.`);
-                        button.textContent = '플랜에서 제거';
-                        button.classList.replace('button-secondary', 'button-primary');
+                        alert(result.message);
                     }
-                    localStorage.setItem('esgMyPlan', JSON.stringify(myPlan));
-                    updateSimulator(); // 시뮬레이터 즉시 업데이트
-                }
-
-                // '신청하기'
-                if (button.classList.contains('apply-btn')) {
-                    if (!confirm(`'${programTitle}' 프로그램을 신청하시겠습니까?`)) return;
-                    try {
-                        const response = await fetch(`${API_BASE_URL}/applications/me`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                            body: JSON.stringify({ programId: parseInt(programId) })
-                        });
-                        const result = await response.json();
-                        if (response.ok) {
-                            alert(`'${programTitle}' 프로그램 신청이 완료되었습니다.\n'나의 ESG 활동' 페이지에서 상세 현황을 확인하세요.`);
-                            // 신청 후에는 이 페이지에서 더 할 작업이 없으므로 새로고침 등은 불필요
-                        } else {
-                            alert(result.message);
-                        }
-                    } catch (error) { 
-                        alert('신청 처리 중 오류가 발생했습니다.'); 
-                    }
+                } catch (error) { 
+                    alert('신청 처리 중 오류가 발생했습니다.'); 
                 }
             }
         });
