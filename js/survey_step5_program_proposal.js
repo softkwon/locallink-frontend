@@ -139,7 +139,10 @@ document.addEventListener('DOMContentLoaded', function() {
             improvement.e += parseFloat(p.potential_e) || 0;
             improvement.s += parseFloat(p.potential_s) || 0;
             improvement.g += parseFloat(p.potential_g) || 0;
-            const categoryKey = (p.esg_category || '').toLowerCase();
+            
+            // --- 👇 [핵심 수정] .trim()을 추가하여 데이터의 앞뒤 공백을 제거합니다. 👇 ---
+            const categoryKey = (p.esg_category || '').trim().toLowerCase();
+            
             if (programsByCategory[categoryKey]) {
                 programsByCategory[categoryKey].push(p.title);
             }
