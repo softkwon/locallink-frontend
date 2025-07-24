@@ -35,9 +35,14 @@ async function handleLogin(event) {
 
         const result = await response.json();
 
-        if (response.ok) {
+        if (response.ok && result.success) { // [수정] result.success 조건 추가
             localStorage.setItem('locallink-token', result.token);
-            alert(result.message || "로그인 성공!"); 
+            
+            // --- 👇 [핵심 수정] 사용자 이름을 사용한 환영 메시지 ---
+            const userName = result.user?.company_name || '사용자'; // user 객체 또는 company_name이 없을 경우를 대비
+            alert(`${userName}님 안녕하세요`); 
+            // --- 👆 여기까지 수정 👆 ---
+
             window.location.href = 'index.html'; 
         } else {
             alert(result.message || "로그인에 실패했습니다.");
