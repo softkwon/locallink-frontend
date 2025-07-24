@@ -395,9 +395,18 @@ document.addEventListener('DOMContentLoaded', function() {
             formData.append('program_overview', safeGetValue('program_overview'));
             formData.append('risk_text', safeGetValue('risk_text'));
             formData.append('risk_description', safeGetValue('risk_description'));
-            
+            formData.append('potential_e', safeGetValue('potential_e'));
+            formData.append('potential_s', safeGetValue('potential_s'));
+            formData.append('potential_g', safeGetValue('potential_g'));
+
             const executionType = document.querySelector('input[name="executionType"]:checked')?.value || 'donation';
             formData.append('execution_type', executionType);
+            
+            const serviceRegions = Array.from(document.querySelectorAll('input[name="service_region"]:checked')).map(checkbox => checkbox.value);
+            formData.append('service_regions', serviceRegions.join(','));
+
+            const selectedSolutionCategories = Array.from(document.querySelectorAll('input[name="solution_category"]:checked')).map(cb => cb.value);
+            formData.append('solution_categories', selectedSolutionCategories.join(','));
             
             // 2. 동적으로 추가/삭제되는 항목들을 JSON으로 변환하여 추가
             const economicEffects = Array.from(document.querySelectorAll('#effects-container .effect-item')).map(item => ({ type: item.querySelector('.effect-type').value, value: parseFloat(item.querySelector('.effect-value').value) || 0, description: item.querySelector('.effect-description').value })).filter(item => item.value || item.description);
@@ -405,16 +414,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const partnerOrganizations = Array.from(document.querySelectorAll('#organizations-container .organization-item')).map(item => ({ organization_name: item.querySelector('.organization-name').value, homepage_url: item.querySelector('.homepage-url').value })).filter(item => item.organization_name || item.homepage_url);
             formData.append('related_links', JSON.stringify(partnerOrganizations));
-            
-            const serviceRegions = Array.from(document.querySelectorAll('input[name="service_region"]:checked')).map(checkbox => checkbox.value);
-            formData.append('service_regions', serviceRegions.join(','));
-            
-            // --- 👇 [추가] 체크된 솔루션 카테고리들을 수집하여 추가 👇 ---
-            const selectedSolutionCategories = Array.from(document.querySelectorAll('input[name="solution_category"]:checked'))
-                                            .map(cb => cb.value);
-            // 콤마로 구분된 문자열로 변환하여 API로 전송 (백엔드에서 .split(',')으로 처리)
-            formData.append('solution_categories', selectedSolutionCategories.join(','));
-            // --- 👆 [추가] 여기까지 👆 ---
             
             const opportunityEffects = [];
             document.querySelectorAll('#opportunity-effects-container .form-fieldset').forEach(row => {
@@ -432,20 +431,16 @@ document.addEventListener('DOMContentLoaded', function() {
             // 3. 콘텐츠 섹션 데이터와 이미지 파일을 처리
             const finalContent = [];
             let imageCounter = 0; 
-
             document.querySelectorAll('.content-section').forEach(section => {
                 const sectionId = section.id;
                 const newFiles = newSectionFiles[sectionId] || [];
-                
                 const keptImages = section.querySelector('.kept-image-urls').value.split(',').filter(Boolean);
                 const newImagePlaceholders = [];
-
                 newFiles.forEach(file => {
                     const placeholder = `new_image_${imageCounter++}`;
                     formData.append(placeholder, file, file.name);
                     newImagePlaceholders.push(placeholder);
                 });
-                
                 finalContent.push({
                     subheading: section.querySelector('.section-subheading').value,
                     description: section.querySelector('.section-description').value,
@@ -454,7 +449,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     images: [...keptImages, ...newImagePlaceholders]
                 });
             });
-            
             formData.append('content', JSON.stringify(finalContent));
             
             // 4. 서버에 최종 데이터 전송
@@ -478,7 +472,7 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('프로그램 정보 저장 중 오류가 발생했습니다: ' + err.message);
         } finally {
             submitButton.disabled = false;
-            submitButton.textContent = isEditMode ? '변경사항 저장' : '저장하기'; // '수정 완료'에서 '변경사항 저장'으로 통일
+            submitButton.textContent = isEditMode ? '변경사항 저장' : '저장하기';
         }
     }
 
