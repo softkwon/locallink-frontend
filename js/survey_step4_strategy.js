@@ -40,25 +40,57 @@ document.addEventListener('DOMContentLoaded', async function() {
         const data = strategyResult.strategyData;
 
         const userName = data.userDiagnosis.company_name || '고객';
+        
+        document.getElementById('marketStatusTitle').textContent = `${userName}님이 속한 시장현황`;
+        document.getElementById('marketStatusDescription').innerHTML = `설문결과를 기반하여 <strong>${userName}님</strong>의 동종업계 대비 현황, 현재 확정된 ESG 규제 타임라인을 분석하여 대응방안을 분석합니다.`;
+        document.getElementById('customStrategyTitle').textContent = `${userName}님의 맞춤 ESG 대응`;
+        document.getElementById('customStrategyDescription').innerHTML = `설문결과를 기반하여 <strong>${userName}님</strong>의 ESG경영 개선을 도와 ESG 투자비용절감, 신규수익창출 및 국내외 ESG규제에 효과적으로 대응하기 위한 맞춤형 프로그램 분야를 제안합니다.`;
 
-        const marketStatusTitleEl = document.getElementById('marketStatusTitle');
-        if (marketStatusTitleEl) {
-            marketStatusTitleEl.textContent = `${userName}님이 속한 시장현황`;
+        const taskContainer = document.getElementById('taskAnalysisContainer');
+        if (taskContainer) {
+            taskContainer.addEventListener('click', e => {
+                if (e.target.classList.contains('program-proposal-btn')) {
+                    const programId = e.target.dataset.programId;
+                    const diagId = new URLSearchParams(window.location.search).get('diagId');
+                    const url = `esg_program_detail.html?id=${programId}&from=strategy&diagId=${diagId}`;
+                    const windowFeatures = 'width=1024,height=768,scrollbars=yes,resizable=yes';
+                    window.open(url, 'programDetailWindow', windowFeatures);
+                }
+            });
         }
 
-        const marketStatusDescEl = document.getElementById('marketStatusDescription');
-        if (marketStatusDescEl) {
-            marketStatusDescEl.innerHTML = `설문결과를 기반하여 <strong>${userName}님</strong>의 동종업계 대비 현황, 현재 확정된 ESG 규제 타임라인을 분석하여 대응방안을 분석합니다.`;
-        }
+        const viewCategoriesBtn = document.getElementById('viewCategoriesBtn');
+        const categoriesModal = document.getElementById('categories-modal');
+        
+        if (viewCategoriesBtn && categoriesModal) {
+            renderCategoriesModal(data.allSolutionCategories);
 
-        const customStrategyTitleEl = document.getElementById('customStrategyTitle');
-        if (customStrategyTitleEl) {
-            customStrategyTitleEl.textContent = `${userName}님의 맞춤 ESG 대응`;
-        }
+            const closeBtn = categoriesModal.querySelector('.close-btn');
+            const accordionContainer = document.getElementById('categories-accordion');
 
-        const customStrategyDescEl = document.getElementById('customStrategyDescription');
-        if (customStrategyDescEl) {
-            customStrategyDescEl.innerHTML = `설문결과를 기반하여 <strong>${userName}님</strong>의 ESG경영 개선을 도와 ESG 투자비용절감, 신규수익창출 및 국내외 ESG규제에 효과적으로 대응하기 위한 맞춤형 프로그램 분야를 제안합니다.`;
+            viewCategoriesBtn.addEventListener('click', () => {
+                categoriesModal.style.display = 'block';
+            });
+
+            closeBtn.addEventListener('click', () => categoriesModal.style.display = 'none');
+            window.addEventListener('click', (e) => {
+                if (e.target == categoriesModal) categoriesModal.style.display = 'none';
+            });
+
+            accordionContainer.addEventListener('click', function(e) {
+                const header = e.target.closest('.accordion-header');
+                if (!header) return;
+                
+                header.classList.toggle('active');
+                const panel = header.nextElementSibling;
+                if (panel.style.maxHeight) {
+                    panel.style.maxHeight = null;
+                    panel.style.padding = '0 20px';
+                } else {
+                    panel.style.padding = '15px 20px';
+                    panel.style.maxHeight = panel.scrollHeight + "px";
+                }
+            });
         }
 
         const regulationsResult = await regulationsRes.json();
@@ -71,7 +103,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         renderAiAnalysis(data.aiAnalysis); 
         renderBenchmarkCharts(data.userDiagnosis, data.benchmarkScores, data.userAnswers, data.allQuestions);
         renderIndustryIssues(data.industryIssues, data.userDiagnosis);
-        renderTasksAndAnalysis(data.recommendedPrograms, data.allSolutionCategories); // allSolutionCategories 인자 전달 확인
+        renderTasksAndAnalysis(data.recommendedPrograms, data.allSolutionCategories);
         renderRegionalMapAndIssues(data.userDiagnosis, data.regionalIssues); 
         renderCompanySizeIssues(data.companySizeIssue, data.userDiagnosis.company_size);
 
@@ -529,4 +561,41 @@ function renderRegulationTimeline(regulations) {
         `;
     });
     container.innerHTML += timelineHtml;
+}
+
+function renderCategoriesModal(allSolutionCategories) {
+    const accordionContainer = document.getElementById('categories-accordion');
+    if (!accordionContainer) return;
+
+    const grouped = allSolutionCategories.reduce((acc, cat) => {
+        const parent = cat.parent_category;
+        if (!acc[parent]) {
+            acc[parent] = [];
+        }
+        acc[parent].push(cat);
+        return acc;
+    }, {});
+
+    let accordionHtml = '';
+
+    const parentCategoryNames = { E: '환경', S: '사회', G: '지배구조' };
+
+    for (const parent of ['E', 'S', 'G']) {
+        if (grouped[parent]) {
+            accordionHtml += `
+                <div class="accordion-item">
+                    <div class="accordion-header">${parentCategoryNames[parent]}(${parent})</div>
+                    <div class="accordion-panel">
+                        ${grouped[parent].map(cat => `
+                            <div class="category-detail-item">
+                                <strong>${cat.category_name}</strong>
+                                <p>${cat.description || '세부 설명이 등록되지 않았습니다.'}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+    }
+    accordionContainer.innerHTML = accordionHtml;
 }

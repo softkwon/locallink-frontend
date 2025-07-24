@@ -63,37 +63,29 @@ function initializeMobileMenu() {
     overlay.addEventListener('click', closeMenu);
 }
 
-// 페이지 DOM이 로드되면, 헤더와 푸터 렌더링 함수를 실행
 document.addEventListener('DOMContentLoaded', function() {
-    // 헤더 로고 이미지 경로 설정
     const logoImg = document.getElementById('headerLogoImg');
     if (logoImg) {
         logoImg.src = `images/logo.png`;
     }
     
-    // 기존에 있던 함수들 호출
     checkLoginAndRenderHeader();
     loadAndRenderFooter(); 
     initializeMobileMenu(); 
 });
 
-/**
- * 로그인 상태를 확인하고 G-style 사용자 메뉴를 그리는 메인 함수
- */
 async function checkLoginAndRenderHeader() {
     const menuContainer = document.getElementById('user-menu-container');
     if (!menuContainer) return;
 
     const token = localStorage.getItem('locallink-token');
 
-    // 비로그인 상태일 경우 (기존과 동일)
     if (!token) {
         menuContainer.innerHTML = `<a href="main_login.html" class="button-outline" style="margin-right:10px;">로그인</a><a href="main_signup.html" class="button-primary">회원가입</a>`;
         attachHeaderLinkListeners();
         return;
     }
 
-    // 로그인 상태일 경우
     try {
         const response = await fetch(`${API_BASE_URL}/users/me`, { headers: { 'Authorization': `Bearer ${token}` } });
         if (!response.ok) return logout('로그인 시간이 만료되었습니다. 다시 로그인 해주세요.');
@@ -256,9 +248,7 @@ function logout(message = '로그아웃 되었습니다.') {
     window.location.href = 'index.html';
 }
 
-/**
- * 로그인 세션 타이머 기능 함수
- */
+
 function startSessionTimer(token) {
     if (sessionTimerInterval) clearInterval(sessionTimerInterval);
     try {
@@ -626,15 +616,10 @@ async function initializeNotifications() {
     });
 }
 
-/**
- * 로컬 스토리지의 토큰에서 현재 로그인한 사용자의 ID를 파싱하여 반환합니다.
- * @returns {number | null} - 사용자 ID 또는 토큰이 없거나 잘못된 경우 null
- */
 export function getMyUserId() {
     const token = localStorage.getItem('locallink-token');
     if (!token) return null;
     try {
-        // 토큰의 중간 부분(payload)을 디코딩하여 사용자 정보를 얻습니다.
         const payload = JSON.parse(atob(token.split('.')[1]));
         return payload.userId;
     } catch (e) {
