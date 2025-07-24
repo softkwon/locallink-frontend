@@ -134,7 +134,9 @@ document.addEventListener('DOMContentLoaded', function() {
             improvement.e += parseFloat(p.potential_e) || 0;
             improvement.s += parseFloat(p.potential_s) || 0;
             improvement.g += parseFloat(p.potential_g) || 0;
-            const categoryKey = p.esg_category.toLowerCase();
+            
+            // --- 👇 [핵심 수정] esg_category가 null이거나 없을 경우를 대비한 안전장치 추가 👇 ---
+            const categoryKey = (p.esg_category || '').toLowerCase();
             if (programsByCategory[categoryKey]) {
                 programsByCategory[categoryKey].push(p.title);
             }
