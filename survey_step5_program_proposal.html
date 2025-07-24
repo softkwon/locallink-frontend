@@ -6,6 +6,8 @@
     <title>ESG 프로그램 제안 및 시뮬레이터 - ESGlink</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/components.css"> 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 </head>
 <body>
     <style>
@@ -341,6 +343,27 @@
             font-size: 1em;
         }        
 
+        .score-summary-section { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 30px; 
+            align-items: flex-start; 
+            margin-bottom: 40px; 
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        .gauge-container { flex: 1; min-width: 280px; }
+        .score-details-table { flex: 2; min-width: 400px; }
+
+        .score-table { width: 100%; border-collapse: collapse; font-size: 0.95em; }
+        .score-table th, .score-table td { border: 1px solid #e9ecef; padding: 12px; text-align: left; vertical-align: middle; }
+        .score-table th { background-color: #f8f9fa; font-weight: bold; }
+        .score-table .category-header { font-size: 1.1em; }
+        .score-table .imp-score { color: #007bff; font-weight: bold; }
+        .score-table .expected-grade { font-size: 0.85em; color: #6c757d; margin-left: 5px; }
+
     </style>
     <header>
         <div class="container">
@@ -379,6 +402,12 @@
     
     <main class="container">
         <h1>ESG 프로그램 제안</h1>
+        <section class="score-summary-section">
+            <div class="gauge-container" id="score-simulator-gauge">
+                </div>
+            <div class="score-details-table" id="score-simulator-table">
+                </div>
+        </section>
         <p>진단 결과를 바탕으로 ESG 목표 달성을 위한 맞춤형 프로그램을 제안합니다.</p>
         <section class="info-banner">
             <div class="info-grid">
