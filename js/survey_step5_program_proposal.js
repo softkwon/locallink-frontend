@@ -116,7 +116,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const myPlan = JSON.parse(localStorage.getItem('esgMyPlan')) || [];
         myPlanContainer.innerHTML = ''; 
         if (myPlan.length === 0) {
-            myPlanContainer.innerHTML = '<p style="text-align:center; color:#666;">아직 플랜에 담은 프로그램이 없습니다.</p>';
+            myPlanContainer.innerHTML = '<p style="font-size: 0.9em; color: #666;">아직 플랜에 담은 프로그램이 없습니다.</p>';
             return;
         }
         myPlan.forEach(planItem => {
@@ -215,6 +215,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.addEventListener('click', async e => {
             const target = e.target;
             
+            // 프로그램 카드 클릭 시 상세 보기
             const cardWrapper = target.closest('.program-link-wrapper');
             if (cardWrapper) {
                 const programId = cardWrapper.dataset.programId;
@@ -226,8 +227,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const button = target.closest('button');
             if (!button) return;
 
+            // '내 플랜에 담기' 또는 '플랜에서 제거'(X 버튼) 클릭
             if (button.classList.contains('add-to-plan-btn') || button.classList.contains('remove-from-plan-btn')) {
-                const programId = parseInt(button.dataset.programId);
+                const programId = parseInt(button.dataset.programId, 10);
                 const program = allProgramsCache.find(p => p.id === programId);
                 if (!program) return;
 
@@ -242,6 +244,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 localStorage.setItem('esgMyPlan', JSON.stringify(myPlan));
                 updateSimulator();
             }
+            
+            // '시뮬레이터 실행' 버튼 클릭
             else if (button.id === 'openSimulatorBtn') {
                 try {
                     const response = await fetch(`${API_BASE_URL}/diagnoses/${diagId}/results`, { headers: { 'Authorization': `Bearer ${token}` } });
@@ -256,10 +260,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     alert('오류가 발생했습니다.');
                 }
             }
+            
+            // '신청하기' 버튼 클릭
             else if (button.classList.contains('apply-btn')) {
                 const programId = button.dataset.programId;
-                const programTitle = button.dataset.programTitle;
-                if (!confirm(`'${programTitle}' 프로그램을 신청하시겠습니까?`)) return;
+                const program = allProgramsCache.find(p => p.id === parseInt(programId));
+                if (!program) return;
+
+                if (!confirm(`'${program.title}' 프로그램을 신청하시겠습니까?`)) return;
                 try {
                     const response = await fetch(`${API_BASE_URL}/applications/me`, {
                         method: 'POST',
@@ -268,7 +276,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                     const result = await response.json();
                     if (response.ok) {
-                        alert(`'${programTitle}' 프로그램 신청이 완료되었습니다.\n'나의 ESG 활동' 페이지에서 상세 현황을 확인하세요.`);
+                        alert(`'${program.title}' 프로그램 신청이 완료되었습니다.\n'나의 ESG 활동' 페이지에서 상세 현황을 확인하세요.`);
                     } else {
                         alert(result.message);
                     }
@@ -279,5 +287,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // --- 6. 페이지 실행 ---
     initializePage();
 });

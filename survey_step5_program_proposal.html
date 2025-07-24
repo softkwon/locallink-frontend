@@ -255,84 +255,7 @@
         .cancel-application-btn:hover {
             opacity: 1;
         }
-        /* ★★★ 신규 액션 유도 배너 스타일 ★★★ */
-        .cta-banner {
-            max-width: 1000px; /* 최대 너비 설정 */
-            margin: 40px auto; /* 페이지 중앙에 배치 */
-            padding: 30px 40px;
-            background: linear-gradient(135deg, #3376e0 0%, #7b92f8 40%, #6FB1FC 100%);
-            color: white;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(67, 100, 247, 0.25);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 30px;
-        }
-
-        /* 배너 안의 '신청 현황' 섹션 스타일 초기화 및 재설정 */
-        .cta-banner #applicationStatusSection {
-            background: none;
-            border: none;
-            padding: 0;
-            margin: 0;
-            box-shadow: none;
-            flex-grow: 1;
-        }
-        .cta-banner #applicationStatusSection h3 {
-            color: #ffffff;
-            font-size: 1.3em;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.4);
-            margin-top: 0;
-        }
-        .cta-banner #applicationStatusSection a {
-            color: #ffffff;
-            text-decoration: underline;
-            opacity: 0.9;
-        }
-        .cta-banner #applicationStatusSection p {
-            text-align: left; /* 내부 p태그는 왼쪽 정렬 */
-        }
-
-        /* 배너 안의 신청 현황 태그 스타일 */
-        .cta-banner .application-status-tag {
-            background-color: rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: #ffffff;
-            font-weight: 500;
-        }
-        .cta-banner .cancel-application-btn {
-            color: #f5d8d8;
-            opacity: 0.8;
-        }
-        .cta-banner .cancel-application-btn:hover {
-            opacity: 1;
-        }
-
-        /* 배너 안의 시뮬레이터 버튼 스타일 */
-        .cta-banner .simulator-button-container {
-            flex-shrink: 0;
-        }
-        .cta-banner #openSimulatorBtn {
-            background: #ffffff;
-            color: #0056b3;
-            font-weight: bold;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-        .cta-banner #openSimulatorBtn:hover {
-            background: #f0f8ff;
-        }
-
-        /* 반응형 처리 */
-        @media (max-width: 768px) {
-            .cta-banner {
-                flex-direction: column;
-                text-align: center;
-            }
-            .cta-banner #applicationStatusSection p {
-                text-align: center; /* 모바일에서는 링크도 중앙 정렬 */
-            }
-        }
+        
         .simulator-button-container {
             flex-shrink: 0; /* 버튼이 줄어들지 않도록 */
         }
@@ -342,18 +265,7 @@
             padding: 12px 20px;
             font-size: 1em;
         }        
-
-        .score-summary-section { 
-            display: flex; 
-            flex-wrap: wrap; 
-            gap: 30px; 
-            align-items: flex-start; 
-            margin-bottom: 40px; 
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            border: 1px solid #e9ecef;
-        }
+        
         .gauge-container { flex: 1; min-width: 280px; }
         .score-details-table { flex: 2; min-width: 400px; }
 
@@ -364,6 +276,56 @@
         .score-table .imp-score { color: #007bff; font-weight: bold; }
         .score-table .expected-grade { font-size: 0.85em; color: #6c757d; margin-left: 5px; }
 
+        /* === [수정] 시뮬레이터 통합 박스 스타일 === */
+        #simulator-section {
+            background-color: #f8f9fa; /* 밝은 회색 배경 */
+            border: 1px solid #dee2e6;
+        }
+        .simulator-content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr; /* 계기판과 플랜 목록을 2:1 비율로 배치 */
+            gap: 30px;
+            align-items: start;
+        }
+        .simulator-plan-area h4 {
+            font-size: 1.1em;
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #343a40;
+        }
+        #myPlanContainer .application-status-tag { /* 기존 스타일 재사용 */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            color: #495057;
+            padding: 8px 15px;
+            border-radius: 5px;
+            margin-bottom: 8px;
+        }
+        #myPlanContainer .cancel-application-btn { /* 'X' 버튼 스타일 재사용 */
+            color: #6c757d;
+        }
+
+        /* 기존 점수판 스타일은 그대로 유지 */
+        .gauge-container { flex: 1; min-width: 280px; }
+        .score-details-table { flex: 2; min-width: 400px; }
+        .score-table { width: 100%; border-collapse: collapse; font-size: 0.9em; background-color: #fff; }
+        .score-table th, .score-table td { border: 1px solid #e9ecef; padding: 10px; text-align: left; vertical-align: middle; }
+        .score-table th { background-color: #f8f9fa; font-weight: bold; }
+        .score-table .category-header { font-size: 1.05em; }
+        .score-table .imp-score { color: #007bff; font-weight: bold; }
+        .score-table .expected-grade { font-size: 0.85em; color: #6c757d; margin-left: 5px; }
+        .score-table .program-list { list-style:none; padding:0; margin:0; font-size:0.9em; }
+        .score-table .program-list li { margin-bottom: 4px; }
+
+        /* 모바일 반응형 */
+        @media (max-width: 992px) {
+            .simulator-content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
     <header>
         <div class="container">
@@ -430,27 +392,21 @@
                 </div>                
             </div>
         </section>
-        <section class="score-summary-section">
-            <div class="gauge-container" id="score-simulator-gauge">
+        <section id="simulator-section" class="strategy-section">
+            <h3>프로그램 이용 시 기대효과</h3>
+            <div class="simulator-content-grid">
+                <div class="simulator-gauge-area">
+                    <div class="gauge-container" id="score-simulator-gauge"></div>
+                    <div class="score-details-table" id="score-simulator-table"></div>
                 </div>
-            <div class="score-details-table" id="score-simulator-table">
+                <div class="simulator-plan-area">
+                    <h4>내 플랜 목록</h4>
+                    <div id="myPlanContainer">
+                        <p>관심있는 프로그램을 플랜에 담아보세요.</p>
+                    </div>
                 </div>
-        </section>
-        <div class="cta-banner">
-            <section id="applicationStatusSection" class="strategy-section">
-                <h3 style="color: #0056b3;">내 플랜 목록</h3>
-                <div id="myPlanContainer" class="application-status-grid"></div>
-                <p style="text-align: right; margin-top: 15px; font-size: 0.9em;">
-                    관심있는 프로그램을 플랜에 담아보세요. 시뮬레이터 점수에 자동으로 반영됩니다.
-                </p>
-            </section>
-            <div class="simulator-button-container">
-                <button type="button" id="openSimulatorBtn" class="button-primary" 
-                        title="관심있는 프로그램을 '내 플랜에 담기' 후 시뮬레이터를 실행하여 기대효과를 측정할 수 있습니다.">
-                    ESG예산편성시 기대효과 시뮬레이터(기부금) ⚙️
-                </button>
             </div>
-        </div>
+        </section>
         <section class="strategy-section">
             <h3>진단을 통해 추천된 프로그램</h3>
             <div class="program-proposal-grid" id="recommended-programs-container">
