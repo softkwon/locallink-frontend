@@ -199,9 +199,21 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function attachEventListeners() {
+        if (!mainContainer) return;
+        
         document.addEventListener('click', async e => {
             const target = e.target;
             
+            // --- '나의 ESG 활동' 또는 헤더의 '완료' 링크 클릭 처리 ---
+            const dashboardLink = target.closest('a[href="main_my_esg_dashboard.html"]');
+            if (dashboardLink) {
+                e.preventDefault();
+                alert("'AI기반 ESG 전략 수립', 'ESG 프로그램 제안'은 회원정보의 '나의 진단이력' 결과보기를 통해 다시 보실 수 있습니다.");
+                window.location.href = dashboardLink.href;
+                return;
+            }
+
+            // --- 프로그램 카드(자세히 보기) 클릭 처리 ---
             const cardWrapper = target.closest('.program-link-wrapper');
             if (cardWrapper && cardWrapper.dataset.programId) {
                 const programId = cardWrapper.dataset.programId;
@@ -210,32 +222,57 @@ document.addEventListener('DOMContentLoaded', function() {
                 return; 
             }
             
+            // --- 버튼 클릭 공통 처리 ---
             const button = target.closest('button');
             if (!button) return;
 
-            if (button.classList.contains('add-to-plan-btn')) {
-                const programId = parseInt(button.dataset.programId);
-                const programTitle = button.dataset.programTitle;
-                let myPlan = JSON.parse(localStorage.getItem('esgMyPlan')) || [];
-                
-                if (myPlan.some(p => p.id === programId)) {
-                    myPlan = myPlan.filter(p => p.id !== programId);
-                    alert(`'${programTitle}' 프로그램을 내 플랜에서 제거했습니다.`);
-                    button.textContent = '내 플랜에 담기';
-                    button.classList.replace('button-primary', 'button-secondary');
-                } else {
-                    myPlan.push({ id: programId, title: programTitle });
-                    alert(`'${programTitle}' 프로그램이 내 플랜에 추가되었습니다.`);
-                    button.textContent = '플랜에서 제거';
-                    button.classList.replace('button-secondary', 'button-primary');
+            // --- '시뮬레이터 실행하기' 버튼 클릭 처리 ---
+            if (button.id === 'openSimulatorBtn') {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/diagnoses/${diagId}/results`, { headers: { 'Authorization': `Bearer ${token}` } });
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        sessionStorage.setItem('latestDiagnosisData', JSON.stringify(result.results.diagnosis));
+                        window.open('function_simulator.html', 'BudgetSimulator', 'width=900,height=800,scrollbars=yes,resizable=yes');
+                    } else {
+                        alert('시뮬레이터 실행에 필요한 정보를 불러오는 데 실패했습니다.');
+                    }
+                } catch (error) {
+                    alert('오류가 발생했습니다.');
                 }
-                localStorage.setItem('esgMyPlan', JSON.stringify(myPlan));
-                updateSimulator();
+                return;
             }
             
-            if (button.classList.contains('apply-btn')) {
-                    if (!confirm(`'${programTitle}' 프로그램을 신청하시겠습니까?`)) return;
+            const programId = button.dataset.programId;
 
+            // --- '내 플랜에 담기' 및 '신청하기' 버튼 처리 ---
+            if (programId) {
+                const programTitle = button.dataset.programTitle;
+
+                // '내 플랜에 담기'
+                if (button.classList.contains('add-to-plan-btn')) {
+                    let myPlan = JSON.parse(localStorage.getItem('esgMyPlan')) || [];
+                    const programIdInt = parseInt(programId);
+
+                    if (myPlan.some(p => p.id === programIdInt)) {
+                        myPlan = myPlan.filter(p => p.id !== programIdInt);
+                        alert(`'${programTitle}' 프로그램을 내 플랜에서 제거했습니다.`);
+                        button.textContent = '내 플랜에 담기';
+                        button.classList.replace('button-primary', 'button-secondary');
+                    } else {
+                        myPlan.push({ id: programIdInt, title: programTitle });
+                        alert(`'${programTitle}' 프로그램이 내 플랜에 추가되었습니다.`);
+                        button.textContent = '플랜에서 제거';
+                        button.classList.replace('button-secondary', 'button-primary');
+                    }
+                    localStorage.setItem('esgMyPlan', JSON.stringify(myPlan));
+                    updateSimulator(); // 시뮬레이터 즉시 업데이트
+                }
+
+                // '신청하기'
+                if (button.classList.contains('apply-btn')) {
+                    if (!confirm(`'${programTitle}' 프로그램을 신청하시겠습니까?`)) return;
                     try {
                         const response = await fetch(`${API_BASE_URL}/applications/me`, {
                             method: 'POST',
@@ -243,12 +280,9 @@ document.addEventListener('DOMContentLoaded', function() {
                             body: JSON.stringify({ programId: parseInt(programId) })
                         });
                         const result = await response.json();
-
                         if (response.ok) {
-                            alert(`'${programTitle}' 프로그램 신청이 완료되었습니다.\n담당자가 연락드립니다. 연락처를 확인해주세요.\n\n*진행상황은 '나의 ESG 활동'에서 확인해 주세요.\n(신청 취소는 현재 페이지에서만 가능합니다)`);
-                            const appRes = await fetch(`${API_BASE_URL}/applications/me`, { headers: { 'Authorization': `Bearer ${token}` } });
-                            const appResult = await appRes.json();
-                            if(appResult.success) displayApplicationStatus(appResult.applications);
+                            alert(`'${programTitle}' 프로그램 신청이 완료되었습니다.\n'나의 ESG 활동' 페이지에서 상세 현황을 확인하세요.`);
+                            // 신청 후에는 이 페이지에서 더 할 작업이 없으므로 새로고침 등은 불필요
                         } else {
                             alert(result.message);
                         }
@@ -256,28 +290,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         alert('신청 처리 중 오류가 발생했습니다.'); 
                     }
                 }
-
-            if (applicationId) {
-                if (confirm("정말로 해당 프로그램 신청을 취소하시겠습니까?")) {
-                    try {
-                        const response = await fetch(`${API_BASE_URL}/applications/me/${applicationId}`, {
-                            method: 'DELETE',
-                            headers: { 'Authorization': `Bearer ${token}` }
-                        });
-                        const result = await response.json();
-                        alert(result.message);
-                        if(result.success){
-                            const appRes = await fetch(`${API_BASE_URL}/applications/me`, { headers: { 'Authorization': `Bearer ${token}` } });
-                            const appResult = await appRes.json();
-                            if(appResult.success) displayApplicationStatus(appResult.applications);
-                        }
-                    } catch(err) { 
-                        console.error("신청 취소 중 오류:", err);
-                        alert('신청 취소 중 오류가 발생했습니다.'); 
-                    }
-                }
             }
-
         });
     }
     
