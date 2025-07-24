@@ -1,3 +1,4 @@
+
 import { API_BASE_URL, STATIC_BASE_URL } from './config.js'; 
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -7,10 +8,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const mainContainer = document.querySelector('main.container');
     const recommendedContainer = document.getElementById('recommended-programs-container');
     const allProgramsContainer = document.getElementById('all-programs-container');
-    const applicationStatusContainer = document.getElementById('applicationStatusContainer');
+    const regionalContainer = document.getElementById('regional-programs-container');
+    const myPlanContainer = document.getElementById('myPlanContainer'); 
 
     let allProgramsCache = []; 
-    let initialScores = null; 
+    let initialScores = null;
 
     async function initializePage() {
         if (!mainContainer || !diagId || !token) {
@@ -24,10 +26,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function loadAndRenderAll() {
         try {
-            const [programsRes, dashboardRes, applicationsRes, userRes] = await Promise.all([
+            const [programsRes, dashboardRes, userRes] = await Promise.all([
                 fetch(`${API_BASE_URL}/programs`),
                 fetch(`${API_BASE_URL}/users/me/dashboard`, { headers: { 'Authorization': `Bearer ${token}` } }),
-                fetch(`${API_BASE_URL}/applications/me`, { headers: { 'Authorization': `Bearer ${token}` } }),
                 fetch(`${API_BASE_URL}/users/me`, { headers: { 'Authorization': `Bearer ${token}` } })
             ]);
 
@@ -39,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (dashboardResult.success) {
                 initialScores = dashboardResult.dashboard.realtimeScores;
             } else {
-                initialScores = { e: 0, s: 0, g: 0, total: 0 };
+                initialScores = { e: 50, s: 50, g: 50, total: 50 }; 
             }
 
             const statusRes = await fetch(`${API_BASE_URL}/users/me/diagnosis-status?diagId=${diagId}`, { headers: { 'Authorization': `Bearer ${token}` } });
@@ -47,12 +48,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (statusRes.ok) {
                 const statusResult = await statusRes.json();
                 if (statusResult.success) diagnosisStatus = statusResult;
-            }
-
-            let applications = [];
-            if (applicationsRes.ok) {
-                const appResult = await applicationsRes.json();
-                if(appResult.success) applications = appResult.applications;
             }
 
             let userRegion = null;
@@ -66,14 +61,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const regionalIds = new Set(regionalPrograms.map(p => p.id));
             const recommendedPrograms = allProgramsCache.filter(p => recommendedIds.has(p.id));
             const otherPrograms = allProgramsCache.filter(p => !recommendedIds.has(p.id) && !regionalIds.has(p.id));
-
-            const regionalContainer = document.getElementById('regional-programs-container');
             
             renderProgramSection(recommendedContainer, recommendedPrograms, "진단 결과에 따른 맞춤 추천 프로그램이 없습니다.");
             renderProgramSection(regionalContainer, regionalPrograms, "우리 회사 지역에 맞는 프로그램이 없습니다.");
             renderProgramSection(allProgramsContainer, otherPrograms.slice(0, 3), "다른 프로그램이 없습니다.");
             
-            displayApplicationStatus(applications);
             updateSimulator();
             
         } catch (error) {
@@ -89,23 +81,16 @@ document.addEventListener('DOMContentLoaded', function() {
             container.innerHTML = `<p style="text-align:center; color:#666;">${emptyMessage}</p>`;
             return;
         }
-
         const myPlan = JSON.parse(localStorage.getItem('esgMyPlan')) || [];
         const planIds = new Set(myPlan.map(p => p.id));
-
         programs.forEach(program => {
             let image = '/images/default_program.png';
             const firstImage = program.content && program.content[0]?.images?.length > 0 ? program.content[0].images[0] : null;
-            if (firstImage) {
-                image = firstImage.startsWith('http') ? firstImage : `${STATIC_BASE_URL}/${firstImage}`;
-            }
+            if (firstImage) image = firstImage.startsWith('http') ? firstImage : `${STATIC_BASE_URL}/${firstImage}`;
             
             const programBox = document.createElement('div');
             programBox.className = 'program-box';
-            if (program.isRecommended) programBox.classList.add('highlighted-program');
-
             const isInPlan = planIds.has(program.id);
-
             programBox.innerHTML = `
                 <div class="program-link-wrapper" data-program-id="${program.id}" style="cursor: pointer; text-decoration:none; color:inherit; display:flex; flex-direction:column; flex-grow:1;">
                     <img src="${image}" alt="${program.title}">
@@ -121,21 +106,19 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function displayApplicationStatus(applications) {
-        if (!applicationStatusContainer) return;
-        applicationStatusContainer.innerHTML = ''; 
-        if (!applications || applications.length === 0) {
-            applicationStatusContainer.innerHTML = '<p style="text-align:center; color:#666;">아직 신청한 프로그램이 없습니다.</p>';
+    function displayMyPlan() {
+        if (!myPlanContainer) return;
+        const myPlan = JSON.parse(localStorage.getItem('esgMyPlan')) || [];
+        myPlanContainer.innerHTML = ''; 
+        if (myPlan.length === 0) {
+            myPlanContainer.innerHTML = '<p style="text-align:center; color:#666;">아직 플랜에 담은 프로그램이 없습니다.</p>';
             return;
         }
-        applications.forEach(app => {
-            const programInfo = allProgramsCache.find(p => p.id === app.program_id);
-            if (programInfo) {
-                const tag = document.createElement('div');
-                tag.className = 'application-status-tag';
-                tag.innerHTML = `<span>${programInfo.title}</span><button type="button" class="cancel-application-btn" data-application-id="${app.id}" title="신청 취소">&times;</button>`;
-                applicationStatusContainer.appendChild(tag);
-            }
+        myPlan.forEach(planItem => {
+            const tag = document.createElement('div');
+            tag.className = 'application-status-tag';
+            tag.innerHTML = `<span>${planItem.title}</span>`;
+            myPlanContainer.appendChild(tag);
         });
     }
     
@@ -145,10 +128,16 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!gaugeEl || !tableEl) return;
         
         const improvement = { e: 0, s: 0, g: 0 };
+        const programsByCategory = { e: [], s: [], g: [] };
+
         planPrograms.forEach(p => {
             improvement.e += parseFloat(p.potential_e) || 0;
             improvement.s += parseFloat(p.potential_s) || 0;
             improvement.g += parseFloat(p.potential_g) || 0;
+            const categoryKey = p.esg_category.toLowerCase();
+            if (programsByCategory[categoryKey]) {
+                programsByCategory[categoryKey].push(p.title);
+            }
         });
 
         const expected = {
@@ -158,12 +147,14 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         expected.total = (expected.e + expected.s + expected.g) / 3;
 
+        const renderProgramList = (category) => programsByCategory[category].length > 0 ? `<ul class="program-list">${programsByCategory[category].map(title => `<li>${title}</li>`).join('')}</ul>` : '-';
+
         let tableHtml = `<table class="score-table">
-            <thead><tr><th>구분</th><th>현재 점수</th><th>개선 점수</th><th>예상 점수</th></tr></thead>
+            <thead><tr><th>구분</th><th>플랜에 담은 프로그램</th><th>현재 점수</th><th>개선 점수</th><th>예상 점수</th></tr></thead>
             <tbody>
-                <tr><td class="category-header">환경(E)</td><td>${currentScores.e.toFixed(1)}점</td><td class="imp-score">+${improvement.e.toFixed(1)}점</td><td><strong>${expected.e.toFixed(1)}점</strong> (${getRiskLevelInfo(expected.e).level} 등급)</td></tr>
-                <tr><td class="category-header">사회(S)</td><td>${currentScores.s.toFixed(1)}점</td><td class="imp-score">+${improvement.s.toFixed(1)}점</td><td><strong>${expected.s.toFixed(1)}점</strong> (${getRiskLevelInfo(expected.s).level} 등급)</td></tr>
-                <tr><td class="category-header">지배구조(G)</td><td>${currentScores.g.toFixed(1)}점</td><td class="imp-score">+${improvement.g.toFixed(1)}점</td><td><strong>${expected.g.toFixed(1)}점</strong> (${getRiskLevelInfo(expected.g).level} 등급)</td></tr>
+                <tr><td class="category-header">환경(E)</td><td>${renderProgramList('e')}</td><td>${currentScores.e.toFixed(1)}점</td><td class="imp-score">+${improvement.e.toFixed(1)}점</td><td><strong>${expected.e.toFixed(1)}점</strong> (${getRiskLevelInfo(expected.e).level} 등급)</td></tr>
+                <tr><td class="category-header">사회(S)</td><td>${renderProgramList('s')}</td><td>${currentScores.s.toFixed(1)}점</td><td class="imp-score">+${improvement.s.toFixed(1)}점</td><td><strong>${expected.s.toFixed(1)}점</strong> (${getRiskLevelInfo(expected.s).level} 등급)</td></tr>
+                <tr><td class="category-header">지배구조(G)</td><td>${renderProgramList('g')}</td><td>${currentScores.g.toFixed(1)}점</td><td class="imp-score">+${improvement.g.toFixed(1)}점</td><td><strong>${expected.g.toFixed(1)}점</strong> (${getRiskLevelInfo(expected.g).level} 등급)</td></tr>
             </tbody>
         </table>`;
         tableEl.innerHTML = tableHtml;
@@ -188,11 +179,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const planPrograms = allProgramsCache.filter(p => planProgramIds.has(p.id));
         
         renderScoreSimulator(initialScores, planPrograms);
+        displayMyPlan();
     }
 
     function getRiskLevelInfo(score) {
-        if (score >= 80) return { level: '우수' }; if (score >= 60) return { level: '양호' };
-        if (score >= 40) return { level: '보통' }; return { level: '미흡' };
+        if (score >= 80) return { level: '우수' };
+        if (score >= 60) return { level: '양호' };
+        if (score >= 40) return { level: '보통' };
+        return { level: '미흡' };
     }
     
     function setupHeaderLinks() {
@@ -206,14 +200,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.addEventListener('click', async e => {
             const target = e.target;
             
-            const dashboardLink = target.closest('a[href="main_my_esg_dashboard.html"]');
-            if (dashboardLink) {
-                e.preventDefault();
-                alert("'AI기반 ESG 전략 수립', 'ESG 프로그램 제안'은 회원정보의 '나의 진단이력' 결과보기를 통해 다시 보실 수 있습니다.");
-                window.location.href = dashboardLink.href;
-                return;
-            }
-
             const cardWrapper = target.closest('.program-link-wrapper');
             if (cardWrapper && cardWrapper.dataset.programId) {
                 const programId = cardWrapper.dataset.programId;
@@ -225,48 +211,27 @@ document.addEventListener('DOMContentLoaded', function() {
             const button = target.closest('button');
             if (!button) return;
 
-            if (button.id === 'openSimulatorBtn') {
-                try {
-                    const response = await fetch(`${API_BASE_URL}/diagnoses/${diagId}/results`, { headers: { 'Authorization': `Bearer ${token}` } });
-                    const result = await response.json();
-                    if (result.success) {
-                        sessionStorage.setItem('latestDiagnosisData', JSON.stringify(result.results.diagnosis));
-                        window.open('function_simulator.html', 'BudgetSimulator', 'width=900,height=800,scrollbars=yes,resizable=yes');
-                    } else {
-                        alert('시뮬레이터 실행에 필요한 정보를 불러오는 데 실패했습니다.');
-                    }
-                } catch (error) {
-                    alert('오류가 발생했습니다.');
+            if (button.classList.contains('add-to-plan-btn')) {
+                const programId = parseInt(button.dataset.programId);
+                const programTitle = button.dataset.programTitle;
+                let myPlan = JSON.parse(localStorage.getItem('esgMyPlan')) || [];
+                
+                if (myPlan.some(p => p.id === programId)) {
+                    myPlan = myPlan.filter(p => p.id !== programId);
+                    alert(`'${programTitle}' 프로그램을 내 플랜에서 제거했습니다.`);
+                    button.textContent = '내 플랜에 담기';
+                    button.classList.replace('button-primary', 'button-secondary');
+                } else {
+                    myPlan.push({ id: programId, title: programTitle });
+                    alert(`'${programTitle}' 프로그램이 내 플랜에 추가되었습니다.`);
+                    button.textContent = '플랜에서 제거';
+                    button.classList.replace('button-secondary', 'button-primary');
                 }
-                return;
+                localStorage.setItem('esgMyPlan', JSON.stringify(myPlan));
+                updateSimulator();
             }
             
-            const programId = button.dataset.programId;
-            const applicationId = button.dataset.applicationId;
-
-            if (programId) {
-                const programTitle = button.dataset.programTitle;
-
-                if (button.classList.contains('add-to-plan-btn')) {
-                    let myPlan = JSON.parse(localStorage.getItem('esgMyPlan')) || [];
-                    const programIdInt = parseInt(programId);
-
-                    if (myPlan.some(p => p.id === programIdInt)) {
-                        myPlan = myPlan.filter(p => p.id !== programIdInt);
-                        alert(`'${programTitle}' 프로그램을 내 플랜에서 제거했습니다.`);
-                        button.textContent = '내 플랜에 담기';
-                        button.classList.replace('button-primary', 'button-secondary');
-                    } else {
-                        myPlan.push({ id: programIdInt, title: programTitle });
-                        alert(`'${programTitle}' 프로그램이 내 플랜에 추가되었습니다.`);
-                        button.textContent = '플랜에서 제거';
-                        button.classList.replace('button-secondary', 'button-primary');
-                    }
-                    localStorage.setItem('esgMyPlan', JSON.stringify(myPlan));
-                    updateSimulator();
-                }
-
-                if (button.classList.contains('apply-btn')) {
+            if (button.classList.contains('apply-btn')) {
                     if (!confirm(`'${programTitle}' 프로그램을 신청하시겠습니까?`)) return;
 
                     try {
@@ -289,7 +254,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         alert('신청 처리 중 오류가 발생했습니다.'); 
                     }
                 }
-            }
 
             if (applicationId) {
                 if (confirm("정말로 해당 프로그램 신청을 취소하시겠습니까?")) {
@@ -311,6 +275,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
             }
+
         });
     }
     
