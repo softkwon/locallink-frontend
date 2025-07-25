@@ -67,6 +67,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function renderProgramForm(program) {
+        // --- 기본 정보 채우기 ---
         safeSetValue('title', program.title);
         safeSetValue('program_code', program.program_code);
         safeSetValue('esg_category', program.esg_category);
@@ -76,12 +77,21 @@ document.addEventListener('DOMContentLoaded', function() {
         safeSetValue('potential_e', program.potential_e);
         safeSetValue('potential_s', program.potential_s);
         safeSetValue('potential_g', program.potential_g);
-        safeSetValue('existing_cost', program.existing_cost);
+
+        // --- [수정] 서비스 비용 정보 채우기 ---
+        if (program.existing_cost_details) {
+            safeSetValue('existing_cost_description', program.existing_cost_details.description);
+            safeSetValue('existing_cost_amount', program.existing_cost_details.amount);
+        } else {
+            safeSetValue('existing_cost_description', '');
+            safeSetValue('existing_cost_amount', '');
+        }
+        
         serviceCostsContainer.innerHTML = '';
         if (program.service_costs && program.service_costs.length > 0) {
             program.service_costs.forEach(cost => addServiceCostRow(cost));
         } else {
-            addServiceCostRow(); // 기본으로 빈 행 하나 추가
+            addServiceCostRow();
         }
         
         if (program.execution_type) {
@@ -209,7 +219,7 @@ document.addEventListener('DOMContentLoaded', function() {
         newRow.innerHTML = `
             <div class="form-group" style="flex: 2;">
                 <label>제공 서비스</label>
-                <input type="text" class="form-control service-description" value="${cost.service || ''}">
+                <textarea class="form-control service-description" rows="3">${cost.service || ''}</textarea>
             </div>
             <div class="form-group" style="flex: 1;">
                 <label>금액 (원)</label>
@@ -400,7 +410,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             });
         }
-        
+
         if(addServiceCostBtn) addServiceCostBtn.addEventListener('click', () => addServiceCostRow());
 
         if(serviceCostsContainer) {
@@ -443,7 +453,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const selectedSolutionCategories = Array.from(document.querySelectorAll('input[name="solution_category"]:checked')).map(cb => cb.value);
             formData.append('solution_categories', selectedSolutionCategories.join(','));
             
-            // 2. 동적으로 추가/삭제되는 항목들을 JSON으로 변환하여 추가
             const economicEffects = Array.from(document.querySelectorAll('#effects-container .effect-item')).map(item => ({ type: item.querySelector('.effect-type').value, value: parseFloat(item.querySelector('.effect-value').value) || 0, description: item.querySelector('.effect-description').value })).filter(item => item.value || item.description);
             formData.append('economic_effects', JSON.stringify(economicEffects));
 
@@ -463,14 +472,19 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             formData.append('opportunity_effects', JSON.stringify(opportunityEffects));
 
-            formData.append('existing_cost', safeGetValue('existing_cost'));
+            // --- [수정] 서비스 비용 데이터 수집 ---
+            const existingCostDetails = {
+                description: safeGetValue('existing_cost_description'),
+                amount: parseFloat(safeGetValue('existing_cost_amount')) || null
+            };
+            formData.append('existing_cost_details', JSON.stringify(existingCostDetails));
+            
             const serviceCosts = Array.from(document.querySelectorAll('.service-cost-item')).map(item => ({
                 service: item.querySelector('.service-description').value,
                 amount: parseFloat(item.querySelector('.service-amount').value) || 0
             })).filter(item => item.service);
             formData.append('service_costs', JSON.stringify(serviceCosts));
-
-            // 3. 콘텐츠 섹션 데이터와 이미지 파일을 처리
+            
             const finalContent = [];
             let imageCounter = 0; 
             document.querySelectorAll('.content-section').forEach(section => {
@@ -493,7 +507,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             formData.append('content', JSON.stringify(finalContent));
             
-            // 4. 서버에 최종 데이터 전송
             const url = isEditMode ? `${API_BASE_URL}/admin/programs/${programId}` : `${API_BASE_URL}/admin/programs`;
             const method = isEditMode ? 'PUT' : 'POST';
             
@@ -516,9 +529,6 @@ document.addEventListener('DOMContentLoaded', function() {
             submitButton.disabled = false;
             submitButton.textContent = isEditMode ? '변경사항 저장' : '저장하기';
         }
-    }
-
-
-    
+    }    
     initializePage();
 });

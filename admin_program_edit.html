@@ -314,11 +314,19 @@
                 </fieldset>
                 <fieldset class="form-fieldset">
                     <legend>서비스 비용 정보</legend>
-                    <div class="form-group">
-                        <label for="existing_cost">기존 지출 비용 (비교용)</label>
-                        <input type="number" id="existing_cost" class="form-control" placeholder="숫자만 입력">
+
+                    <div class="form-group-inline">
+                        <div class="form-group" style="flex: 2;">
+                            <label for="existing_cost_description">기존 지출 비용 (설명)</label>
+                            <input type="text" id="existing_cost_description" class="form-control" placeholder="예: 연간 전기 요금">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label for="existing_cost_amount">기존 지출 비용 (금액)</label>
+                            <input type="number" id="existing_cost_amount" class="form-control" placeholder="숫자만 입력">
+                        </div>
                     </div>
                     <hr>
+                    
                     <label>제공 서비스 목록 (오른쪽 '행 추가' 버튼으로 항목을 추가하세요)</label>
                     <div id="service-costs-container" style="margin-top:10px;">
                         </div>
