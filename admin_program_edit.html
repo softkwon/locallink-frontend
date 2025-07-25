@@ -312,6 +312,18 @@
                         </div>
                     <button type="button" id="add-opportunity-effect-btn" class="button-secondary">+ 기대효과 추가</button>
                 </fieldset>
+                <fieldset class="form-fieldset">
+                    <legend>서비스 비용 정보</legend>
+                    <div class="form-group">
+                        <label for="existing_cost">기존 지출 비용 (비교용)</label>
+                        <input type="number" id="existing_cost" class="form-control" placeholder="숫자만 입력">
+                    </div>
+                    <hr>
+                    <label>제공 서비스 목록 (오른쪽 '행 추가' 버튼으로 항목을 추가하세요)</label>
+                    <div id="service-costs-container" style="margin-top:10px;">
+                        </div>
+                    <button type="button" id="add-service-cost-btn" class="button-secondary">+ 행 추가</button>
+                </fieldset>
 
                 <fieldset class="form-fieldset"><legend>기대 경제 효과 규칙</legend><div id="effects-container"></div><button type="button" id="add-effect-btn" class="button-secondary">+ 규칙 추가</button></fieldset>               
                 

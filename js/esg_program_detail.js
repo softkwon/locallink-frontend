@@ -46,7 +46,6 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
     const container = document.getElementById('program-detail-container');
     document.title = `${program.title} - ESGLink`;
 
-    // ▼▼▼ 바로 이 위치에 아래 코드를 추가하세요. ▼▼▼
     let executionMessage = '';
     if (program.execution_type === 'contract') {
         executionMessage = '* 이 프로그램은 용역계약을 통해 진행할 수 있습니다.';
@@ -140,6 +139,16 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
             <p>*프로그램을 통해 [${companyName}]의 자세한 성과 측정이 가능합니다.</p></footer>
         </div>
     `;
+
+    container.innerHTML = `
+        <div class="program-detail-wrapper">
+            </div>
+    `;
+
+    if (program.service_costs && program.service_costs.length > 0) {
+        renderServiceCostSection(program);
+        attachServiceCostModalEvents(program);
+    }
 
     // 6. 이벤트 리스너 연결
     attachActionEventListeners(program);
@@ -249,5 +258,67 @@ function attachShareEventListeners(program, thumbnailUrl) {
             ],
         });
         shareDropdown.style.display = 'none';
+    });
+}
+
+function renderServiceCostSection(program) {
+    const container = document.getElementById('service-cost-section-container');
+    if (!container) return;
+
+    container.innerHTML = `
+        <div class="service-cost-box" id="open-cost-modal-btn">
+            <h4>서비스 비용 안내</h4>
+            <p>프로그램 진행 시 예상되는 비용을 확인해보세요.</p>
+        </div>
+    `;
+}
+
+function attachServiceCostModalEvents(program) {
+    const openBtn = document.getElementById('open-cost-modal-btn');
+    const modal = document.getElementById('service-cost-modal');
+    if (!openBtn || !modal) return;
+
+    const modalContent = document.getElementById('service-cost-modal-content');
+    const closeBtn = modal.querySelector('.close-btn');
+
+    openBtn.addEventListener('click', () => {
+        // 모달 내용 생성
+        const existingCostHtml = program.existing_cost ? `
+            <div class="existing-cost-card">
+                <div class="cost-label">기존 연간 지출 비용</div>
+                <div class="cost-value">${program.existing_cost.toLocaleString()} 원</div>
+            </div>
+        ` : '<div></div>';
+
+        modalContent.innerHTML = `
+            <div class="cost-table-grid">
+                <h3>서비스 비용 상세</h3>
+                ${existingCostHtml}
+                <div>
+                    <table class="styled-table">
+                        <thead>
+                            <tr>
+                                <th>제공 서비스</th>
+                                <th style="width: 30%;">금액</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${program.service_costs.map(item => `
+                                <tr>
+                                    <td>${item.service}</td>
+                                    <td style="text-align: right;">${item.amount.toLocaleString()} 원</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+        modal.style.display = 'block';
+    });
+
+    closeBtn.addEventListener('click', () => modal.style.display = 'none');
+    window.addEventListener('click', (e) => {
+        if (e.target == modal) modal.style.display = 'none';
     });
 }

@@ -18,7 +18,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const addOrganizationBtn = document.getElementById('add-organization-btn');
     const opportunityEffectsContainer = document.getElementById('opportunity-effects-container');
     const addOpportunityEffectBtn = document.getElementById('add-opportunity-effect-btn');
-    
+    const serviceCostsContainer = document.getElementById('service-costs-container');
+    const addServiceCostBtn = document.getElementById('add-service-cost-btn');
+
     let existingImages = {}; 
     let newSectionFiles = {}; 
 
@@ -74,6 +76,13 @@ document.addEventListener('DOMContentLoaded', function() {
         safeSetValue('potential_e', program.potential_e);
         safeSetValue('potential_s', program.potential_s);
         safeSetValue('potential_g', program.potential_g);
+        safeSetValue('existing_cost', program.existing_cost);
+        serviceCostsContainer.innerHTML = '';
+        if (program.service_costs && program.service_costs.length > 0) {
+            program.service_costs.forEach(cost => addServiceCostRow(cost));
+        } else {
+            addServiceCostRow(); // 기본으로 빈 행 하나 추가
+        }
         
         if (program.execution_type) {
             const radioBtn = document.querySelector(`input[name="executionType"][value="${program.execution_type}"]`);
@@ -99,7 +108,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
-        // --- 👇 [추가] 솔루션 카테고리 체크박스 설정 로직 👇 ---
         const selectedSolutionCategories = program.solution_categories || [];
         document.querySelectorAll('input[name="solution_category"]').forEach(checkbox => {
             if (selectedSolutionCategories.includes(checkbox.value)) {
@@ -193,6 +201,23 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="form-group" style="flex: 3;"><label>단체 홈페이지</label><input type="text" class="form-control homepage-url" placeholder="URL 주소" value="${org.homepage_url || ''}"></div>
             <button type="button" class="button-danger button-sm remove-organization-btn">X</button>`;
         organizationsContainer.appendChild(newOrg);
+    }
+
+    function addServiceCostRow(cost = {}) {
+        const newRow = document.createElement('div');
+        newRow.className = 'service-cost-item form-group-inline';
+        newRow.innerHTML = `
+            <div class="form-group" style="flex: 2;">
+                <label>제공 서비스</label>
+                <input type="text" class="form-control service-description" value="${cost.service || ''}">
+            </div>
+            <div class="form-group" style="flex: 1;">
+                <label>금액 (원)</label>
+                <input type="number" class="form-control service-amount" value="${cost.amount || ''}">
+            </div>
+            <button type="button" class="button-danger button-sm remove-service-cost-btn">X</button>
+        `;
+        serviceCostsContainer.appendChild(newRow);
     }
 
     function updateFormulaPreview(row) {
@@ -303,14 +328,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function attachEventListeners() {
-        if(addSectionBtn) addSectionBtn.addEventListener('click', () => addSectionRow());
-        if(addEffectBtn) addEffectBtn.addEventListener('click', () => addEffectRow());
-        if(addOrganizationBtn) addOrganizationBtn.addEventListener('click', () => addOrganizationRow());
-        if(addOpportunityEffectBtn) addOpportunityEffectBtn.addEventListener('click', () => addOpportunityEffectRow());
+        if(addSectionBtn) addSectionBtn.addEventListener('click', () => addSectionRow());
+        if(addEffectBtn) addEffectBtn.addEventListener('click', () => addEffectRow());
+        if(addOrganizationBtn) addOrganizationBtn.addEventListener('click', () => addOrganizationRow());
+        if(addOpportunityEffectBtn) addOpportunityEffectBtn.addEventListener('click', () => addOpportunityEffectRow());
 
-        if(opportunityEffectsContainer) opportunityEffectsContainer.addEventListener('click', e => { if (e.target.classList.contains('remove-opportunity-btn')) e.target.closest('.form-fieldset').remove(); });
-        
-        if (sectionsContainer) {
+        if(opportunityEffectsContainer) opportunityEffectsContainer.addEventListener('click', e => { if (e.target.classList.contains('remove-opportunity-btn')) e.target.closest('.form-fieldset').remove(); });
+        
+        if (sectionsContainer) {
             sectionsContainer.addEventListener('click', e => {
                 const target = e.target;
                 const sectionDiv = target.closest('.content-section');
@@ -336,31 +361,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
 
-            sectionsContainer.addEventListener('change', e => {
-                if (e.target.classList.contains('section-images')) {
-                    const sectionId = e.target.closest('.content-section').id;
-                    if (!newSectionFiles[sectionId]) newSectionFiles[sectionId] = [];
-                    
-                    const hiddenInput = document.querySelector(`#${sectionId} .kept-image-urls`);
-                    const existingUrls = hiddenInput.value ? hiddenInput.value.split(',').filter(Boolean) : [];
-                    const currentNewFiles = newSectionFiles[sectionId] || [];
+            sectionsContainer.addEventListener('change', e => {
+                if (e.target.classList.contains('section-images')) {
+                    const sectionId = e.target.closest('.content-section').id;
+                    if (!newSectionFiles[sectionId]) newSectionFiles[sectionId] = [];
+                    const hiddenInput = document.querySelector(`#${sectionId} .kept-image-urls`);
+                    const existingUrls = hiddenInput.value ? hiddenInput.value.split(',').filter(Boolean) : [];
+                     const currentNewFiles = newSectionFiles[sectionId] || [];
 
-                    if (existingUrls.length + currentNewFiles.length + e.target.files.length > 3) {
-                        alert('이미지는 섹션 당 최대 3개까지 업로드할 수 있습니다.'); e.target.value = ""; return;
-                    }
-                    for (const file of e.target.files) {
-                        if (file.size > 5 * 1024 * 1024) alert(`'${file.name}' 용량이 5MB를 초과합니다.`);
-                        else newSectionFiles[sectionId].push(file);
-                    }
-                    e.target.value = "";
-                    renderImagePreviews(sectionId);
-                }
-            });
-        }
-        
-        if(effectsContainer) effectsContainer.addEventListener('click', e => { if (e.target.classList.contains('remove-effect-btn')) e.target.closest('.effect-item').remove(); });
-        if(organizationsContainer) organizationsContainer.addEventListener('click', e => { if (e.target.classList.contains('remove-organization-btn')) e.target.closest('.organization-item').remove(); });
-        
+                    if (existingUrls.length + currentNewFiles.length + e.target.files.length > 3) {
+                    alert('이미지는 섹션 당 최대 3개까지 업로드할 수 있습니다.'); e.target.value = ""; return;
+                    }
+                    for (const file of e.target.files) {
+                        if (file.size > 5 * 1024 * 1024) alert(`'${file.name}' 용량이 5MB를 초과합니다.`);
+                    else newSectionFiles[sectionId].push(file);
+                    }
+                    e.target.value = "";
+                    renderImagePreviews(sectionId);
+                }
+            });
+        }
+        if(effectsContainer) effectsContainer.addEventListener('click', e => { if (e.target.classList.contains('remove-effect-btn')) e.target.closest('.effect-item').remove(); });
+        if(organizationsContainer) organizationsContainer.addEventListener('click', e => { if (e.target.classList.contains('remove-organization-btn')) e.target.closest('.organization-item').remove(); });
+
         const regionCheckboxes = document.querySelectorAll('input[name="service_region"]');
         const nationwideCheckbox = document.querySelector('input[value="전국"]');
         if (nationwideCheckbox) {
@@ -378,6 +401,16 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
         
+        if(addServiceCostBtn) addServiceCostBtn.addEventListener('click', () => addServiceCostRow());
+
+        if(serviceCostsContainer) {
+            serviceCostsContainer.addEventListener('click', e => {
+                if (e.target.classList.contains('remove-service-cost-btn')) {
+                    e.target.closest('.service-cost-item').remove();
+                }
+            });
+        }
+        
         form.addEventListener('submit', handleProgramSubmit);
     }
         
@@ -391,7 +424,6 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const formData = new FormData();
             
-            // 1. 기본 텍스트 정보 추가
             formData.append('title', safeGetValue('title'));
             formData.append('program_code', safeGetValue('program_code'));
             formData.append('esg_category', safeGetValue('esg_category'));
@@ -430,6 +462,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
             formData.append('opportunity_effects', JSON.stringify(opportunityEffects));
+
+            formData.append('existing_cost', safeGetValue('existing_cost'));
+            const serviceCosts = Array.from(document.querySelectorAll('.service-cost-item')).map(item => ({
+                service: item.querySelector('.service-description').value,
+                amount: parseFloat(item.querySelector('.service-amount').value) || 0
+            })).filter(item => item.service);
+            formData.append('service_costs', JSON.stringify(serviceCosts));
 
             // 3. 콘텐츠 섹션 데이터와 이미지 파일을 처리
             const finalContent = [];
@@ -479,5 +518,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+
+    
     initializePage();
 });

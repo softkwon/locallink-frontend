@@ -273,15 +273,70 @@
                 display: block;
             }
 
+            /* === [추가] 서비스 비용 섹션 스타일 === */
+            .service-cost-box {
+                max-width: 850px;
+                margin: -20px auto 40px auto;
+                background-color: #f8f9fa;
+                border: 1px solid #dee2e6;
+                padding: 25px 40px;
+                border-radius: 0 0 12px 12px;
+                text-align: center;
+                cursor: pointer;
+                transition: background-color 0.2s ease;
+            }
+            .service-cost-box:hover {
+                background-color: #e9ecef;
+            }
+            .service-cost-box h4 {
+                margin: 0 0 5px 0;
+                color: #0056b3;
+            }
+            .service-cost-box p {
+                margin: 0;
+                color: #6c757d;
+            }
+            /* 비용 테이블 스타일 */
+            .cost-table-grid {
+                display: grid;
+                grid-template-columns: 1fr 2fr;
+                gap: 20px;
+            }
+            .cost-table-grid h3 {
+                grid-column: 1 / -1; /* 제목은 전체 너비 차지 */
+            }
+            .existing-cost-card {
+                background: #fff3cd;
+                border: 1px solid #ffeeba;
+                padding: 20px;
+                border-radius: 8px;
+                text-align: center;
+            }
+            .existing-cost-card .cost-label {
+                font-size: 1.1em;
+            }
+            .existing-cost-card .cost-value {
+                font-size: 1.8em;
+                font-weight: bold;
+                color: #856404;
+                margin-top: 10px;
+            }
     </style>
 </head>
 <body>
     <div id="program-detail-container">
         <p style="text-align:center; padding: 50px;">프로그램 정보를 불러오는 중입니다...</p>
     </div>
+    <div id="service-cost-section-container"></div>
+    <div id="service-cost-modal" class="modal">
+        <div class="modal-content large">
+            <span class="close-btn">&times;</span>
+            <div id="service-cost-modal-content">
+                </div>
+        </div>
+    </div>
     <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"></script>
     <script>
-        // 발급받은 JavaScript 키로 카카오 SDK를 초기화합니다.
         try {
             Kakao.init('1cabc61a192c60eb189e387019886477');
         } catch(e) {
