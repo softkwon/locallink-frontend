@@ -288,21 +288,75 @@
             }
 
             /* 모달창 스타일 (가시성 개선) */
+            #service-cost-modal { 
+                display: none; 
+                position: fixed; 
+                z-index: 1000; 
+                left: 0; top: 0; 
+                width: 100%; 
+                height: 100%; 
+                overflow: auto; 
+                background-color: rgba(0,0,0,0.5); 
+            }
             #service-cost-modal .modal-content {
-                max-width: 750px;
+                max-width: 800px; /* 모달 너비 */
             }
+
+            /* 모달 내용 영역 */
             .cost-modal-body {
-                padding: 10px;
+                padding: 10px 25px 25px 25px;
             }
-            .cost-modal-body h3 {
-                text-align: center;
-                margin-bottom: 25px;
-            }
-            .cost-table-grid {
+
+            /* 2단 그리드 레이아웃 */
+            .cost-modal-grid {
                 display: grid;
-                grid-template-columns: 1fr 2fr;
+                grid-template-columns: 1fr 1.5fr; /* 왼쪽과 오른쪽을 1:1.5 비율로 나눔 */
                 gap: 25px;
                 align-items: start;
+            }
+            .cost-column {
+                padding: 20px;
+                border-radius: 8px;
+            }
+            .cost-column h4 {
+                margin-top: 0;
+                margin-bottom: 15px;
+                font-size: 1.2em;
+                padding-bottom: 10px;
+                border-bottom: 1px solid rgba(0,0,0,0.1);
+            }
+
+            /* 왼쪽 박스: 옅은 붉은색 계열 */
+            .cost-column.cost-existing {
+                background-color: #fff1f0;
+                border: 1px solid #ffa39e;
+            }
+            .cost-column.cost-existing h4 { color: #cf1322; }
+
+            /* 오른쪽 박스: 옅은 파란색 계열 */
+            .cost-column.cost-service {
+                background-color: #e6f7ff;
+                border: 1px solid #91d5ff;
+            }
+            .cost-column.cost-service h4 { color: #096dd9; }
+
+            /* 테이블 스타일 */
+            .cost-column table {
+                width: 100%;
+                border-collapse: collapse;
+                background-color: transparent; /* 부모 박스 색상이 비치도록 */
+            }
+            .cost-column th, 
+            .cost-column td {
+                padding: 10px 5px;
+                text-align: left;
+                border-bottom: 1px solid rgba(0,0,0,0.08);
+            }
+            .cost-column tbody tr:last-child td {
+                border-bottom: none; /* 마지막 행의 밑줄은 제거 */
+            }
+            .cost-column th {
+                font-weight: 600;
             }
             .existing-cost-card {
                 background: #f8f9fa;
@@ -323,7 +377,7 @@
                 margin-top: 10px;
                 word-break: keep-all;
             }
-
+            
     </style>
 </head>
 <body>
