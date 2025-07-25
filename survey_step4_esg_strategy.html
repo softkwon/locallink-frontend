@@ -179,12 +179,7 @@
             background-color: #f4ece6; 
         }
 
-        .issue-map-grid {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 30px;
-            align-items: start; 
-        }
+        
         .regional-map-section {
             display: flex;
             flex-direction: column; 
@@ -248,13 +243,7 @@
         .map-overlay .badge-S { color: #faad14; }
         .map-overlay .badge-G { color: #d3adf7; }
 
-        @media (max-width: 992px) {
-            .issue-map-grid { grid-template-columns: 1fr; }
-            .map-overlay { 
-                left: 0;
-                background: rgba(0, 0, 0, 0.8);
-            }
-        }
+        
 
         #regulationTimelineSection {
             padding: 20px 25px;
@@ -527,6 +516,53 @@
             line-height: 1.6;
         }
 
+        /* === [추가] 탭 UI 스타일 === */
+        .tab-container {
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            margin-bottom: 30px;
+        }
+        .tab-nav {
+            display: flex;
+            border-bottom: 1px solid #dee2e6;
+            padding: 0;
+            margin: 0;
+            list-style-type: none;
+        }
+        .tab-link {
+            padding: 15px 20px;
+            cursor: pointer;
+            font-size: 1.05em;
+            font-weight: 500;
+            color: #495057;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -1px; /* 아래 테두리와 겹치도록 */
+        }
+        .tab-link:hover {
+            background-color: #f8f9fa;
+        }
+        .tab-link.active {
+            color: #007bff;
+            font-weight: bold;
+            border-bottom-color: #007bff;
+        }
+        .tab-content .tab-pane {
+            display: none;
+            padding: 20px;
+        }
+        .tab-content .tab-pane.active {
+            display: block;
+        }
+        /* 탭 내부의 strategy-section 스타일 초기화 */
+        .tab-pane .strategy-section {
+            margin-bottom: 0;
+            padding: 0;
+            border: none;
+            box-shadow: none;
+            background-color: transparent;
+        }
         
 
     </style>
@@ -580,57 +616,75 @@
                 <h2 id="marketStatusTitle" class="section-title"></h2>
                 <p id="marketStatusDescription" class="section-description"></p>
 
-                <div id="benchmarkSection" class="strategy-section">
-                    <h3>동종업계 성과 비교 (*통계청 데이터 기반 업계평균)</h3>
+                <div class="tab-container">
+                    <ul class="tab-nav">
+                        <li class="tab-link active" data-tab="tab-benchmark">동종업계 성과 비교</li>
+                        <li class="tab-link" data-tab="tab-timeline">규제 타임라인</li>
+                        <li class="tab-link" data-tab="tab-industry-issues">산업군 주요이슈</li>
+                        <li class="tab-link" data-tab="tab-size-issues">기업규모별 주요이슈</li>
+                        <li class="tab-link" data-tab="tab-regional-issues">지역 주요이슈</li>
+                    </ul>
 
-                    <div id="benchmarkIndustryInfo" style="text-align: center; font-size: 0.9em; color: #555; margin-bottom: 15px;">
+                    <div class="tab-content">
+                        <div id="tab-benchmark" class="tab-pane active">
+                            <div id="benchmarkSection" class="strategy-section">
+                                <h3>동종업계 성과 비교 (*통계청 데이터 기반 업계평균)</h3>
+                                <div id="benchmarkIndustryInfo" style="text-align: center; font-size: 0.9em; color: #555; margin-bottom: 15px;">
+                                </div>
+                                <div class="benchmark-charts-grid">
+                                    <div class="chart-wrapper">
+                                        <h4>항목별 성과 비교</h4>
+                                        <canvas id="questionBenchmarkChart"></canvas>
+                                    </div>
+                                    <div class="chart-wrapper">
+                                        <h4>영역별 종합 성과 비교</h4>
+                                        <canvas id="categoryBenchmarkChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-
-                    <div class="benchmark-charts-grid">
-                        <div class="chart-wrapper">
-                            <h4>항목별 성과 비교</h4>
-                            <canvas id="questionBenchmarkChart"></canvas>
+                        <div id="tab-timeline" class="tab-pane">
+                            <div id="regulationTimelineSection" class="strategy-section">
+                                <h3>규제 타임라인</h3>
+                                <p>시행 예정인 주요 ESG 관련 규제를 확인하고 기업의 리스크에 대비하세요.</p>
+                                <div id="regulation-timeline-container">
+                                    </div>
+                            </div>
                         </div>
-                        <div class="chart-wrapper">
-                            <h4>영역별 종합 성과 비교</h4>
-                            <canvas id="categoryBenchmarkChart"></canvas>
+                        <div id="tab-industry-issues" class="tab-pane">
+                            <div id="industryEsgIssuesSection" class="strategy-section">
+                                <h3>우리 회사 산업군의 주요 ESG 이슈</h3>
+                                <p id="currentIndustryInfo"></p>
+                                <div id="industryIssuesContent"><p><em>산업코드 기반 ESG 이슈를 불러오는 중입니다...</em></p></div>
+                            </div>
+                        </div>
+                        <div id="tab-size-issues" class="tab-pane">
+                            <div id="companySizeIssuesSection" class="strategy-section">
+                                </div>
+                        </div>
+                        <div id="tab-regional-issues" class="tab-pane">
+                            <div id="regionalMapSection" class="strategy-section">
+                                <h3>주요 사업장 소재지 ESG 현안</h3>
+                                <div id="regionalIssuesContent">
+                                    </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-
-                <div id="regulationTimelineSection" class="strategy-section">
-                    <h3>규제 타임라인</h3>
-                    <p>시행 예정인 주요 ESG 관련 규제를 확인하고 기업의 리스크에 대비하세요.</p>
-                    <div id="regulation-timeline-container">
-                        </div>
                 </div>
 
                 <div id="aiAnalysisSection" class="strategy-section">
                     <h3>AI 분석 평가</h3>
                     <div id="aiAnalysisContent">
-                        </div>
-                </div>    
-
-                <div class="issue-map-grid">
-                    <div id="industryEsgIssuesSection" class="strategy-section">
-                        <h3>우리 회사 산업군의 주요 ESG 이슈</h3>
-                        <p id="currentIndustryInfo"></p>
-                        <div id="industryIssuesContent"><p><em>산업코드 기반 ESG 이슈를 불러오는 중입니다...</em></p></div>
-                    </div>
-
-                    <div id="regionalMapSection" class="strategy-section">
-                        <h3>주요 사업장 소재지 ESG 현안</h3>
-                        <div id="regionalIssuesContent">
-                            </div>
                     </div>
                 </div>
 
                 <h2 id="customStrategyTitle" class="section-title"></h2>
-                      <p id="customStrategyDescription" class="section-description"></p>
-                    <div style="text-align: left; margin-bottom: 40px;">
-                        <button id="viewCategoriesBtn" class="button-secondary">ESG 대응 세부분야 전체보기</button>
-                    </div>
-                <div class="strategy-section" id="task-section-wrapper">                    
+                <p id="customStrategyDescription" class="section-description"></p>
+                <div style="text-align: left; margin-bottom: 40px;">
+                    <button id="viewCategoriesBtn" class="button-secondary">ESG 대응 세부분야 전체보기</button>
+                </div>
+                
+                <div class="strategy-section" id="task-section-wrapper">
                     <div id="taskAnalysisContainer">
                         <p><em>진단 결과를 바탕으로 맞춤 과제와 기대효과를 분석 중입니다...</em></p>
                     </div>
