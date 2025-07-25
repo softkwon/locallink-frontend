@@ -247,13 +247,15 @@ function attachServiceCostModalEvents(program) {
     const closeBtn = modal.querySelector('.close-btn');
 
     openBtn.addEventListener('click', () => {
-        const existingCost = program.existing_cost_details;
-        const existingCostHtml = (existingCost && existingCost.amount) ? `
+        const existingCost = program.existing_cost_details || {}; 
+        const description = existingCost.description || '기존 지출 비용';
+        const amountText = existingCost.amount ? `${existingCost.amount.toLocaleString()} 원` : '-';
+
+        const existingCostHtml = `
             <div class="existing-cost-card">
-                <div class="cost-label">${existingCost.description || '기존 지출 비용'}</div>
-                <div class="cost-value">${existingCost.amount.toLocaleString()} 원</div>
-            </div>
-        ` : '<div></div>';
+                <div class="cost-label">${description}</div>
+                <div class="cost-value">${amountText}</div>
+            </div>`;
 
         modalContent.innerHTML = `
             <div class="cost-table-grid">
