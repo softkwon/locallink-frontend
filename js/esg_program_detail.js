@@ -1,9 +1,8 @@
-// js/esg_program_detail.js (기존 기능 복원 및 신규 기능 통합 최종본)
+// js/esg_program_detail.js (기능 복원 및 버튼 순서 수정 최종본)
 
 import { API_BASE_URL } from './config.js';
 
 document.addEventListener('DOMContentLoaded', async function() {
-    // [복원] 기존 URL 파라미터 로직 전체 복원
     const urlParams = new URLSearchParams(window.location.search);
     const programId = urlParams.get('id');
     const diagId = urlParams.get('diagId');
@@ -19,7 +18,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     const hasCompletedDiagnosis = !!diagId; 
 
     try {
-        // [복원] 사용자 정보 로딩 로직 복원
         const [programRes, userRes] = await Promise.all([
             fetch(`${API_BASE_URL}/programs/${programId}`),
             token ? fetch(`${API_BASE_URL}/users/me`, { headers: { 'Authorization': `Bearer ${token}` }}) : Promise.resolve(null)
@@ -47,40 +45,41 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
     const container = document.getElementById('program-detail-container');
     document.title = `${program.title} - ESGLink`;
 
-    // [복원] 프로그램 진행 방식 안내 문구
-    let executionMessage = '';
-    if (program.execution_type === 'contract') {
-        executionMessage = '* 이 프로그램은 용역계약을 통해 진행할 수 있습니다.';
-    } else {
-        executionMessage = '* 이 프로그램은 기부를 통해 진행할 수 있습니다.';
-    }
+    let executionMessage = program.execution_type === 'contract'
+        ? '* 이 프로그램은 용역계약을 통해 진행할 수 있습니다.'
+        : '* 이 프로그램은 기부를 통해 진행할 수 있습니다.';
     
     const contentSections = Array.isArray(program.content) ? program.content : [];
     const firstImage = contentSections.flatMap(s => s.images || []).find(Boolean) || 'https://esglink.co.kr/images/logo_og.png';
     
-    // 공유 썸네일 meta 태그 업데이트
     document.querySelector('meta[property="og:title"]').setAttribute('content', program.title);
     document.querySelector('meta[property="og:description"]').setAttribute('content', program.program_overview || 'ESGlink에서 제공하는 ESG 프로그램을 확인하세요.');
     document.querySelector('meta[property="og:image"]').setAttribute('content', firstImage);
     
-    // [복원] 기존 조건부 버튼 로직 전체 복원
-    let actionsHtml = '';
+    // --- [수정] 버튼 순서 변경 로직 ---
     let noticeHtml = '';
+    let actionButtons = [];
+
+    const serviceCostButton = (program.service_costs && program.service_costs.length > 0) 
+        ? `<button id="open-cost-modal-btn" class="button-secondary action-btn">서비스 비용 안내</button>` 
+        : null;
+
     if (source === 'strategy') {
         noticeHtml = `<div class="recommendation-notice">✔ AI 전략 수립 페이지에서 추천된 프로그램입니다.</div>`;
-        actionsHtml = `<button class="button-primary action-btn" data-action="prompt_go_to_step5">신청하기</button>`;
+        actionButtons.push(serviceCostButton);
+        actionButtons.push(`<button class="button-primary action-btn" data-action="prompt_go_to_step5">신청하기</button>`);
     } else {
         if (hasCompletedDiagnosis) {
-            actionsHtml = `<button class="button-secondary action-btn" data-action="add_plan">내 플랜에 담기</button> <button class="button-primary action-btn" data-action="apply">신청하기</button>`;
+            actionButtons.push(`<button class="button-secondary action-btn" data-action="add_plan">내 플랜에 담기</button>`);
+            actionButtons.push(serviceCostButton); // 서비스 비용 안내
+            actionButtons.push(`<button class="button-primary action-btn" data-action="apply">신청하기</button>`);
         } else {
-            actionsHtml = `<button class="button-primary action-btn" data-action="apply_prompt">신청하기</button>`;
+            actionButtons.push(serviceCostButton); // 서비스 비용 안내
+            actionButtons.push(`<button class="button-primary action-btn" data-action="apply_prompt">신청하기</button>`);
         }
     }
-
-    // [수정] 서비스 비용 데이터가 있을 경우, '서비스 비용 안내' 버튼을 actionsHtml에 추가
-    if (program.service_costs && program.service_costs.length > 0) {
-        actionsHtml += `<button id="open-cost-modal-btn" class="button-secondary action-btn">서비스 비용 안내</button>`;
-    }
+    const actionsHtml = actionButtons.filter(Boolean).join(' ');
+    // --- 여기까지 수정 ---
 
     const contentHtml = contentSections.map(section => {
         const layoutClass = section.layout || 'img-top';
@@ -97,7 +96,6 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
     const orgsHtml = (program.related_links || []).map(org => `<li><a href="${org.homepage_url}" target="_blank">${org.organization_name}</a></li>`).join('') || '<li>-</li>';
     const oppsHtml = (program.opportunity_effects || []).map(opp => `<li>${opp.value}</li>`).join('') || '<li>-</li>';
 
-    // [복원] 생략되었던 페이지 전체 HTML 구조 복원
     container.innerHTML = `
         <div class="program-detail-wrapper">
             <header class="program-header category-${(program.esg_category || 'e').toLowerCase()}">
@@ -119,7 +117,7 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
                 <section class="detail-section"><h4>방치 시 리스크</h4><p>${program.risk_text || '-'}</p></section>
                 <section class="detail-section"><h4>개선 시 기대효과</h4><ul>${oppsHtml}</ul></section>
                 <section class="program-actions-section">
-                    <a href="index.html" class="button-secondary">[ESGLink 바로가기]</a>
+                    <a href="esg_programs_list.html" class="button-secondary">목록으로</a>
                     <div class="actions-group">${actionsHtml}</div>
                 </section>
             </div>
@@ -138,7 +136,6 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
     }
 }
 
-// [복원] 기존 attachActionEventListeners 함수 전체
 function attachActionEventListeners(program) {
     const container = document.getElementById('program-detail-container');
     container.addEventListener('click', async (e) => {
@@ -187,7 +184,6 @@ function attachActionEventListeners(program) {
     });
 }
 
-// [복원] 기존 attachShareEventListeners 함수 전체
 function attachShareEventListeners(program, thumbnailUrl) {
     const shareBtn = document.getElementById('shareBtn');
     const shareDropdown = document.getElementById('shareDropdown');
@@ -247,39 +243,29 @@ function attachServiceCostModalEvents(program) {
 
     openBtn.addEventListener('click', () => {
         const existingCost = program.existing_cost_details || {};
-        const serviceCosts = program.service_costs || [];
+        const description = existingCost.description || '기존 지출 비용';
+        const amountText = existingCost.amount ? `${existingCost.amount.toLocaleString()} 원` : '-';
+        const existingCostHtml = `
+            <div class="existing-cost-card">
+                <div class="cost-label">${description}</div>
+                <div class="cost-value">${amountText}</div>
+            </div>`;
 
         modalContent.innerHTML = `
             <div class="cost-modal-body">
-                <div class="cost-modal-grid">
-                    <div class="cost-column cost-existing">
-                        <h4>ESG 대응 비용</h4>
-                        <table>
-                            <thead>
-                                <tr><th>내용</th><th style="text-align:right;">비용</th></tr>
-                            </thead>
+                <h3>서비스 비용 상세</h3>
+                <div class="cost-table-grid">
+                    ${existingCostHtml}
+                    <div>
+                        <table class="styled-table">
+                            <thead><tr><th>제공 서비스</th><th style="width: 30%;">금액</th></tr></thead>
                             <tbody>
-                                <tr>
-                                    <td>${existingCost.description || '기존 지출 비용'}</td>
-                                    <td style="text-align:right;">${existingCost.amount ? existingCost.amount.toLocaleString() + ' 원' : '-'}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="cost-column cost-service">
-                        <h4>서비스 이용시</h4>
-                        <table>
-                            <thead>
-                                <tr><th>제공서비스</th><th style="text-align:right;">금액</th></tr>
-                            </thead>
-                            <tbody>
-                                ${serviceCosts.length > 0 ? serviceCosts.map(item => `
+                                ${(program.service_costs || []).map(item => `
                                     <tr>
                                         <td>${(item.service || '').replace(/\n/g, '<br>')}</td>
-                                        <td style="text-align:right;">${(item.amount || 0).toLocaleString()} 원</td>
+                                        <td style="text-align: right;">${(item.amount || 0).toLocaleString()} 원</td>
                                     </tr>
-                                `).join('') : `<tr><td colspan="2">제공되는 서비스가 없습니다.</td></tr>`}
+                                `).join('')}
                             </tbody>
                         </table>
                     </div>
