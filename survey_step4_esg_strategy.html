@@ -551,6 +551,7 @@
         .tab-content .tab-pane {
             display: none;
             padding: 20px;
+            min-height: 400px; /* 필요에 따라 높이 조절 */
         }
         .tab-content .tab-pane.active {
             display: block;
@@ -563,7 +564,11 @@
             box-shadow: none;
             background-color: transparent;
         }
-        
+        #regionalMapSection {
+            width: 100%; /* 부모 요소에 맞춰 너비 자동 조정 */
+            min-width: 600px; /*필요하다면 최소 너비 설정 */
+            overflow: auto; /* 내용이 넘칠 경우 스크롤 생성 */
+        }
 
     </style>
 </head>

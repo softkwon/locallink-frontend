@@ -296,23 +296,43 @@ function renderIndustryIssues(issues, diagnosis) {
 
 
 function renderCompanySizeIssues(issueData, userCompanySizeCode) {
-    // 컨테이너를 새로운 ID로 변경
     const container = document.getElementById('companySizeIssuesSection'); 
     if (!container) return;
 
     const companySizeKorean = getCompanySizeName(userCompanySizeCode);
     
-    // h3 제목 추가
-    container.innerHTML = `<h3>${companySizeKorean}의 주요 ESG 이슈</h3>`;
+    let contentHtml = `<h3>${companySizeKorean}의 주요 ESG 이슈</h3>`;
 
     if (issueData) {
-        container.innerHTML += `
+        contentHtml += `
             <table class="styled-table">
-                </table>
+                <thead>
+                    <tr>
+                        <th style="width: 25%;">구분</th>
+                        <th>주요 내용</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>핵심 이슈</th>
+                        <td>${issueData.key_issue || '-'}</td>
+                    </tr>
+                    <tr>
+                        <th>기회 요인</th>
+                        <td>${issueData.opportunity || '-'}</td>
+                    </tr>
+                    <tr>
+                        <th>위기 요인</th>
+                        <td>${issueData.threat || '-'}</td>
+                    </tr>
+                </tbody>
+            </table>
         `;
     } else {
-        container.innerHTML += `<p>귀사의 규모(${companySizeKorean})에 맞는 ESG 이슈 데이터가 없습니다.</p>`;
+        contentHtml += `<p>귀사의 규모(${companySizeKorean})에 맞는 ESG 이슈 데이터가 없습니다.</p>`;
     }
+
+    container.innerHTML = contentHtml;
 }
 
 
