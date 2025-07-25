@@ -282,6 +282,7 @@ function renderIndustryIssues(issues, diagnosis) {
     const opportunities = issues.map(i => i.opportunity).filter(Boolean).join('<br>') || '-';
     const threats = issues.map(i => i.threat).filter(Boolean).join('<br>') || '-';
 
+    // [수정] 테이블 부분만 생성하도록 변경
     container.innerHTML = `
         <table class="styled-table">
             <thead><tr><th>구분</th><th>주요 내용</th></tr></thead>
@@ -337,7 +338,8 @@ function renderCompanySizeIssues(issueData, userCompanySizeCode) {
 
 
 function renderRegionalMapAndIssues(diagnosis, regionalIssues) {
-    const container = document.getElementById('regionalMapSection');
+    // [수정] 컨테이너를 regionalIssuesContent로 직접 지정
+    const container = document.getElementById('regionalIssuesContent'); 
     if (!container) return;
 
     const locationName = diagnosis.business_location_text || '지역 정보 없음';
@@ -366,8 +368,8 @@ function renderRegionalMapAndIssues(diagnosis, regionalIssues) {
         return ''; 
     }).join('');
 
+    // [수정] h3 제목을 제외한 내용 부분만 생성
     container.innerHTML = `
-        <h3>${locationName}</h3>
         <div class="regional-map-container">
             <img src="${mapImageUrl}" alt="${locationName} 지도">
             <div class="map-overlay">
