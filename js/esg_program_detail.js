@@ -243,29 +243,39 @@ function attachServiceCostModalEvents(program) {
 
     openBtn.addEventListener('click', () => {
         const existingCost = program.existing_cost_details || {};
-        const description = existingCost.description || '기존 지출 비용';
-        const amountText = existingCost.amount ? `${existingCost.amount.toLocaleString()} 원` : '-';
-        const existingCostHtml = `
-            <div class="existing-cost-card">
-                <div class="cost-label">${description}</div>
-                <div class="cost-value">${amountText}</div>
-            </div>`;
+        const serviceCosts = program.service_costs || [];
 
         modalContent.innerHTML = `
             <div class="cost-modal-body">
-                <h3>서비스 비용 상세</h3>
-                <div class="cost-table-grid">
-                    ${existingCostHtml}
-                    <div>
-                        <table class="styled-table">
-                            <thead><tr><th>제공 서비스</th><th style="width: 30%;">금액</th></tr></thead>
+                <div class="cost-modal-grid">
+                    <div class="cost-column cost-existing">
+                        <h4>ESG 대응 비용</h4>
+                        <table>
+                            <thead>
+                                <tr><th>내용</th><th style="text-align:right;">비용</th></tr>
+                            </thead>
                             <tbody>
-                                ${(program.service_costs || []).map(item => `
+                                <tr>
+                                    <td>${existingCost.description || '기존 지출 비용'}</td>
+                                    <td style="text-align:right;">${existingCost.amount ? existingCost.amount.toLocaleString() + ' 원' : '-'}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="cost-column cost-service">
+                        <h4>서비스 이용시</h4>
+                        <table>
+                            <thead>
+                                <tr><th>제공서비스</th><th style="text-align:right;">금액</th></tr>
+                            </thead>
+                            <tbody>
+                                ${serviceCosts.length > 0 ? serviceCosts.map(item => `
                                     <tr>
                                         <td>${(item.service || '').replace(/\n/g, '<br>')}</td>
-                                        <td style="text-align: right;">${(item.amount || 0).toLocaleString()} 원</td>
+                                        <td style="text-align:right;">${(item.amount || 0).toLocaleString()} 원</td>
                                     </tr>
-                                `).join('')}
+                                `).join('') : `<tr><td colspan="2">제공되는 서비스가 없습니다.</td></tr>`}
                             </tbody>
                         </table>
                     </div>
