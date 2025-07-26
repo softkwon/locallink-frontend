@@ -242,19 +242,26 @@ function renderAiAnalysis(analysisData) {
     let comparisonText = '';
     let adviceText = '';
 
+    // [추가] 추천 카테고리 목록을 텍스트로 변환 (예: "'에너지', '폐기물'")
+    const categories = analysisData.recommendedCategories || [];
+    const categoryText = categories.length > 0 
+        ? `특히 <strong>${categories.map(cat => `'${cat}'`).join(', ')}</strong> 분야에서` 
+        : '';
+
+    // [수정] switch 문 전체를 새로운 문구로 변경
     switch (analysisData.status) {
         case '우수':
             comparisonText = `업계 평균보다 약 <strong>${diff.toFixed(1)}% 우수합니다.</strong>`;
-            adviceText = `현재 속하신 산업군에서는 <strong>'${analysisData.industryMainIssue}'</strong>, 주요 활동 지역에서는 <strong>'${analysisData.regionMainIssue}'</strong>, 중요하게 다뤄지고 있습니다. 이러한 강점을 바탕으로 ESG 규제에 선제적으로 대응하여, 지속가능한 비즈니스 성장 기회를 적극적으로 모색해 보시길 바랍니다.`;
+            adviceText = `현재 속하신 산업군에서는 <strong>'${analysisData.industryMainIssue}'</strong>, 주요 활동 지역에서는 <strong>'${analysisData.regionMainIssue}'</strong>(이)가 중요하게 다뤄지고 있습니다. 진단 결과, ${categoryText} 강점을 보이고 계십니다. 이러한 강점을 바탕으로 ESG 규제에 선제적으로 대응하여, 지속가능한 비즈니스 성장 기회를 적극적으로 모색해 보시길 바랍니다.`;
             break;
         case '부족':
             comparisonText = `업계 평균에 비해 약 <strong>${Math.abs(diff).toFixed(1)}% 부족한 상태입니다.</strong>`;
-            adviceText = `현재 속하신 산업군에서는 <strong>'${analysisData.industryMainIssue}'</strong>, 주요 활동 지역에서는 <strong>'${analysisData.regionMainIssue}'</strong>, 중요하게 다뤄지고 있으니 주의가 필요합니다. 부족한 부분을 개선하여 규제 리스크를 줄이고, 새로운 사업 기회를 발굴하는 전략을 추천합니다.`;
+            adviceText = `현재 속하신 산업군에서는 <strong>'${analysisData.industryMainIssue}'</strong>, 주요 활동 지역에서는 <strong>'${analysisData.regionMainIssue}'</strong>(이)가 중요하게 다뤄지고 있으니 주의가 필요합니다. 진단 결과, ${categoryText} 개선이 필요하며, 부족한 부분을 중심으로 규제 리스크를 줄이고 새로운 사업 기회를 발굴하는 전략을 추천합니다.`;
             break;
-        default:
+        default: // '비슷'
             const signedDiff = diff > 0 ? `+${diff.toFixed(1)}` : diff.toFixed(1);
             comparisonText = `업계 평균과 <strong>비슷한 수준입니다.</strong> <span style="font-size:0.9em; color:#555;">(업계 평균 대비 <strong>${signedDiff}%</strong>)</span>`;
-            adviceText = `현재 산업군 및 지역의 핵심 이슈인 <strong>'${analysisData.industryMainIssue}'</strong>, 조금 더 집중하신다면, 경쟁사보다 앞서 나갈 수 있는 좋은 기회가 될 것입니다.`;
+            adviceText = `현재 산업군 및 지역의 핵심 이슈는 <strong>'${analysisData.industryMainIssue}'</strong> 입니다. 진단 결과에 따르면 ${categoryText} 관련 분야에 조금 더 집중하신다면, 경쟁사보다 앞서 나갈 수 있는 좋은 기회가 될 것입니다.`;
             break;
     }
 
