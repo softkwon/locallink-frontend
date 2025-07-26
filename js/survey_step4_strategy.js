@@ -295,14 +295,13 @@ function renderIndustryIssues(issues, diagnosis) {
     `;
 }
 
-
 function renderCompanySizeIssues(issueData, userCompanySizeCode) {
     const container = document.getElementById('companySizeIssuesSection'); 
     if (!container) return;
 
     const companySizeKorean = getCompanySizeName(userCompanySizeCode);
     
-    let contentHtml = `<h3>${companySizeKorean}의 주요 ESG 이슈</h3>`;
+    let contentHtml = `<p class="tab-pane-description">${companySizeKorean} 기업이 일반적으로 중요하게 다루는 주요 ESG 이슈입니다.</p>`;
 
     if (issueData) {
         contentHtml += `
@@ -332,7 +331,7 @@ function renderCompanySizeIssues(issueData, userCompanySizeCode) {
     } else {
         contentHtml += `<p>귀사의 규모(${companySizeKorean})에 맞는 ESG 이슈 데이터가 없습니다.</p>`;
     }
-
+    
     container.innerHTML = contentHtml;
 }
 

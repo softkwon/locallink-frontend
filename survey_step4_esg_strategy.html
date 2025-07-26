@@ -564,7 +564,13 @@
             box-shadow: none;
             background-color: transparent;
         }
-       
+        .tab-pane-description {
+            font-size: 1em;
+            color: #6c757d;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e9ecef;
+        }
 
     </style>
 </head>
@@ -629,7 +635,7 @@
                     <div class="tab-content">
                         <div id="tab-benchmark" class="tab-pane active">
                             <div id="benchmarkSection" class="strategy-section">
-                                <h3>동종업계 성과 비교 (*통계청 데이터 기반 업계평균)</h3>
+                                <p class="tab-pane-description">통계청 데이터를 기반으로 동종업계와 우리 회사의 ESG 성과를 비교 분석합니다.</p>
                                 <div id="benchmarkIndustryInfo" style="text-align: center; font-size: 0.9em; color: #555; margin-bottom: 15px;">
                                 </div>
                                 <div class="benchmark-charts-grid">
@@ -646,15 +652,14 @@
                         </div>
                         <div id="tab-timeline" class="tab-pane">
                             <div id="regulationTimelineSection" class="strategy-section">
-                                <h3>규제 타임라인</h3>
-                                <p>시행 예정인 주요 ESG 관련 규제를 확인하고 기업의 리스크에 대비하세요.</p>
+                                <p class="tab-pane-description">시행 예정인 주요 ESG 관련 규제를 확인하고 기업의 리스크에 대비하세요.</p>
                                 <div id="regulation-timeline-container">
                                     </div>
                             </div>
                         </div>
                         <div id="tab-industry-issues" class="tab-pane">
                             <div id="industryEsgIssuesSection" class="strategy-section">
-                                <h3>우리 회사 산업군의 주요 ESG 이슈</h3>
+                                <p class="tab-pane-description">우리 회사가 속한 산업군의 특성에 따른 주요 ESG 이슈와 기회/위기 요인을 확인합니다.</p>
                                 <p id="currentIndustryInfo"></p>
                                 <div id="industryIssuesContent"><p><em>산업코드 기반 ESG 이슈를 불러오는 중입니다...</em></p></div>
                             </div>
@@ -665,7 +670,7 @@
                         </div>
                         <div id="tab-regional-issues" class="tab-pane">
                             <div id="regionalMapSection" class="strategy-section">
-                                <h3>주요 사업장 소재지 ESG 현안</h3>
+                                <p class="tab-pane-description">주요 사업장이 위치한 지역의 고유한 ESG 현안과 이슈를 지도를 통해 확인합니다.</p>
                                 <div id="regionalIssuesContent">
                                     </div>
                             </div>
