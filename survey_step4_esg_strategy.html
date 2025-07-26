@@ -552,10 +552,13 @@
         }
         .tab-content .tab-pane {
             display: none;
-            padding: 20px;
         }
         .tab-content .tab-pane.active {
             display: block;
+        }
+        .tab-content {
+            overflow: auto; /* 내부 콘텐츠 높이를 인식하게 하는 핵심 속성 */
+            padding: 20px;
         }
         /* 탭 내부의 strategy-section 스타일 초기화 */
         .tab-pane .strategy-section {
