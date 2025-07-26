@@ -520,7 +520,7 @@
             line-height: 1.6;
         }
 
-        /* === [추가] 탭 UI 스타일 === */
+        /* === 탭 UI 스타일 (최종 수정본) === */
         .tab-container {
             background-color: #fff;
             border: 1px solid #dee2e6;
@@ -552,18 +552,18 @@
             font-weight: bold;
             border-bottom-color: #007bff;
         }
+        .tab-content {
+            padding: 25px;
+            /* [핵심 수정] 이 속성이 내부 콘텐츠의 높이를 인식하게 하여 겹침 문제를 해결합니다. */
+            overflow: hidden; 
+        }
         .tab-content .tab-pane {
             display: none;
-            padding: 20px;
         }
         .tab-content .tab-pane.active {
             display: block;
         }
-        .tab-content {
-            padding: 20px;
-            overflow: hidden; /* 이 줄을 추가해주세요. */
-        }
-        /* 탭 내부의 strategy-section 스타일 초기화 */
+        /* 탭 내부에 있는 섹션의 불필요한 여백/테두리를 제거하여 깔끔하게 만듭니다. */
         .tab-pane .strategy-section {
             margin-bottom: 0;
             padding: 0;
@@ -571,7 +571,6 @@
             box-shadow: none;
             background-color: transparent;
         }
-       
 
     </style>
 </head>
