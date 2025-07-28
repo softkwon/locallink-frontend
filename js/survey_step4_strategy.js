@@ -375,7 +375,7 @@ function renderRegionalMapAndIssues(diagnosis, regionalIssues) {
                 <div class="luris-link-box">
                     <p>
                         소재지: <strong>${locationName}</strong><br>
-                        아래 버튼을 눌러 이동하신 후, 지도에서 <strong>'${locationName}'</strong>를 클릭하여 상세 규제 정보를 확인하세요.
+                        아래 버튼을 눌러 이동하신 후, 지도에서 <strong>'${locationName}'</strong>를 클릭하여 상세 정보를 확인하세요.
                     </p>
                     <a href="https://www.laiis.go.kr/lips/mlo/wco/wholeCountryList.do" target="_blank" class="button-secondary">
                         토지이용규제정보서비스 (LURIS) 바로가기

@@ -1,9 +1,6 @@
-// js/survey_step3_result.js (2025-06-29 09:15:00)
-
 import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
 
 document.addEventListener('DOMContentLoaded', async function() {    
-    // --- 1. 페이지 변수 및 요소 초기화 ---
     const urlParams = new URLSearchParams(window.location.search);
     const diagnosisId = urlParams.get('diagId');
     const token = localStorage.getItem('locallink-token');
@@ -18,8 +15,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         categoryContainer: document.getElementById('categoryResultsContainer'),
         tableBody: document.getElementById('evaluationTableBody'),
     };
-    
-    // --- 2. 기능 함수 정의 ---
 
     function generatePdf() {
         const downloadBtn = document.getElementById('downloadPdfBtn');
@@ -92,7 +87,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
     }
 
-    // --- 3. 페이지 초기화 실행 ---
     async function initializePage() {
         if (!token || !diagnosisId) {
             alert('잘못된 접근입니다. 진단을 먼저 진행해주세요.');
@@ -111,20 +105,20 @@ document.addEventListener('DOMContentLoaded', async function() {
 
             const totalScore = parseFloat(diagnosis.total_score || 0);
             const { grade, comment } = getGradeAndComment(totalScore);
-            elements.companyName.textContent = diagnosis.company_name;
+            
             elements.totalScore.textContent = totalScore.toFixed(1);
             elements.grade.textContent = grade;
             elements.comment.textContent = comment;
 
+            document.getElementById('mainResultTitle').textContent = `${diagnosis.company_name || '사용자'}님의 ESG 핵심영역 진단결과`;
+
             renderCategoryResults(diagnosis);
             renderEvaluationTable(userAnswers);
 
-            // '다음 단계(Step4)' 버튼을 찾아, URL에 현재 진단 ID를 추가합니다.
             const navStrategyLink = document.getElementById('navStrategyLink');
             if (navStrategyLink) {
                 navStrategyLink.href = `survey_step4_esg_strategy.html?diagId=${diagnosisId}`;
             }
-            // 'ESG프로그램 제안(Step5)' 링크에도 diagId를 추가합니다.
             const navProposalLink = document.getElementById('navProposalLink');
             if (navProposalLink) {
                 navProposalLink.href = `survey_step5_program_proposal.html?diagId=${diagnosisId}`;
@@ -140,14 +134,11 @@ document.addEventListener('DOMContentLoaded', async function() {
             if (typeof checkLoginAndRenderHeader === 'function') {
                 checkLoginAndRenderHeader();
             }
-            // ★★★ 이 부분을 추가해주세요. ★★★
-            // '다음 단계(Step4)' 버튼을 찾아, URL에 현재 진단 ID를 추가합니다.
             const viewStrategyBtn = document.getElementById('viewStrategyBtn');
             if (viewStrategyBtn) {
                 viewStrategyBtn.href = `survey_step4_esg_strategy.html?diagId=${diagnosisId}`;
             }
             
-            // 로딩 메시지 숨기고 결과 컨테이너 보여주기 및 헤더 복구
             elements.loading.style.display = 'none';
             elements.resultContainer.classList.remove('hidden');
             if (typeof checkLoginAndRenderHeader === 'function') {

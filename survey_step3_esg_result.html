@@ -34,7 +34,35 @@
         justify-content: space-between;
         align-items: center;
         margin-bottom: 20px;
-    }
+        }
+
+        /* 설명 텍스트 스타일 */
+        .result-description {
+            text-align: center;
+            color: #6c757d;
+            margin-bottom: 30px;
+        }
+        /* 점수 표시 영역 상단 여백 조정 */
+        .result-summary {
+            margin-top: 20px;
+            padding-top: 20px;
+        }
+        /* '현재 점수 상태' 래퍼 스타일 */
+        .grade-wrapper {
+            margin-top: 15px;
+            font-size: 1.1em;
+        }
+        /* 등급(미흡,보통,우수) 텍스트 스타일 */
+        .grade-wrapper .grade {
+            font-weight: bold;
+            margin: 0 5px;
+        }
+        /* 등급 코멘트 스타일 */
+        .grade-wrapper .grade-comment {
+            color: #495057;
+            font-size: 0.95em;
+        }
+
     </style>
 </head>
 <body><header>
@@ -79,18 +107,19 @@
             <div id="loadingMessage" style="text-align: center; padding: 50px;"><h2>결과를 분석하고 있습니다...</h2></div>
 
             <div id="resultContainer" class="hidden">
-                <h2>ESG 진단 결과</h2>
-                <div id="esgCoreResultSummary" class="result-summary" style="margin-top: 20px; padding-top: 20px;">
-                    <h3>ESG핵심영역 평가</h3>
-                    <p id="companyNameDisplay" style="font-size:1.2em; font-weight:bold;"></p>
-                    <br>
-                    <p style="font-size:0.9em; color:#555; margin-top:-10px; margin-bottom:20px;">본 진단은 국내·외 기준 기반의 ESG핵심영역 간이평가입니다</p>
-                    <p style="font-size:0.9em; color:#555; margin-top:-10px; margin-bottom:20px;">정확한 측정을 위해서는 전문가와 상담이 필요합니다.</p>
-                    
+                <h2 id="mainResultTitle">ESG 진단 결과</h2> 
+    
+                <p class="result-description">본 진단은 국내·외 기준 기반의 ESG핵심영역 간이평가입니다. 정확한 측정을 위해서는 전문가와 상담이 필요합니다.</p>
+
+                <div id="esgCoreResultSummary" class="result-summary">
                     <div class="score"><span id="esgTotalScoreDisplay">-</span> 점</div>
-                    <br>
-                    <div class="grade" id="esgGradeDisplay">-</div>
-                    <p id="esgCoreCommentDisplay" style="margin-top: 10px; color: #333;">-</p>
+                    
+                    <div class="grade-wrapper">
+                        <strong>현재 점수 상태:</strong>
+                        <span id="esgGradeDisplay" class="grade">-</span>
+                        <span class="grade-comment">- <span id="esgCoreCommentDisplay"></span></span>
+                    </div>
+                </div>
                 </div>
 
                 <div class="result-section">
