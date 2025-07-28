@@ -372,12 +372,10 @@ function renderRegionalMapAndIssues(diagnosis, regionalIssues) {
             <div class="regional-map-container">
                 <img src="${mapImageUrl}" alt="${locationName} 지도">
             </div>
-
             <div>
                 <div class="regional-issue-list">
                     ${issuesHtml || '<p>해당 지역의 주요 현안 정보가 없습니다.</p>'}
                 </div>
-
                 <div class="luris-link-box">
                     <p>
                         소재지: <strong>${locationName}</strong><br>
