@@ -156,6 +156,59 @@
         .map-issue-badge { font-weight: bold; margin-right: 10px; }
         .badge-E { color: #52c41a; } .badge-S { color: #faad14; } .badge-G { color: #d3adf7; }
 
+        .regional-issue-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr; /* 왼쪽이 조금 더 넓게 (비율 조정 가능) */
+            gap: 40px;                        /* 좌우 컬럼 사이 간격 */
+            align-items: flex-start;
+        }
+
+        /* --- 왼쪽 컬럼 (지도, 안내문) --- */
+        .luris-link-box {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .luris-link-box p {
+            margin-bottom: 15px;
+        }
+
+        /* --- 오른쪽 컬럼 (E,S,G 설명) --- */
+        .regional-issue-list {
+            background-color: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 25px;
+            height: 100%; /* 왼쪽 컬럼 높이에 맞게 꽉 채움 */
+        }
+        .regional-issue-list h4 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 1.2em;
+        }
+        .map-issue-item {
+            margin-bottom: 25px;
+        }
+        .map-issue-item:last-child {
+            margin-bottom: 0;
+        }
+        .map-issue-badge {
+            font-size: 1.1em; /* 뱃지 크기 키움 */
+            font-weight: bold;
+            padding: 5px 12px;
+            border-radius: 5px;
+            color: #fff;
+            margin-right: 10px;
+        }
+        .badge-E { background-color: #28a745; }
+        .badge-S { background-color: #ffc107; color: #343a40; } /* 노란색은 어두운 글씨 */
+        .badge-G { background-color: #6f42c1; }
+
         /* --- AI 분석 평가 --- */
         #aiAnalysisSection {
             margin-left: auto;

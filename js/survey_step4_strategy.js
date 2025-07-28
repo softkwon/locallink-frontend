@@ -368,12 +368,9 @@ function renderRegionalMapAndIssues(diagnosis, regionalIssues) {
 
     container.innerHTML = `
         <div class="regional-issue-grid">
-            <div class="regional-map-container">
-                <img src="${mapImageUrl}" alt="${locationName} 지도">
-            </div>
-            <div>
-                <div class="regional-issue-list">
-                    ${issuesHtml || '<p>해당 지역의 주요 현안 정보가 없습니다.</p>'}
+            <div class="regional-issue-left">
+                <div class="regional-map-container">
+                    <img src="${mapImageUrl}" alt="${locationName} 지도">
                 </div>
                 <div class="luris-link-box">
                     <p>
@@ -383,6 +380,12 @@ function renderRegionalMapAndIssues(diagnosis, regionalIssues) {
                     <a href="https://www.laiis.go.kr/lips/mlo/wco/wholeCountryList.do" target="_blank" class="button-secondary">
                         토지이용규제정보서비스 (LURIS) 바로가기
                     </a>
+                </div>
+            </div>
+            <div class="regional-issue-right">
+                <div class="regional-issue-list">
+                    <h4>주요 현안</h4>
+                    ${issuesHtml || '<p>해당 지역의 주요 현안 정보가 없습니다.</p>'}
                 </div>
             </div>
         </div>
