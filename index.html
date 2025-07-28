@@ -8,27 +8,26 @@
     <link rel="stylesheet" href="css/components.css">
         
 <style>
-        /* Modal Basic Styles (실제로는 style.css에 추가 권장) */
         .modal {
-            display: none; /* Hidden by default */
-            position: fixed; /* Stay in place */
-            z-index: 1000; /* Sit on top */
+            display: none;
+            position: fixed; 
+            z-index: 1000; 
             left: 0;
             top: 0;
-            width: 100%; /* Full width */
-            height: 100%; /* Full height */
-            overflow: auto; /* Enable scroll if needed */
-            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.4); 
             padding-top: 60px;
         }
 
         .modal-content {
             background-color: #fefefe;
-            margin: 5% auto; /* 5% from the top and centered */
+            margin: 5% auto; 
             padding: 20px;
             border: 1px solid #888;
-            width: 80%; /* Could be more or less, depending on screen size */
-            max-width: 600px; /* Maximum width */
+            width: 80%; 
+            max-width: 600px;
             border-radius: 8px;
             position: relative;
         }
@@ -59,14 +58,14 @@
         .form-group input[type="tel"],
         .form-group input[type="email"],
         .form-group textarea {
-            width: calc(100% - 22px); /* padding 고려 */
+            width: calc(100% - 22px); 
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
-            box-sizing: border-box; /* padding과 border가 width, height에 포함되도록 */
+            box-sizing: border-box; 
         }
         .form-group textarea {
-            resize: vertical; /* 세로 크기만 조절 가능하도록 */
+            resize: vertical; 
         }
         
         #inquirySuccessModal .modal-content {
@@ -98,21 +97,19 @@
             gap: 30px;
         }
         .section.layout-text-right .content {
-            flex-direction: row-reverse; /* 텍스트 오른쪽 레이아웃 */
+            flex-direction: row-reverse; 
         }
         .text-content { flex: 1; }
         .image-content { flex: 1; display: flex; flex-wrap: wrap; gap: 15px; }
 
-        /* 이미지 레이아웃 스타일 */
         .image-layout-column { flex-direction: column; }
         .image-layout-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
     
         .image-content img {
-            height: auto; /* ★★★ 너비에 맞춰 높이를 자동으로 조절하여 비율 유지 ★★★ */
-            max-width: 100%; /* 이미지가 부모 요소를 넘어가지 않도록 */
+            height: auto; 
+            max-width: 100%; 
         }
 
-        /* 협력사 로고 그리드 스타일 */
         .partners-section {
             padding: 50px 0;
             background-color: #f8f9fa;
@@ -123,13 +120,12 @@
         }
         .partner-grid-container {
             display: grid;
-            /* 한 줄에 5개의 로고를 표시하고, 공간이 부족하면 다음 줄로 넘어갑니다. */
             grid-template-columns: repeat(auto-fill, minmax(18%, 1fr));
-            gap: 5px; /* 로고 사이의 간격 */
+            gap: 5px; 
             justify-content: center;
         }
         .partner-item {
-            padding: 20px; /* <-- 이 값이 박스의 안쪽 여백을 결정합니다. */
+            padding: 20px; 
             text-align: center;
             background-color: #ffffff;
             border: 1px solid #e9ecef;
@@ -137,7 +133,7 @@
         }
         .partner-item img {
             max-width: 100%;
-            height: 60px; /* 이 값을 조절하여 로고 이미지의 높이를 변경할 수 있습니다. (예: 50px) */
+            height: 60px; 
             object-fit: contain;
             filter: grayscale(100%);
             opacity: 0.8;
@@ -148,25 +144,21 @@
             opacity: 1;
         }
 
-        /* 모달 설정/
-        /* 모달 전체를 덮는 검은 반투명 배경 */
         .modal-overlay {
-            display: none; /* 평소에는 숨겨 둠 */
-            position: fixed; /* 화면 기준으로 위치 고정 */
+            display: none; 
+            position: fixed; 
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.6);
-            z-index: 1000; /* 다른 요소들보다 항상 위에 표시 */
+            z-index: 1000; 
             
-            /* 자식 요소(모달창)를 화면 중앙에 오도록 설정 */
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        /* 실제 모달창 콘텐츠 부분 */
         .modal-content {
             background-color: #ffffff;
             padding: 30px;
@@ -174,12 +166,11 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             width: 90%;
             max-width: 600px;
-            max-height: 90vh; /* 화면 높이의 90%를 넘으면 스크롤 생성 */
-            overflow-y: auto; /* 내용이 길어지면 자동 스크롤 */
+            max-height: 90vh; 
+            overflow-y: auto; 
             position: relative;
         }
 
-        /* 닫기 버튼 */
         .close-button {
             position: absolute;
             top: 15px;
@@ -198,24 +189,24 @@
         }
 
         .partner-section {
-            text-align: center; /* 내부 모든 텍스트 중앙 정렬 */
+            text-align: center;
             padding: 50px 0;
         }
         .partner-section h2 {
-            font-size: 2.2em; /* 제목 크기 키움 */
+            font-size: 2.2em; 
             margin-bottom: 10px;
         }
         .partner-section p {
             font-size: 1.1em;
-            color: #6c757d; /* 부드러운 회색 */
-            margin-bottom: 40px; /* 로고와의 간격 */
+            color: #6c757d; 
+            margin-bottom: 40px; 
         }
         .partner-grid {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
             align-items: center;
-            gap: 30px; /* 로고 사이 간격 */
+            gap: 30px; 
         }
 
         .section {
@@ -243,15 +234,13 @@
         .section .image-content img {
             border-radius: 8px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-            max-width: 100%; /* 너비가 부모를 넘지 않도록 */
+            max-width: 100%; 
         }
 
-        /* 텍스트가 오른쪽에 있는 레이아웃 */
         .section.layout-text-right .content {
             flex-direction: row-reverse;
         }
 
-        /* 이미지 레이아웃 옵션 */
         .image-layout-column {
             flex-direction: column;
         }
@@ -259,7 +248,6 @@
             flex-direction: row;
         }
 
-        /* ★★★★★ 히어로 섹션 최종 스타일 (여기에 모두 정리) ★★★★★ */
         .hero {
             background-color: #4A90E2;
             color: white;
@@ -270,13 +258,12 @@
             align-items: center;
             min-height: clamp(400px, 35vw, 700px);
             padding: 40px 20px;
-            box-sizing: border-box; /* 패딩 계산을 위해 추가 */
+            box-sizing: border-box; 
 
-            /* ★★★ 핵심 수정: 폭과 위치 조정 ★★★ */
-            width: 90%;                 /* 다른 콘텐츠와 같이 기본 폭을 90%로 설정 */
-            max-width: 1200px;          /* 다른 콘텐츠와 같이 최대 폭을 1200px로 제한 */
-            margin: 40px auto;          /* 위아래 여백 40px, 좌우는 자동으로 중앙 정렬 */
-            border-radius: 12px;        /* 모서리를 부드럽게 둥글게 처리 */
+            width: 90%;                 
+            max-width: 1200px;         
+            margin: 40px auto;          
+            border-radius: 12px;       
         }
         .hero h1 {
             font-size: 3.5em;
@@ -298,36 +285,26 @@
         }
         
         /* 반응형 처리 */
-       
-
-        /* ★★★★★ 반응형 웹 디자인을 위한 미디어 쿼리 ★★★★★ */
-
-        /* 화면 너비가 992px 이하일 때 (태블릿) */
         @media (max-width: 992px) {
-            /* --- 헤더 --- */
             header .container nav {
-                display: none; /* 데스크탑용 내비게이션 메뉴 숨기기 */
+                display: none; 
             }
 
-            /* --- 메인 배너 (Hero Section) --- */
-            .hero h1 { /* 선택자를 .hero로 수정 */
-                font-size: 2.8em; /* 제목 글자 크기를 살짝 줄입니다. */
+            .hero h1 {
+                font-size: 2.8em;
             }
 
-            /* --- 메인 콘텐츠 섹션 --- */
             .section .container .content {
-                flex-direction: column !important; /* 모든 섹션을 세로로 쌓음 */
+                flex-direction: column !important; 
                 gap: 20px;
             }
             .section .text-content,
             .section .image-content {
-                text-align: center; /* 텍스트 중앙 정렬 */
+                text-align: center; 
             }
         }
 
-        /* 화면 너비가 768px 이하일 때 (모바일) */
         @media (max-width: 768px) {
-            /* --- 헤더 --- */
             header .container {
                 flex-wrap: wrap; 
                 justify-content: space-between;
@@ -339,7 +316,6 @@
                 justify-content: flex-end;
             }
 
-            /* --- 메인 배너 (Hero Section) --- */
             .hero {
                 padding: 60px 20px;
             }
@@ -350,7 +326,6 @@
                 font-size: 1.0em;
             }
 
-            /* --- 메인 콘텐츠 섹션 --- */
             .section {
                 padding: 40px 20px;
             }
@@ -358,46 +333,42 @@
                 font-size: 1.8em !important;
             }
 
-            /* --- 함께하는 파트너 섹션 (모바일) --- */
             .partner-section {
-                padding: 40px 20px; /* 데스크탑보다 상하좌우 여백을 줄입니다. */
+                padding: 40px 20px; 
             }
             .partner-grid {
-                gap: 20px; /* 로고 사이의 간격을 줄입니다. */
+                gap: 20px; 
             }
             .partner-item img {
-                height: 40px; /* 모바일에서 로고 이미지의 높이를 줄입니다. */
+                height: 40px; 
             }
 
         @media (max-width: 768px) {
             .section .container .content {
-                flex-direction: column !important; /* 모바일에서는 항상 세로로 쌓이도록 */
+                flex-direction: column !important; 
             }
             }            
 
-        } /* @media (max-width: 768px) 닫는 괄호 */
+        }
 
-        /* 화면 너비가 480px 이하일 때 (더 작은 모바일) */
         @media (max-width: 480px) {
             .hero {
-                padding: 60px 20px; /* 여백을 더 줄임 */
+                padding: 60px 20px; 
             }
             .hero h1 {
-                font-size: 1.9em; /* 글자 크기를 더 줄임 */
+                font-size: 1.9em;
             }
         }
         
-        /* --- 히어로 섹션에 기준점 추가 --- */
         .hero {
-            position: relative; /* 자식 요소의 absolute 위치 기준을 위해 추가 */
+            position: relative;
         }
 
-        /* --- ESG MBTI 테스트 버튼 스타일 --- */
         .mbti-test-button {
             position: absolute;
             bottom: 30px;
             right: 30px;
-            background-color: rgba(255, 255, 255, 0.2); /* 반투명 배경 */
+            background-color: rgba(255, 255, 255, 0.2); 
             color: white;
             border: 1px solid white;
             padding: 10px 20px;
@@ -406,23 +377,76 @@
             cursor: pointer;
             transition: all 0.3s;
             font-size: 0.9em;
-            z-index: 5; /* 다른 요소 위에 오도록 */
+            z-index: 5; 
         }
 
         .mbti-test-button:hover {
-            background-color: rgba(255, 255, 255, 0.4); /* 호버 시 더 진하게 */
+            background-color: rgba(255, 255, 255, 0.4); 
             transform: translateY(-2px);
         }
 
-        /* --- 모바일 화면에서 버튼 스타일 조정 --- */
         @media (max-width: 768px) {
             .mbti-test-button {
-                position: static; /* 모바일에서는 원래 위치로 돌아옴 */
+                position: static; 
                 display: block;
                 width: fit-content;
-                margin: 20px auto 0; /* 기존 버튼 아래에 여백을 주고 중앙 정렬 */
+                margin: 20px auto 0; 
             }
         }
+        
+        .section {
+            background-color: #ffffff !important; /* 모든 섹션 배경을 흰색으로 통일 */
+            border-radius: 16px;      /* 모서리를 부드럽게 */
+            padding: 40px !important; /* 내부 여백 확보 */
+            margin-bottom: 40px;      /* 카드 사이 간격 */
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08); /* 입체감을 주는 그림자 */
+            border: 1px solid #f0f0f0; /* 깔끔한 테두리 */
+            overflow: hidden;         /* 내부 요소가 삐져나가지 않도록 */
+        }
+
+        /* 기존의 짝수 섹션 배경색 규칙을 덮어쓰기 위해 !important 사용 */
+        .section:nth-child(even) {
+            background-color: #ffffff !important;
+        }
+
+
+        /* 2. 텍스트 가독성 및 디자인 강화 */
+        .section .text-content h2 { /* Admin에서 입력하는 제목 스타일 (h2 또는 h3일 수 있음) */
+            font-size: 2em;
+            font-weight: 700;
+            color: #212529; /* 더 진한 검은색으로 가시성 확보 */
+            margin-top: 0;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .section .text-content p {
+            font-size: 1.05em;
+            line-height: 1.8; /* 줄 간격을 넓혀 가독성 확보 */
+            color: #495057;   /* 부드러운 회색 */
+        }
+
+        /* 3. 이미지 스타일 개선 */
+        .section .image-content img {
+            border-radius: 12px; /* 이미지 모서리도 부드럽게 */
+            transition: transform 0.3s ease;
+        }
+
+        .section:hover .image-content img {
+            transform: scale(1.03); /* 카드에 마우스를 올리면 이미지가 살짝 커지는 효과 */
+        }
+
+
+        /* 4. 모바일 반응형 조정 */
+        @media (max-width: 768px) {
+            .section {
+                padding: 25px !important; /* 모바일에서는 내부 여백을 줄임 */
+            }
+            .section .text-content h2 {
+                font-size: 1.6em;
+            }
+        }
+
     </style>    
     
 </head>
@@ -500,7 +524,6 @@
             <h2>함께하는 파트너</h2>
             <p>ESGlink는 다양한 협력사와 co-work하고 있습니다</p>
             <div id="partner-grid" class="partner-grid">
-                <!-- JS가 여기에 협력사 로고를 채웁니다. -->
             </div>
         </div>
     </section>
@@ -513,7 +536,6 @@
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script>
     function openEsgMbtiTest() {
-        // 경로는 이전에 확인한 event_contents 폴더 기준으로 설정했습니다.
         window.open('event_contents/esg-mbti.html', 'EsgMbtiTest', 'width=600,height=800,scrollbars=yes');
     }
     </script>
