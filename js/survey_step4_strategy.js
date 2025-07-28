@@ -337,7 +337,6 @@ function renderCompanySizeIssues(issueData, userCompanySizeCode) {
     container.innerHTML = contentHtml;
 }
 
-
 function renderRegionalMapAndIssues(diagnosis, regionalIssues) {
     const container = document.getElementById('regionalIssuesContent'); 
     if (!container) return;
@@ -368,7 +367,6 @@ function renderRegionalMapAndIssues(diagnosis, regionalIssues) {
         return ''; 
     }).join('');
 
-    // [수정] 2단 그리드 레이아웃으로 전체 HTML 구조 변경
     container.innerHTML = `
         <div class="regional-issue-grid">
             <div class="regional-map-container">
