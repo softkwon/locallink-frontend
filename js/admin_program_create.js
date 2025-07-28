@@ -1,4 +1,3 @@
-
 import { API_BASE_URL } from './config.js';
 import { checkAdminPermission } from './admin_common.js';
 
@@ -8,7 +7,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const token = localStorage.getItem('locallink-token');
     const form = document.getElementById('createProgramForm');
     
-    // 페이지 요소 찾기
     const sectionsContainer = document.getElementById('sections-container');
     const addSectionBtn = document.getElementById('add-section-btn');
     const effectsContainer = document.getElementById('effects-container');
@@ -17,8 +15,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const addOrganizationBtn = document.getElementById('add-organization-btn');
     const opportunityEffectsContainer = document.getElementById('opportunity-effects-container');
     const addOpportunityEffectBtn = document.getElementById('add-opportunity-effect-btn');
-    
-    // 상태 관리 변수
+    const serviceCostsContainer = document.getElementById('service-costs-container');
+    const addServiceCostBtn = document.getElementById('add-service-cost-btn');
+
     let newSectionFiles = {}; 
 
     // --- 2. 페이지 초기화 ---
@@ -35,22 +34,20 @@ document.addEventListener('DOMContentLoaded', function() {
         
         attachEventListeners();
 
-        // 생성 모드이므로 기본 빈 행들을 추가
         addSectionRow(); 
         addEffectRow(); 
         addOrganizationRow(); 
         addOpportunityEffectRow();
+        addServiceCostRow();
     }
 
     // --- 3. 동적 UI 생성 함수들 ---
     function addSectionRow() {
         const sectionId = 'section-' + Date.now() + Math.random().toString(36).substr(2, 9);
         newSectionFiles[sectionId] = [];
-
         const newSection = document.createElement('div');
         newSection.className = 'content-section'; 
         newSection.id = sectionId;
-        
         newSection.innerHTML = `
             <div style="display:flex; justify-content:flex-end; margin-bottom: 15px;">
                 <button type="button" class="button-danger button-sm remove-section-btn">X</button>
@@ -95,6 +92,36 @@ document.addEventListener('DOMContentLoaded', function() {
         organizationsContainer.appendChild(newOrg);
     }
 
+    function addServiceCostRow() {
+        const newRow = document.createElement('div');
+        newRow.className = 'service-cost-item form-group-inline';
+        newRow.innerHTML = `
+            <div class="form-group" style="flex: 2;">
+                <label>제공 서비스</label>
+                <textarea class="form-control service-description" rows="3"></textarea>
+            </div>
+            <div class="form-group" style="flex: 1;">
+                <label>금액 (원)</label>
+                <input type="number" class="form-control service-amount">
+            </div>
+            <button type="button" class="button-danger button-sm remove-service-cost-btn">X</button>
+        `;
+        serviceCostsContainer.appendChild(newRow);
+    }
+
+    function updateFormulaPreview(row) {
+        if (!row) return;
+        const previewEl = row.querySelector('.formula-preview');
+        const avgSelect = row.querySelector('.opportunity-avg-data-key');
+        const factorInput = row.querySelector('.opportunity-correction-factor');
+        if (!previewEl || !avgSelect || !factorInput) return;
+        const avgOption = avgSelect.options[avgSelect.selectedIndex];
+        const avgText = (avgOption && avgOption.value) ? avgOption.text : '산업 평균값';
+        const factorText = factorInput.value || '보정값';
+        const effectText = '단위/톤당 기대효과';
+        previewEl.textContent = `(${avgText}) x (${effectText}) x (${factorText})`;
+    }
+
     function addOpportunityEffectRow() {
         const newRow = document.createElement('div');
         newRow.className = 'form-fieldset';
@@ -122,14 +149,18 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>`;
         opportunityEffectsContainer.appendChild(newRow);
         
-        // 이벤트 리스너 연결
         const selectElement = newRow.querySelector('.opportunity-avg-data-key');
-        populateAverageDataDropdown(selectElement);
+        populateAverageDataDropdown(selectElement).then(() => {
+            updateFormulaPreview(newRow);
+        });
+        newRow.querySelector('.opportunity-avg-data-key').addEventListener('change', () => updateFormulaPreview(newRow));
+        newRow.querySelector('.opportunity-correction-factor').addEventListener('input', () => updateFormulaPreview(newRow));
         newRow.querySelector('.opportunity-type-select').addEventListener('change', (e) => {
             const calcFields = newRow.querySelector('.opportunity-calc-fields');
             const textFields = newRow.querySelector('.opportunity-text-fields');
             calcFields.style.display = e.target.value === 'calculation' ? 'block' : 'none';
             textFields.style.display = e.target.value === 'text' ? 'block' : 'none';
+            if (e.target.value === 'calculation') updateFormulaPreview(newRow);
         });
     }
 
@@ -190,6 +221,18 @@ document.addEventListener('DOMContentLoaded', function() {
             formData.append('program_overview', safeGetValue('program_overview'));
             formData.append('risk_text', safeGetValue('risk_text'));
             formData.append('risk_description', safeGetValue('risk_description'));
+            formData.append('potential_e', safeGetValue('potential_e'));
+            formData.append('potential_s', safeGetValue('potential_s'));
+            formData.append('potential_g', safeGetValue('potential_g'));
+
+            const executionType = document.querySelector('input[name="executionType"]:checked')?.value || 'donation';
+            formData.append('execution_type', executionType);
+            
+            const serviceRegions = Array.from(document.querySelectorAll('input[name="service_region"]:checked')).map(checkbox => checkbox.value);
+            formData.append('service_regions', serviceRegions.join(','));
+
+            const selectedSolutionCategories = Array.from(document.querySelectorAll('input[name="solution_category"]:checked')).map(cb => cb.value);
+            formData.append('solution_categories', selectedSolutionCategories.join(','));
             
             const economicEffects = Array.from(document.querySelectorAll('#effects-container .effect-item')).map(item => ({ type: item.querySelector('.effect-type').value, value: parseFloat(item.querySelector('.effect-value').value) || 0, description: item.querySelector('.effect-description').value })).filter(item => item.value || item.description);
             formData.append('economic_effects', JSON.stringify(economicEffects));
@@ -210,22 +253,29 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             formData.append('opportunity_effects', JSON.stringify(opportunityEffects));
 
-            const serviceRegions = Array.from(document.querySelectorAll('input[name="service_region"]:checked')).map(checkbox => checkbox.value);
-            formData.append('service_regions', serviceRegions.join(','));
-
+            const existingCostDetails = {
+                description: safeGetValue('existing_cost_description'),
+                amount: parseFloat(safeGetValue('existing_cost_amount')) || null
+            };
+            formData.append('existing_cost_details', JSON.stringify(existingCostDetails));
+            
+            const serviceCosts = Array.from(document.querySelectorAll('.service-cost-item')).map(item => ({
+                service: item.querySelector('.service-description').value,
+                amount: parseFloat(item.querySelector('.service-amount').value) || 0
+            })).filter(item => item.service);
+            formData.append('service_costs', JSON.stringify(serviceCosts));
+            
             const finalContent = [];
             let imageCounter = 0; 
             document.querySelectorAll('.content-section').forEach(section => {
                 const sectionId = section.id;
                 const newFiles = newSectionFiles[sectionId] || [];
                 const newImagePlaceholders = [];
-
                 newFiles.forEach(file => {
                     const placeholder = `new_image_${imageCounter++}`;
                     formData.append(placeholder, file, file.name);
                     newImagePlaceholders.push(placeholder);
                 });
-                
                 finalContent.push({
                     subheading: section.querySelector('.section-subheading').value,
                     description: section.querySelector('.section-description').value,
@@ -262,6 +312,15 @@ document.addEventListener('DOMContentLoaded', function() {
         if(addEffectBtn) addEffectBtn.addEventListener('click', () => addEffectRow());
         if(addOrganizationBtn) addOrganizationBtn.addEventListener('click', () => addOrganizationRow());
         if(addOpportunityEffectBtn) addOpportunityEffectBtn.addEventListener('click', () => addOpportunityEffectRow());
+        if(addServiceCostBtn) addServiceCostBtn.addEventListener('click', () => addServiceCostRow());
+
+        if(serviceCostsContainer) {
+            serviceCostsContainer.addEventListener('click', e => {
+                if (e.target.classList.contains('remove-service-cost-btn')) {
+                    e.target.closest('.service-cost-item').remove();
+                }
+            });
+        }
 
         if (sectionsContainer) {
             sectionsContainer.addEventListener('click', e => {
@@ -305,6 +364,23 @@ document.addEventListener('DOMContentLoaded', function() {
         if(opportunityEffectsContainer) opportunityEffectsContainer.addEventListener('click', e => { if (e.target.classList.contains('remove-opportunity-btn')) e.target.closest('.form-fieldset').remove(); });
         if(effectsContainer) effectsContainer.addEventListener('click', e => { if (e.target.classList.contains('remove-effect-btn')) e.target.closest('.effect-item').remove(); });
         if(organizationsContainer) organizationsContainer.addEventListener('click', e => { if (e.target.classList.contains('remove-organization-btn')) e.target.closest('.organization-item').remove(); });
+
+        const regionCheckboxes = document.querySelectorAll('input[name="service_region"]');
+        const nationwideCheckbox = document.querySelector('input[value="전국"]');
+        if (nationwideCheckbox) {
+            regionCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', (e) => {
+                    if (e.target.value === '전국' && e.target.checked) {
+                        regionCheckboxes.forEach(cb => { if (cb.value !== '전국') { cb.checked = false; cb.disabled = true; } });
+                    } else if (e.target.value === '전국' && !e.target.checked) {
+                        regionCheckboxes.forEach(cb => { if (cb.value !== '전국') { cb.disabled = false; } });
+                    } else if (e.target.value !== '전국' && e.target.checked) {
+                        nationwideCheckbox.checked = false;
+                        regionCheckboxes.forEach(cb => cb.disabled = false);
+                    }
+                });
+            });
+        }
 
         form.addEventListener('submit', handleProgramSubmit);
     }
