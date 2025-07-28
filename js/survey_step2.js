@@ -62,22 +62,28 @@ document.addEventListener('DOMContentLoaded', async function() {
         elements.text.innerHTML = question.question_text || '(질문 내용이 없습니다)';
         
         const explanationText = (question.explanation || '').replace(/<br\s*\/?>/g, "\n");
-        elements.explanation.innerHTML = explanationText.replace(/\n/g, '<br>');
 
-        const existingBtn = elements.explanation.querySelector('.read-more-btn');
-        if(existingBtn) existingBtn.remove();
-        
-        setTimeout(() => {
-            if (elements.explanation.scrollHeight > elements.explanation.clientHeight) {
-                const readMoreBtn = document.createElement('button');
-                readMoreBtn.className = 'read-more-btn';
-                readMoreBtn.textContent = '[더보기]';
-                readMoreBtn.style.display = 'inline';
-                readMoreBtn.dataset.fullExplanation = explanationText;
-                readMoreBtn.dataset.questionText = question.question_text;
-                elements.explanation.appendChild(readMoreBtn);
-            }
-        }, 10);
+        if (explanationText.trim()) {
+            elements.explanation.innerHTML = explanationText.replace(/\n/g, '<br>');
+            elements.explanation.classList.remove('hidden'); 
+
+            const existingBtn = elements.explanation.querySelector('.read-more-btn');
+            if (existingBtn) existingBtn.remove();
+            
+            setTimeout(() => {
+                if (elements.explanation.scrollHeight > elements.explanation.clientHeight) {
+                    const readMoreBtn = document.createElement('button');
+                    readMoreBtn.className = 'read-more-btn';
+                    readMoreBtn.textContent = '[더보기]';
+                    readMoreBtn.style.display = 'inline';
+                    readMoreBtn.dataset.fullExplanation = explanationText;
+                    readMoreBtn.dataset.questionText = question.question_text;
+                    elements.explanation.appendChild(readMoreBtn);
+                }
+            }, 10);
+        } else {
+            elements.explanation.classList.add('hidden');
+        }
 
         if (question.benchmark_metric && industryAverages) {
             elements.averageInfo.classList.remove('hidden');
@@ -105,7 +111,6 @@ document.addEventListener('DOMContentLoaded', async function() {
             elements.options.className = 'survey-options radio-group';
             question.options.forEach(opt => {
                 const label = document.createElement('label');
-                if (savedAnswer === opt.value) label.classList.add('selected');
                 label.innerHTML = `<input type="radio" name="${question.question_code}" value="${opt.value}" ${savedAnswer === opt.value ? 'checked' : ''}><span>${opt.text}</span>`;
                 elements.options.appendChild(label);
             });
@@ -120,7 +125,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
         elements.prevBtn.style.display = questionHistory.length > 1 ? 'inline-block' : 'none';
         elements.nextBtn.style.display = (question.question_type === 'INPUT') ? 'inline-block' : 'none';
-    
+
         const totalMainQuestions = allQuestions.filter(q => !q.question_code.includes('_')).length || 16;
         const progressPercentage = Math.round(((mainQuestionNumber - 1) / totalMainQuestions) * 100);
         elements.progressBar.style.width = `${progressPercentage > 100 ? 100 : progressPercentage}%`;
