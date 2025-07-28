@@ -57,6 +57,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         const question = allQuestions[qIndex];
         if (!question) return;
 
+        const mainQuestionNumber = parseInt((question.question_code.match(/Q(\d+)/) || [])[1] || 0);
+        elements.legend.textContent = `문항 ${mainQuestionNumber}`;
+
         elements.text.innerHTML = question.question_text || '(질문 내용이 없습니다)';
         
         const explanationText = (question.explanation || '').replace(/<br\s*\/?>/g, "\n");
@@ -128,7 +131,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         const progressPercentage = Math.round(((mainQuestionNumber - 1) / totalMainQuestions) * 100);
         elements.progressBar.style.width = `${progressPercentage > 100 ? 100 : progressPercentage}%`;
         elements.progressText.textContent = `진행도: ${progressPercentage > 100 ? 100 : progressPercentage}%`;
-    }
+        }
 
     function saveCurrentAnswer() {
         const qIndex = questionHistory[questionHistory.length - 1];
