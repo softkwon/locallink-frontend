@@ -136,12 +136,12 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
         });
         const questionTextToSave = document.getElementById('question_text').value.replace(/\n/g, '<br>');
-        
+
         const updatedData = {
             display_order: parseInt(document.getElementById('display_order').value),
-            question_text: document.getElementById('question_text').value,
+            question_text: questionTextToSave,
             esg_category: document.getElementById('esg_category').value,
-            diagnosis_type: document.getElementById('diagnosis_type').value, // ★★★ 이 줄 추가 ★★★
+            diagnosis_type: document.getElementById('diagnosis_type').value,
             explanation: document.getElementById('explanation').value,
             question_type: document.getElementById('question_type').value,
             options: optionsArray,
