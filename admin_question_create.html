@@ -48,30 +48,28 @@
         <section class="form-section create-form-container">
             <h2>새 설문 문항 추가</h2>
             <form id="createQuestionForm">
-                <div class="form-group">
-                    <label for="question_code">질문 코드 *</label>
-                    <input type="text" id="question_code" class="form-control" required placeholder="예: Q17 또는 Q16_2">
-                </div>
-                <div class="form-group">
-                    <label for="display_order">표시 순서 *</label>
-                    <input type="number" id="display_order" class="form-control" required placeholder="예: 35">
-                </div>
-                <div class="form-group">
-                    <label for="esg_category">ESG 카테고리 *</label>
-                    <select id="esg_category" class="form-control" required>
-                        <option value="E">E (환경)</option>
-                        <option value="S">S (사회)</option>
-                        <option value="G">G (지배구조)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="diagnosis_type">진단 유형 *</label>
-                    <select id="diagnosis_type" class="form-control" required>
-                        <option value="simple">간이진단</option>
-                        <option value="advanced">심화진단</option>
-                    </select>
-                </div>
 
+            <fieldset>
+                <legend>기본 정보</legend>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="question_code">질문 코드 *</label>
+                        <input type="text" id="question_code" class="form-control" required placeholder="예: Q17 또는 Q16_2">
+                    </div>
+                    <div class="form-group">
+                        <label for="display_order">표시 순서 *</label>
+                        <input type="number" id="display_order" class="form-control" required placeholder="예: 35">
+                    </div>
+                    <div class="form-group">
+                        <label for="esg_category">ESG 카테고리 *</label>
+                        <select id="esg_category" class="form-control" required>
+                            <option value="E">E (환경)</option>
+                            <option value="S">S (사회)</option>
+                            <option value="G">G (지배구조)</option>
+                        </select>
+                    </div>
+                </div>
+                
                 <div class="form-group">
                     <label for="question_text">질문 내용 *</label>
                     <textarea id="question_text" class="form-control" rows="3" required></textarea>
@@ -80,18 +78,26 @@
                     <label for="explanation">질문 설명 (채점 기준)</label>
                     <textarea id="explanation" class="form-control" rows="4"></textarea>
                 </div>
-                <div class="form-group">
-                    <label for="benchmark_metric">벤치마크 지표 이름 (선택 사항)</label>
-                    <select id="benchmark_metric" class="form-control"></select>
-                    <small>이 질문이 업종 평균과 비교되어야 할 경우, 목록에서 해당하는 지표를 선택합니다.</small>
-                </div>
-                <div class="form-group">
-                    <label for="question_type">질문 유형 *</label>
-                    <select id="question_type" class="form-control" required>
-                        <option value="YN">YN (예/아니오)</option>
-                        <option value="SELECT_ONE">SELECT_ONE (객관식)</option>
-                        <option value="INPUT">INPUT (숫자 입력)</option>
-                    </select>
+            </fieldset>
+
+            <fieldset>
+                <legend>질문 유형 및 채점 방식</legend>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="diagnosis_type">진단 유형 *</label>
+                        <select id="diagnosis_type" class="form-control" required>
+                            <option value="simple">간이진단</option>
+                            <option value="advanced">심화진단</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="question_type">질문 유형 *</label>
+                        <select id="question_type" class="form-control" required>
+                            <option value="YN">YN (예/아니오)</option>
+                            <option value="SELECT_ONE">SELECT_ONE (객관식)</option>
+                            <option value="INPUT">INPUT (숫자 입력)</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="scoring_method">채점 방식 *</label>
@@ -103,15 +109,18 @@
                 </div>
                 <div class="form-group">
                     <label>보기 항목</label>
-                    <div id="options-container">
-                        <div class="option-item" style="display: flex; gap: 10px; margin-bottom: 10px;">
-                            <input type="text" class="form-control option-text" placeholder="표시될 텍스트 (예: 예)">
-                            <input type="text" class="form-control option-value" placeholder="저장될 값 (예: Yes)">
-                            <button type="button" class="button-danger button-sm remove-option-btn" style="flex-shrink: 0;">삭제</button>
-                        </div>
-                    </div>
+                    <div id="options-container"></div>
                     <button type="button" id="add-option-btn" class="button-secondary" style="margin-top: 10px;">+ 보기 추가</button>
                     <small>'YN' 또는 'SELECT_ONE' 유형일 때만 작성합니다.</small>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>분기 및 기타 설정</legend>
+                <div class="form-group">
+                    <label for="benchmark_metric">벤치마크 지표 이름 (선택 사항)</label>
+                    <select id="benchmark_metric" class="form-control"></select>
+                    <small>이 질문이 업종 평균과 비교되어야 할 경우, 목록에서 해당하는 지표를 선택합니다.</small>
                 </div>
                 <div class="form-group">
                     <label for="next_question_default">기본 다음 질문</label>
@@ -125,12 +134,13 @@
                     <label for="next_question_if_no">'아니오' 선택 시 다음 질문</label>
                     <select id="next_question_if_no" class="form-control"></select>
                 </div>
+            </fieldset>
 
-                <div class="form-actions">
-                    <button type="submit" class="button-primary">질문 생성하기</button>
-                    <a href="admin_question_list.html" class="button-secondary">취소</a>
-                </div>
-            </form>
+            <div class="form-actions">
+                <button type="submit" class="button-primary">질문 생성하기</button>
+                <a href="admin_question_list.html" class="button-secondary">취소</a>
+            </div>
+        </form>
         </section>
     </main>
     <footer id="footer-placeholder"></footer>
