@@ -10,6 +10,90 @@
         .edit-form-container { max-width: 800px; margin: auto; }
         .form-group textarea { min-height: 120px; font-family: monospace; }
         .form-group small { color: #6c757d; }
+        
+        /* --- 1. 폼 전체 레이아웃 개선 --- */
+        .edit-form-container .form-section {
+            background-color: #f8f9fa;
+            padding: 30px;
+            border-radius: 12px;
+        }
+        .edit-form-container h2 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .edit-form-container fieldset {
+            background-color: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+        .edit-form-container legend {
+            font-size: 1.3em;
+            font-weight: 600;
+            padding: 0 10px;
+            margin-left: -10px;
+            color: #0056b3;
+        }
+        .edit-form-container .form-group {
+            margin-bottom: 20px;
+        }
+        .edit-form-container label {
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        /* --- 2. 입력 필드별 스타일 개선 --- */
+        /* 입력창, 선택창, 텍스트 영역 공통 */
+        .edit-form-container .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 6px;
+            border: 1px solid #ced4da;
+            transition: all 0.2s ease-in-out;
+        }
+        .edit-form-container .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+            outline: none;
+        }
+        /* 읽기 전용 필드 */
+        .edit-form-container .readonly-input {
+            background-color: #e9ecef;
+            cursor: not-allowed;
+        }
+
+        /* --- 3. 2단 그리드 레이아웃 적용 --- */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* 2개의 동일한 너비의 컬럼 */
+            gap: 20px; /* 컬럼 사이 간격 */
+        }
+
+        /* --- 4. '보기 항목' UI 개선 --- */
+        #options-container .option-item {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+        #options-container .option-item input {
+            flex-grow: 1; /* 입력창이 남은 공간을 모두 차지하도록 */
+            margin-right: 5px;
+        }
+        #options-container .option-item .remove-option-btn {
+            flex-shrink: 0; /* 버튼 크기가 줄어들지 않도록 */
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-size: 0.9em;
+        }
     </style>
 </head>
 <body>
@@ -49,30 +133,29 @@
             <div id="loadingMessage"><p>질문 정보를 불러오는 중입니다...</p></div>
             
             <form id="editQuestionForm" class="hidden">
+
+            <fieldset>
+                <legend>기본 정보</legend>
                 <div class="form-group">
                     <label for="question_code">질문 코드 (수정 불가)</label>
-                    <input type="text" id="question_code" readonly class="readonly-input">
-                </div>
-                <div class="form-group">
-                    <label for="display_order">표시 순서 *</label>
-                    <input type="number" id="display_order" class="form-control" required>
+                    <input type="text" id="question_code" readonly class="readonly-input form-control">
                 </div>
 
-                <div class="form-group">
-                <label for="esg_category">ESG 카테고리 *</label>
-                <select id="esg_category" class="form-control" required>
-                    <option value="E">E (환경)</option>
-                    <option value="S">S (사회)</option>
-                    <option value="G">G (지배구조)</option>
-                </select>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="display_order">표시 순서 *</label>
+                        <input type="number" id="display_order" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="esg_category">ESG 카테고리 *</label>
+                        <select id="esg_category" class="form-control" required>
+                            <option value="E">E (환경)</option>
+                            <option value="S">S (사회)</option>
+                            <option value="G">G (지배구조)</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="diagnosis_type">진단 유형 *</label>
-                    <select id="diagnosis_type" class="form-control" required>
-                        <option value="simple">간이진단</option>
-                        <option value="advanced">심화진단</option>
-                    </select>
-                </div>
+                
                 <div class="form-group">
                     <label for="question_text">질문 내용</label>
                     <textarea id="question_text" class="form-control" rows="3"></textarea>
@@ -81,54 +164,69 @@
                     <label for="explanation">질문 설명 (채점 기준)</label>
                     <textarea id="explanation" class="form-control" rows="5"></textarea>
                 </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>질문 유형 및 채점 방식</legend>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="diagnosis_type">진단 유형 *</label>
+                        <select id="diagnosis_type" class="form-control" required>
+                            <option value="simple">간이진단</option>
+                            <option value="advanced">심화진단</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="question_type">질문 유형 *</label>
+                        <select id="question_type" class="form-control" required>
+                            <option value="YN">YN (예/아니오)</option>
+                            <option value="SELECT_ONE">SELECT_ONE (객관식)</option>
+                            <option value="INPUT">INPUT (숫자 입력)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="scoring_method">채점 방식 *</label>
+                    <select id="scoring_method" class="form-control" required>
+                        <option value="direct_score">일반 점수 부여 (보기별로 점수 지정)</option>
+                        <option value="benchmark_comparison">업종 평균 비교 (벤치마크 점수)</option>
+                    </select>
+                    <small>일반 점수는 scoring_rules에서, 벤치마크 점수는 benchmark_scoring_rules에서 규칙을 따릅니다.</small>
+                </div>
+                <div class="form-group">
+                    <label>보기 항목</label>
+                    <div id="options-container"></div>
+                    <button type="button" id="add-option-btn" class="button-secondary" style="margin-top: 10px;">+ 보기 추가</button>
+                    <small>'YN' 또는 'SELECT_ONE' 유형일 때만 작성합니다.</small>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>분기 및 기타 설정</legend>
                 <div class="form-group">
                     <label for="benchmark_metric">벤치마크 지표 이름 (선택 사항)</label>
                     <select id="benchmark_metric" class="form-control"></select>
                     <small>이 질문이 업종 평균과 비교되어야 할 경우, 목록에서 해당하는 지표를 선택합니다.</small>
                 </div>
                 <div class="form-group">
-            <label for="question_type">질문 유형 *</label>
-            <select id="question_type" class="form-control" required>
-                <option value="YN">YN (예/아니오)</option>
-                <option value="SELECT_ONE">SELECT_ONE (객관식)</option>
-                <option value="INPUT">INPUT (숫자 입력)</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="scoring_method">채점 방식 *</label>
-            <select id="scoring_method" class="form-control" required>
-                <option value="direct_score">일반 점수 부여 (보기별로 점수 지정)</option>
-                <option value="benchmark_comparison">업종 평균 비교 (벤치마크 점수)</option>
-            </select>
-            <small>일반 점수는 scoring_rules에서, 벤치마크 점수는 benchmark_scoring_rules에서 규칙을 따릅니다.</small>
-        </div>
-
-        <div class="form-group">
-            <label>보기 항목</label>
-            <div id="options-container">
+                    <label for="next_question_default">기본 다음 질문</label>
+                    <select id="next_question_default" class="form-control"></select>
                 </div>
-            <button type="button" id="add-option-btn" class="button-secondary" style="margin-top: 10px;">+ 보기 추가</button>
-            <small>'YN' 또는 'SELECT_ONE' 유형일 때만 작성합니다.</small>
-        </div>
+                <div class="form-group">
+                    <label for="next_question_if_yes">'예' 선택 시 다음 질문</label>
+                    <select id="next_question_if_yes" class="form-control"></select>
+                </div>
+                <div class="form-group">
+                    <label for="next_question_if_no">'아니오' 선택 시 다음 질문</label>
+                    <select id="next_question_if_no" class="form-control"></select>
+                </div>
+            </fieldset>
 
-        <div class="form-group">
-            <label for="next_question_default">기본 다음 질문</label>
-            <select id="next_question_default" class="form-control"></select>
-        </div>
-        <div class="form-group">
-            <label for="next_question_if_yes">'예' 선택 시 다음 질문</label>
-            <select id="next_question_if_yes" class="form-control"></select>
-        </div>
-        <div class="form-group">
-            <label for="next_question_if_no">'아니오' 선택 시 다음 질문</label>
-            <select id="next_question_if_no" class="form-control"></select>
-        </div>
-        <div class="form-actions">
-            <button type="submit" class="button-primary">저장하기</button>
-            <a href="admin_question_list.html" class="button-secondary">취소</a>
-        </div>
-            </form>
+            <div class="form-actions">
+                <button type="submit" class="button-primary">저장하기</button>
+                <a href="admin_question_list.html" class="button-secondary">취소</a>
+            </div>
+        </form>
         </section>
     </main>
     <footer id="footer-placeholder"></footer>
