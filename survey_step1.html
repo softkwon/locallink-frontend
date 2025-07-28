@@ -249,27 +249,60 @@
                     <div class="form-group">
                         <label>상장여부 <span class="required">*</span></label>
                         <div class="radio-group">
-                            <label><input type="radio" id="survey_listed_yes" name="listingStatus" value="listed" required> 상장</label>
-                            <label><input type="radio" id="survey_listed_no" name="listingStatus" value="unlisted"> 비상장</label>
+                            <div>
+                                <input type="radio" id="survey_listed_yes" name="listingStatus" value="listed" required>
+                                <label for="survey_listed_yes">상장</label>
+                            </div>
+                            <div>
+                                <input type="radio" id="survey_listed_no" name="listingStatus" value="unlisted" required>
+                                <label for="survey_listed_no">비상장</label>
+                            </div>
                         </div>
                     </div>
                     <div class="form-group">
                         <label>기업규모 <span class="required">*</span></label>
                         <div class="radio-group">
-                            <label><input type="radio" id="survey_size_large" name="companySize" value="large" required> 대기업</label>
-                            <label><input type="radio" id="survey_size_medium" name="companySize" value="medium"> 중견기업</label>
-                            <label><input type="radio" id="survey_size_small_medium" name="companySize" value="small_medium"> 중소기업</label>
-                            <label><input type="radio" id="survey_size_small_micro" name="companySize" value="small_micro"> 소기업/소상공인</label>
+                            <div>
+                                <input type="radio" id="survey_size_large" name="companySize" value="large" required>
+                                <label for="survey_size_large">대기업</label>
+                            </div>
+                            <div>
+                                <input type="radio" id="survey_size_medium" name="companySize" value="medium" required>
+                                <label for="survey_size_medium">중견기업</label>
+                            </div>
+                            <div>
+                                <input type="radio" id="survey_size_small_medium" name="companySize" value="small_medium" required>
+                                <label for="survey_size_small_medium">중소기업</label>
+                            </div>
+                            <div>
+                                <input type="radio" id="survey_size_small_micro" name="companySize" value="small_micro" required>
+                                <label for="survey_size_small_micro">소기업/소상공인</label>
+                            </div>
                         </div>
                     </div>
                     <div class="form-group">
                         <label>주요 사업지역 (중복 선택 가능) <span class="required">*</span></label>
                         <div class="checkbox-group-vertical">
-                            <label><input type="checkbox" name="businessRegions" value="domestic_metro"> 국내</label>
-                            <label><input type="checkbox" name="businessRegions" value="asia"> 아시아</label>
-                            <label><input type="checkbox" name="businessRegions" value="americas"> 미주</label>
-                            <label><input type="checkbox" name="businessRegions" value="europe"> 유럽</label>
-                            <label><input type="checkbox" name="businessRegions" value="etc"> 기타</label>
+                            <div>
+                                <input type="checkbox" id="region_domestic" name="businessRegions" value="domestic_metro">
+                                <label for="region_domestic">국내</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" id="region_asia" name="businessRegions" value="asia">
+                                <label for="region_asia">아시아</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" id="region_americas" name="businessRegions" value="americas">
+                                <label for="region_americas">미주</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" id="region_europe" name="businessRegions" value="europe">
+                                <label for="region_europe">유럽</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" id="region_etc" name="businessRegions" value="etc">
+                                <label for="region_etc">기타</label>
+                            </div>
                         </div>
                     </div>
                 </fieldset>
