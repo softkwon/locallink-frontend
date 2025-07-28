@@ -1,15 +1,13 @@
-// js/survey_step2.js (최종 완성본)
-import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
+import { API_BASE_URL } from './config.js';
 
 document.addEventListener('DOMContentLoaded', async function() {
-    // --- 1. 페이지 변수 및 요소 초기화 ---
+    
     const diagnosisId = sessionStorage.getItem('currentDiagnosisId') || new URLSearchParams(window.location.search).get('diagId');
     const token = localStorage.getItem('locallink-token');
     
     let allQuestions = [];
     let userAnswers = {};
     let questionHistory = [];
-    let diagnosisData = null;
     let industryAverages = null;
 
     const elements = {
@@ -31,14 +29,11 @@ document.addEventListener('DOMContentLoaded', async function() {
         userAuthStatus: document.getElementById('userAuthStatus')
     };
     
-    // --- 2. 로그인 및 진단 세션 확인 ---
     if (!token || !diagnosisId) {
         alert('잘못된 접근입니다. 1단계부터 다시 시작해주세요.');
         return window.location.href = 'survey_step1.html';
     }
     
-    // --- 3. 핵심 기능 함수 정의 ---
-
     function renderHeader(userData) {
         if (!elements.userAuthStatus || !userData) return;
         elements.userAuthStatus.innerHTML = `
@@ -62,20 +57,35 @@ document.addEventListener('DOMContentLoaded', async function() {
         const question = allQuestions[qIndex];
         if (!question) return;
 
-        const mainQuestionNumber = parseInt(question.question_code.match(/Q(\d+)/)[1]);
+        const mainQuestionNumber = parseInt((question.question_code.match(/Q(\d+)/) || [])[1] || 0);
         elements.legend.textContent = `문항 ${mainQuestionNumber}`;
         elements.text.innerHTML = question.question_text || '(질문 내용이 없습니다)';
-        elements.explanation.classList.remove('hidden');
-        elements.explanation.innerHTML = question.explanation || '&nbsp;';
-        elements.explanation.style.display = 'block';
+        
+        const explanationText = (question.explanation || '').replace(/<br\s*\/?>/g, "\n");
+        elements.explanation.innerHTML = explanationText.replace(/\n/g, '<br>');
 
-        if (question.benchmark_metric) {
+        const existingBtn = elements.explanation.querySelector('.read-more-btn');
+        if(existingBtn) existingBtn.remove();
+        
+        setTimeout(() => {
+            if (elements.explanation.scrollHeight > elements.explanation.clientHeight) {
+                const readMoreBtn = document.createElement('button');
+                readMoreBtn.className = 'read-more-btn';
+                readMoreBtn.textContent = '[더보기]';
+                readMoreBtn.style.display = 'inline';
+                readMoreBtn.dataset.fullExplanation = explanationText;
+                readMoreBtn.dataset.questionText = question.question_text;
+                elements.explanation.appendChild(readMoreBtn);
+            }
+        }, 10);
+
+        if (question.benchmark_metric && industryAverages) {
             elements.averageInfo.classList.remove('hidden');
             const metricKey = question.benchmark_metric;
-            const avgValue = industryAverages ? industryAverages[metricKey] : null;
+            const avgValue = industryAverages[metricKey];
             if (avgValue !== null && avgValue !== undefined) {
                 let unit = '';
-                if (metricKey.includes('ratio')) unit = '';
+                if (metricKey.includes('ratio')) unit = '%';
                 else if (metricKey.includes('ghg')) unit = ' tCO₂eq';
                 else if (metricKey.includes('energy')) unit = ' MWh';
                 else if (metricKey.includes('waste')) unit = ' 톤';
@@ -104,78 +114,71 @@ document.addEventListener('DOMContentLoaded', async function() {
             elements.options.innerHTML = `<input type="number" name="${question.question_code}" class="form-control" value="${savedAnswer || ''}" placeholder="숫자를 입력하세요">`;
         }
         
-        elements.options.querySelectorAll('.radio-group label').forEach(label => {
-            label.addEventListener('click', () => {
-                const radio = label.querySelector('input[type="radio"]');
-                if (radio) radio.checked = true;
-                handleNext();
-            });
+        elements.options.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', handleNext);
         });
 
         elements.prevBtn.style.display = questionHistory.length > 1 ? 'inline-block' : 'none';
-        elements.nextBtn.style.display = (question.question_type === 'SELECT_ONE' || question.question_type === 'INPUT') ? 'inline-block' : 'none';
+        elements.nextBtn.style.display = (question.question_type === 'INPUT') ? 'inline-block' : 'none';
     
         const totalMainQuestions = allQuestions.filter(q => !q.question_code.includes('_')).length || 16;
-        const progressPercentage = ((mainQuestionNumber - 1) / totalMainQuestions) * 100;
+        const progressPercentage = Math.round(((mainQuestionNumber - 1) / totalMainQuestions) * 100);
         elements.progressBar.style.width = `${progressPercentage > 100 ? 100 : progressPercentage}%`;
-        elements.progressText.textContent = `진행도: ${Math.round(progressPercentage > 100 ? 100 : progressPercentage)}%`;
+        elements.progressText.textContent = `진행도: ${progressPercentage > 100 ? 100 : progressPercentage}%`;
     }
 
     function saveCurrentAnswer() {
         const qIndex = questionHistory[questionHistory.length - 1];
         if (qIndex === undefined) return null;
         const question = allQuestions[qIndex];
-        const input = elements.options.querySelector(`[name="${question.question_code}"]`);
-        if (!input) return null;
-        userAnswers[question.question_code] = (input.type === 'radio') 
-            ? elements.options.querySelector(`[name="${question.question_code}"]:checked`)?.value 
-            : input.value;
-        return userAnswers[question.question_code];
+        const inputEl = elements.options.querySelector(`[name="${question.question_code}"]`);
+        if (!inputEl) return null;
+        
+        let answerValue = null;
+        if (inputEl.type === 'radio') {
+            const checkedRadio = elements.options.querySelector(`[name="${question.question_code}"]:checked`);
+            answerValue = checkedRadio ? checkedRadio.value : null;
+        } else {
+            answerValue = inputEl.value;
+        }
+        userAnswers[question.question_code] = answerValue;
+        return answerValue;
     }
 
     async function handleNext() {
-    const qIndex = questionHistory[questionHistory.length - 1];
-    const currentQ = allQuestions[qIndex];
-    const currentA = saveCurrentAnswer();
-    if (!currentA || currentA === "") {
-        return;
-    }
-    
-    // --- ▼▼▼ 핵심 수정: 다음 질문 경로 결정 로직 수정 ▼▼▼ ---
-
-    let nextQuestionCode = currentQ.next_question_default; // 1. 일단 '기본' 경로를 기본값으로 설정
-
-    if (currentQ.question_type === 'YN') {
-        // 2. YN 질문일 경우, 특정 경로가 있는지 확인하고 있으면 덮어쓰기
-        if (currentA === 'Yes' && currentQ.next_question_if_yes) {
-            nextQuestionCode = currentQ.next_question_if_yes;
-        } else if (currentA === 'No' && currentQ.next_question_if_no) {
-            nextQuestionCode = currentQ.next_question_if_no;
+        const qIndex = questionHistory[questionHistory.length - 1];
+        const currentQ = allQuestions[qIndex];
+        const currentA = saveCurrentAnswer();
+        if (!currentA || currentA === "") return;
+        
+        let nextQuestionCode = currentQ.next_question_default;
+        if (currentQ.question_type === 'YN') {
+            if (currentA === 'Yes' && currentQ.next_question_if_yes) {
+                nextQuestionCode = currentQ.next_question_if_yes;
+            } else if (currentA === 'No' && currentQ.next_question_if_no) {
+                nextQuestionCode = currentQ.next_question_if_no;
+            }
+        }
+        
+        if (!nextQuestionCode || nextQuestionCode === 'END_SURVEY') {
+            elements.container.classList.add('hidden');
+            elements.navigation.classList.add('hidden');
+            elements.complete.classList.remove('hidden');
+            elements.progressBar.style.width = `100%`;
+            elements.progressText.textContent = `진행도: 100%`;
+            return;
+        }
+        
+        const nextIndex = allQuestions.findIndex(q => q.question_code === nextQuestionCode);
+        if (nextIndex !== -1) {
+            questionHistory.push(nextIndex);
+            await renderQuestion(nextIndex);
+        } else {
+            elements.container.classList.add('hidden');
+            elements.navigation.classList.add('hidden');
+            elements.complete.classList.remove('hidden');
         }
     }
-    
-    // --- ▲▲▲ 여기까지 수정 ▲▲▲ ---
-
-    if (!nextQuestionCode || nextQuestionCode === 'END_SURVEY') {
-        elements.container.classList.add('hidden');
-        elements.navigation.classList.add('hidden');
-        elements.complete.classList.remove('hidden');
-        elements.progressBar.style.width = `100%`;
-        elements.progressText.textContent = `진행도: 100%`;
-        return;
-    }
-    
-    const nextIndex = allQuestions.findIndex(q => q.question_code === nextQuestionCode);
-    if (nextIndex !== -1) {
-        questionHistory.push(nextIndex);
-        await renderQuestion(nextIndex);
-    } else {
-        console.error(`다음 질문을 찾을 수 없습니다: ${nextQuestionCode}`);
-        elements.container.classList.add('hidden');
-        elements.navigation.classList.add('hidden');
-        elements.complete.classList.remove('hidden');
-    }
-}
 
     async function handlePrev() {
         if (questionHistory.length > 1) {
@@ -193,14 +196,6 @@ document.addEventListener('DOMContentLoaded', async function() {
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
                 body: JSON.stringify(userAnswers)
             });
-
-            if (response.status === 401 || response.status === 403) {
-                localStorage.removeItem('locallink-token');
-                sessionStorage.clear();
-                alert('로그인 세션이 만료되었습니다. 다시 로그인해주세요.');
-                window.location.href = 'main_login.html';
-                return;
-            }
             
             const result = await response.json();
             if (result.success) {
@@ -216,31 +211,53 @@ document.addEventListener('DOMContentLoaded', async function() {
             elements.submitBtn.textContent = '결과보기';
         }
     }
+    
+    function attachModalEventListeners() {
+        const modal = document.getElementById('explanation-modal');
+        if (!modal) return;
 
-    // --- 4. 페이지 초기화 실행 ---
+        const modalQuestionText = document.getElementById('modal-question-text');
+        const modalExplanationContent = document.getElementById('modal-explanation-content');
+        const closeBtn = modal.querySelector('.close-btn');
+
+        elements.container.addEventListener('click', (e) => {
+            if (e.target.classList.contains('read-more-btn')) {
+                modalQuestionText.innerHTML = e.target.dataset.questionText;
+                modalExplanationContent.innerHTML = (e.target.dataset.fullExplanation || '').replace(/\n/g, '<br>');
+                modal.style.display = 'block';
+            }
+        });
+
+        closeBtn.addEventListener('click', () => modal.style.display = 'none');
+        window.addEventListener('click', (e) => {
+            if (e.target == modal) modal.style.display = 'none';
+        });
+    }
+
     async function initializePage() {
         try {
-            const [diagRes, surveyRes, industriesRes] = await Promise.all([
+            const [diagRes, surveyRes, industriesRes, userRes] = await Promise.all([
                 fetch(`${API_BASE_URL}/diagnoses/${diagnosisId}`, { headers: { 'Authorization': `Bearer ${token}` }}),
                 fetch(`${API_BASE_URL}/survey/simple`, { headers: { 'Authorization': `Bearer ${token}` }}),
-                fetch(`${API_BASE_URL}/industries`, { headers: { 'Authorization': `Bearer ${token}` }})
+                fetch(`${API_BASE_URL}/industries`, { headers: { 'Authorization': `Bearer ${token}` }}),
+                fetch(`${API_BASE_URL}/users/me`, { headers: { 'Authorization': `Bearer ${token}` }})
             ]);
 
-            if (!diagRes.ok || !surveyRes.ok || !industriesRes.ok) throw new Error("데이터 로딩 오류");
+            if (!diagRes.ok || !surveyRes.ok || !industriesRes.ok || !userRes.ok) throw new Error("데이터 로딩 오류");
             
             const diagResult = await diagRes.json();
             const surveyResult = await surveyRes.json();
             const industriesResult = await industriesRes.json();
+            const userResult = await userRes.json();
             
-            if (!diagResult.success || !surveyResult.success || !industriesResult.success) throw new Error("데이터 처리 오류");
+            if (!diagResult.success || !surveyResult.success || !industriesResult.success || !userResult.success) throw new Error("데이터 처리 오류");
             
-            diagnosisData = diagResult.diagnosis;
             allQuestions = surveyResult.questions;
             const allIndustries = industriesResult.industries;
 
-            renderHeader(diagnosisData);
+            renderHeader(userResult.user);
             
-            const primaryIndustryCode = diagnosisData.industry_codes ? diagnosisData.industry_codes[0] : null;
+            const primaryIndustryCode = diagResult.diagnosis.industry_codes ? diagResult.diagnosis.industry_codes[0] : null;
             if (primaryIndustryCode) {
                 elements.primaryIndustry.textContent = `진단 기준 대표 산업: [${primaryIndustryCode}] ${allIndustries.find(i => i.code === primaryIndustryCode)?.name || ''}`;
                 elements.primaryIndustry.classList.remove('hidden');
@@ -254,17 +271,13 @@ document.addEventListener('DOMContentLoaded', async function() {
             elements.nextBtn.addEventListener('click', handleNext);
             elements.submitBtn.addEventListener('click', submitSurvey);
             
+            attachModalEventListeners();
+
             questionHistory.push(0);
             elements.loading.style.display = 'none';
             elements.container.classList.remove('hidden');
             elements.navigation.classList.remove('hidden');
             renderQuestion(0);
-
-            // ★★★ 모든 작업이 끝난 후, 이 코드를 추가합니다. ★★★
-            // 다른 스크립트에 의해 변경되었을 수 있는 헤더를 다시 올바르게 그립니다.
-            if (typeof checkLoginAndRenderHeader === 'function') {
-                checkLoginAndRenderHeader();
-            }
             
         } catch (error) {
             elements.loading.textContent = `오류가 발생했습니다: ${error.message}`;

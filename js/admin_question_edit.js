@@ -94,7 +94,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         document.getElementById('diagnosis_type').value = question.diagnosis_type; 
         const questionTextForEditing = (question.question_text || '').replace(/<br\s*\/?>/g, "\n");
         document.getElementById('question_text').value = questionTextForEditing;
-        document.getElementById('explanation').value = question.explanation || '';
+        const explanationForEditing = (question.explanation || '').replace(/<br\s*\/?>/g, "\n");
+        document.getElementById('explanation').value = explanationForEditing;
         document.getElementById('question_type').value = question.question_type;
         document.getElementById('benchmark_metric').value = question.benchmark_metric || "";
         document.getElementById('scoring_method').value = question.scoring_method || 'direct_score';
@@ -136,13 +137,14 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
         });
         const questionTextToSave = document.getElementById('question_text').value.replace(/\n/g, '<br>');
+        const explanationToSave = document.getElementById('explanation').value.replace(/\n/g, '<br>');
 
         const updatedData = {
             display_order: parseInt(document.getElementById('display_order').value),
             question_text: questionTextToSave,
             esg_category: document.getElementById('esg_category').value,
             diagnosis_type: document.getElementById('diagnosis_type').value,
-            explanation: document.getElementById('explanation').value,
+            explanation: explanationToSave,
             question_type: document.getElementById('question_type').value,
             options: optionsArray,
             benchmark_metric: document.getElementById('benchmark_metric').value || null,

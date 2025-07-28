@@ -82,6 +82,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
         });
         const questionTextToSave = document.getElementById('question_text').value.replace(/\n/g, '<br>');
+        const explanationToSave = document.getElementById('explanation').value.replace(/\n/g, '<br>');
 
         const newQuestionData = {
             question_code: document.getElementById('question_code').value,
@@ -89,7 +90,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             esg_category: document.getElementById('esg_category').value,
             diagnosis_type: document.getElementById('diagnosis_type').value, 
             question_text: questionTextToSave,
-            explanation: document.getElementById('explanation').value,
+            explanation: explanationToSave,
             question_type: document.getElementById('question_type').value,
             options: optionsArray,
             benchmark_metric: benchmarkMetricSelect.value || null,
