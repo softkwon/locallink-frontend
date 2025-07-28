@@ -1,10 +1,8 @@
-// js/admin_question_edit.js
 import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
 import { checkAdminPermission } from './admin_common.js';
 
-ocument.addEventListener('DOMContentLoaded', async function() {
+document.addEventListener('DOMContentLoaded', async function() {
     
-    // --- 1. 페이지 요소 및 변수 초기화 ---
     const form = document.getElementById('editQuestionForm');
     const loadingEl = document.getElementById('loadingMessage');
     const token = localStorage.getItem('locallink-token');
@@ -19,7 +17,6 @@ ocument.addEventListener('DOMContentLoaded', async function() {
     const nextNoSelect = document.getElementById('next_question_if_no');
     const benchmarkMetricSelect = document.getElementById('benchmark_metric');
 
-    // --- 2. 페이지 초기화 함수 ---
     async function initializePage() {
         const hasPermission = await checkAdminPermission(['super_admin', 'content_manager']);
         if (!hasPermission) return;
@@ -30,7 +27,6 @@ ocument.addEventListener('DOMContentLoaded', async function() {
         }
 
         try {
-            // 수정할 질문 정보, 전체 질문 목록, 벤치마크 지표 목록을 동시에 가져옵니다.
             const [questionRes, allQuestionsRes, metricsRes] = await Promise.all([
                 fetch(`${API_BASE_URL}/admin/questions/${questionId}`, { headers: { 'Authorization': `Bearer ${token}` } }),
                 fetch(`${API_BASE_URL}/admin/questions`, { headers: { 'Authorization': `Bearer ${token}` } }),
@@ -58,9 +54,6 @@ ocument.addEventListener('DOMContentLoaded', async function() {
         }
     }
 
-    // --- 3. 기능 함수 정의 ---
-
-    // '다음 질문' 드롭다운 메뉴들을 채우는 함수
     function populateNextQuestionDropdowns(questions) {
         const sortedQuestions = questions.sort((a, b) => a.display_order - b.display_order);
         [nextDefaultSelect, nextYesSelect, nextNoSelect].forEach(select => {
@@ -74,7 +67,6 @@ ocument.addEventListener('DOMContentLoaded', async function() {
         });
     }
 
-    // '벤치마크 지표' 드롭다운 메뉴를 채우는 함수
     function populateBenchmarkMetricDropdown(metrics) {
         if (!benchmarkMetricSelect) return;
         benchmarkMetricSelect.innerHTML = '<option value="">-- 벤치마크 지표 없음 --</option>';
@@ -83,7 +75,6 @@ ocument.addEventListener('DOMContentLoaded', async function() {
         });
     }
 
-    // 보기 입력 행을 하나 추가하는 함수
     function addOptionRow(text = '', value = '') {
         const newItem = document.createElement('div');
         newItem.className = 'option-item';
@@ -96,17 +87,16 @@ ocument.addEventListener('DOMContentLoaded', async function() {
         optionsContainer.appendChild(newItem);
     }
     
-    // 폼에 기존 데이터를 채우는 함수
     function populateForm(question) {
         document.getElementById('question_code').value = question.question_code;
         document.getElementById('display_order').value = question.display_order;
         document.getElementById('esg_category').value = question.esg_category;
-        document.getElementById('diagnosis_type').value = question.diagnosis_type; // ★★★ 이 줄 추가 ★★★
+        document.getElementById('diagnosis_type').value = question.diagnosis_type; 
         document.getElementById('question_text').value = question.question_text;
         document.getElementById('explanation').value = question.explanation || '';
         document.getElementById('question_type').value = question.question_type;
         document.getElementById('benchmark_metric').value = question.benchmark_metric || "";
-        document.getElementById('scoring_method').value = question.scoring_method || 'direct_score'; // 이 줄 추가
+        document.getElementById('scoring_method').value = question.scoring_method || 'direct_score';
 
         const scoringMethodSelect = document.getElementById('scoring_method');
         if (question.benchmark_metric) {
@@ -125,19 +115,14 @@ ocument.addEventListener('DOMContentLoaded', async function() {
         nextNoSelect.value = question.next_question_if_no || "";
     }
 
-    // --- 4. 이벤트 리스너 연결 ---
-
-    // '보기 추가' 버튼
     addOptionBtn.addEventListener('click', () => addOptionRow());
 
-    // '보기 삭제' 버튼 (이벤트 위임)
     optionsContainer.addEventListener('click', (e) => {
         if (e.target.classList.contains('remove-option-btn')) {
             e.target.closest('.option-item').remove();
         }
     });
 
-    // '저장하기' 폼 제출
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         
@@ -181,6 +166,5 @@ ocument.addEventListener('DOMContentLoaded', async function() {
         }
     });
 
-    // --- 5. 페이지 시작 ---
     initializePage();
 });
