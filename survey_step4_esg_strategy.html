@@ -8,52 +8,158 @@
     <link rel="stylesheet" href="css/components.css"> 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* === [최종 수정] Step4 페이지 전체 스타일 === */
+       /* === [최종 수정] Step4 페이지 전체 스타일 === */
 
         /* --- 페이지 기본 스타일 --- */
-        .strategy-section { margin-bottom: 30px; }
-        .styled-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.9em; }
+        .strategy-section { 
+            margin-bottom: 30px; 
+            padding: 25px; 
+            background-color: #ffffff; 
+            border-radius: 8px; 
+            border: 1px solid #e9ecef;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+        .strategy-section h3 { 
+            color: #0056b3; 
+            margin-top: 0; 
+            margin-bottom: 20px; 
+            border-bottom: 1px solid #dee2e6; 
+            padding-bottom: 15px; 
+            font-size: 1.3em;
+        }
+        .styled-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         .styled-table th, .styled-table td { border: 1px solid #e9ecef; padding: 10px; text-align: left; }
         .styled-table th { background-color: #f8f9fa; font-weight: 600; text-align: center; }
         .hidden { display: none; }
 
         /* --- 소제목 및 설명 --- */
-        main.container .form-section .section-title { font-size: 1.5em; color: #343a40; text-align: left; margin: 50px 0 10px 0; border-bottom: 2px solid #343a40; padding-bottom: 10px; }
-        main.container .form-section .section-description { font-size: 1em; color: #6c757d; text-align: left; max-width: 100%; margin: 0 0 30px 0; line-height: 1.7; }
+        main.container .form-section .section-title {
+            font-size: 1.5em;
+            color: #343a40;
+            text-align: left; 
+            margin-top: 50px;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #343a40;
+            padding-bottom: 10px;
+        }
+        main.container .form-section .section-description {
+            font-size: 1em;
+            color: #6c757d;
+            text-align: left;
+            max-width: 100%;
+            margin: 0 0 30px 0;
+            line-height: 1.7;
+        }
 
         /* --- 탭 UI --- */
-        .tab-container { background-color: #fff; border: 1px solid #dee2e6; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); margin-bottom: 30px; }
-        .tab-nav { display: flex; border-bottom: 1px solid #dee2e6; padding: 0; margin: 0; list-style-type: none; flex-wrap: wrap; }
-        .tab-link { padding: 15px 20px; cursor: pointer; font-size: 1.05em; font-weight: 500; color: #495057; border-bottom: 3px solid transparent; margin-bottom: -1px; white-space: nowrap; }
+        .tab-container {
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            margin-bottom: 30px;
+        }
+        .tab-nav {
+            display: flex;
+            border-bottom: 1px solid #dee2e6;
+            padding: 0; margin: 0;
+            list-style-type: none;
+            flex-wrap: wrap;
+        }
+        .tab-link {
+            padding: 15px 20px;
+            cursor: pointer;
+            font-size: 1.05em;
+            font-weight: 500;
+            color: #495057;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -1px;
+            white-space: nowrap;
+        }
         .tab-link:hover { background-color: #f8f9fa; }
-        .tab-link.active { color: #007bff; font-weight: bold; border-bottom-color: #007bff; }
-        /* [핵심 수정] 탭 높이 유동성 확보 및 겹침 문제 해결 */
-        .tab-content { padding: 25px; overflow: hidden; }
+        .tab-link.active {
+            color: #007bff;
+            font-weight: bold;
+            border-bottom-color: #007bff;
+        }
+        .tab-content {
+            padding: 25px;
+            display: flow-root; 
+        }
         .tab-content .tab-pane { display: none; }
         .tab-content .tab-pane.active { display: block; }
-        .tab-pane .strategy-section { margin-bottom: 0; padding: 0; border: none; box-shadow: none; background-color: transparent; }
-        .tab-pane-description { font-size: 1em; color: #6c757d; padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px solid #e9ecef; }
+        .tab-pane .strategy-section {
+            margin-bottom: 0; padding: 0; border: none;
+            box-shadow: none; background-color: transparent;
+        }
+        .tab-pane-description {
+            font-size: 1em;
+            color: #6c757d;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e9ecef;
+        }
 
         /* --- 벤치마크 차트 --- */
-        .benchmark-charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
-        .chart-wrapper { position: relative; height: 350px; padding: 10px; }
+        .benchmark-charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        .chart-wrapper {
+            position: relative;
+            height: 350px; 
+            padding: 10px;
+        }
         .chart-wrapper h4 { text-align: center; margin-bottom: 15px; }
 
+        /* --- 규제 타임라인 --- */
+        #regulation-timeline-container { position: relative; width: 100%; height: 120px; margin-top: 20px; }
+        .timeline-line { position: absolute; top: 50%; left: 0; right: 0; height: 3px; background-color: #e9ecef; transform: translateY(-50%); }
+        .timeline-node { position: absolute; top: 50%; transform: translateY(-50%); cursor: pointer; width: 120px; margin-left: -60px; display: flex; justify-content: center; }
+        .timeline-dot { width: 15px; height: 15px; background-color: #fff; border: 3px solid #007bff; border-radius: 50%; }
+        .timeline-label { position: absolute; left: 50%; top: 25px; transform: translateX(-50%); text-align: center; width: 120px; }
+        .timeline-label .date { font-size: 0.85em; color: #555; display: block; }
+        .timeline-label .title { font-size: 0.95em; font-weight: bold; display: block; }
+        .timeline-details-box { display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 15px; width: 320px; background-color: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10; text-align: left; }
+        .timeline-node:hover .timeline-details-box { display: block; }
+
         /* --- 지역 이슈 (지도) --- */
-        .regional-issue-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; align-items: start; }
-        .regional-map-container { position: relative; width: 100%; border-radius: 8px; overflow: hidden; background-color: #e9ecef; aspect-ratio: 4 / 3; }
-        .regional-map-container img { width: 100%; height: 100%; object-fit: cover; }
-        .regional-issue-list { background-color: #f8f9fa; border-radius: 8px; padding: 20px; border: 1px solid #dee2e6; }
-        .map-issue-item { display: flex; margin-bottom: 15px; }
-        .map-issue-badge { flex-shrink: 0; font-weight: bold; margin-right: 10px; }
-        .badge-E { color: #28a745; } .badge-S { color: #ffc107; } .badge-G { color: #6f42c1; }
-        .regional-issue-list ul { list-style: none; padding: 0; margin: 0; }
-        .luris-link-box { margin-top: 20px; text-align: center; }
-        .luris-link-box p { font-size: 0.9em; color: #6c757d; margin-bottom: 15px; }
-        @media (max-width: 992px) { .regional-issue-grid { grid-template-columns: 1fr; } }
+        .regional-map-container {
+            position: relative;
+            width: 100%;
+            max-width: 650px;
+            margin: 0 auto;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #e9ecef;
+            aspect-ratio: 4 / 3; 
+        }
+        .regional-map-container img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .map-overlay {
+            position: absolute;
+            top: 20px; right: 20px; bottom: 20px;
+            max-width: 50%;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.55);
+            color: white;
+            border-radius: 8px;
+            overflow-y: auto;
+            backdrop-filter: blur(4px);
+        }
+        .map-overlay h4 { color: #fff; border-bottom: 1px solid rgba(255,255,255,0.3); }
+        .map-overlay ul { list-style: none; padding: 0; }
+        .map-issue-badge { font-weight: bold; margin-right: 10px; }
+        .badge-E { color: #52c41a; } .badge-S { color: #faad14; } .badge-G { color: #d3adf7; }
 
         /* --- AI 분석 평가 --- */
-        #aiAnalysisSection { margin-left: auto; margin-right: auto; background: #f0f6ff; border-color: #b3d4fc; text-align: center; }
+        #aiAnalysisSection {
+            margin-left: auto;
+            margin-right: auto;
+            background: #f0f6ff;
+            border-color: #b3d4fc;
+            text-align: center;
+        }
         #aiAnalysisSection h3 { border: none; }
         #aiAnalysisContent { display: flex; flex-direction: column; gap: 15px; }
 
@@ -61,16 +167,42 @@
         #task-section-wrapper { background-color: transparent; border: none; box-shadow: none; padding: 0; }
         #taskAnalysisContainer { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; }
         .solution-card { background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); padding: 25px; display: flex; flex-direction: column; position: relative; overflow: hidden; border-top: 5px solid #ccc; }
-        .solution-card.category-E { border-top-color: #28a745; } .solution-card.category-S { border-top-color: #ffc107; } .solution-card.category-G { border-top-color: #6f42c1; } 
-        .solution-category-title { font-size: 1.4em; } .solution-category-description { flex-grow: 1; } .solution-card-content h5 { border-top: 1px solid #e9ecef; }
-        .solution-card-content ul { list-style: none; padding: 0; margin: 0; } .solution-program-list a { color: #007bff; } .solution-risk-list li { color: #dc3545; }
-        .details-on-hover { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(25, 41, 61, 0.9); color: #f8f9fa; opacity: 0; visibility: hidden; transition: opacity 0.3s ease; }
+        .solution-card.category-E { border-top-color: #28a745; } 
+        .solution-card.category-S { border-top-color: #ffc107; } 
+        .solution-card.category-G { border-top-color: #6f42c1; } 
+        .solution-category-title { font-size: 1.4em; color: #343a40; margin: 0 0 10px 0; }
+        .solution-category-description { font-size: 0.95em; color: #6c757d; margin-bottom: 20px; flex-grow: 1; }
+        .solution-card-content h5 { font-size: 1.1em; margin: 15px 0 10px 0; padding-top: 15px; border-top: 1px solid #e9ecef; }
+        .solution-card-content ul { list-style: none; padding: 0; margin: 0; }
+        .solution-program-list a { text-decoration: none; color: #007bff; font-weight: 500; }
+        .solution-risk-list li { color: #dc3545; }
+        .details-on-hover {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(25, 41, 61, 0.9);
+            color: #f8f9fa;
+            padding: 25px;
+            box-sizing: border-box; opacity: 0; visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease; overflow-y: auto;
+        }
         .solution-card:hover .details-on-hover { opacity: 1; visibility: visible; }
+        .details-on-hover h4 { color: #fff; border-bottom-color: rgba(255,255,255,0.3); }
+        .details-on-hover h5 { color: #fff; border-bottom: 1px solid rgba(255,255,255,0.3); }
 
-        /* --- 기타 컴포넌트 --- */
-        #categories-modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4); }
+        /* --- 카테고리 모달 --- */
+        #categories-modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
         #categories-modal .modal-content.large { max-width: 800px; }
-        .accordion-header { cursor: pointer; } .accordion-panel { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .accordion-item { border-bottom: 1px solid #dee2e6; }
+        .accordion-item:last-child { border-bottom: none; }
+        .accordion-header { background-color: #f8f9fa; padding: 15px 20px; cursor: pointer; font-weight: bold; font-size: 1.2em; display: flex; justify-content: space-between; align-items: center; }
+        .accordion-header:hover { background-color: #e9ecef; }
+        .accordion-header::after { content: '↓'; font-size: 0.8em; }
+        .accordion-header.active::after { transform: rotate(180deg); }
+        .accordion-panel { padding: 0 20px; max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out, padding 0.3s ease-out; background-color: #fff; }
+        .category-detail-item { margin: 15px 0; padding: 15px 0; border-top: 1px solid #f1f1f1; }
+        .category-detail-item:first-child { border-top: none; }
+        .category-detail-item strong { color: #0056b3; font-size: 1.05em; }
+        .category-detail-item p { font-size: 0.95em; color: #495057; margin-top: 5px; line-height: 1.6; }
+
 
     </style>
 </head>
