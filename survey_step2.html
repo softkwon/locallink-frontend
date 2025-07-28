@@ -45,7 +45,33 @@
         .modal-content h3 { margin-top: 0; }
         .modal-content .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
         #modal-explanation-content { line-height: 1.8; margin-top: 20px; }
-            
+        #modal-explanation-content {
+            max-height: 60vh; 
+            overflow-y: auto; 
+        }
+
+        .survey-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr; 
+            gap: 30px;
+            align-items: start;
+        }
+
+        .question-guidance {
+            position: sticky;
+            top: 20px;
+        }
+
+        @media (max-width: 992px) {
+            .survey-grid {
+                grid-template-columns: 1fr;
+            }
+            .question-guidance {
+                position: static; 
+                top: auto;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -92,15 +118,21 @@
             </div>
             
             <div id="questionContainer" class="hidden">
-                <fieldset>
-                    <legend id="questionLegend"></legend>
-                    <p id="questionText" style="font-size: 1.3em; font-weight: bold; margin-bottom: 20px;"></p>
-                    
-                    <div id="industryAverageInfo" class="info-box hidden"></div>
-                    <div id="questionExplanation" class="explanation-box hidden"></div>
-                    
-                    <div id="optionsContainer" class="survey-options"></div>
-                </fieldset>
+                <div class="survey-grid">
+                    <div class="question-main">
+                        <fieldset>
+                            <legend id="questionLegend"></legend>
+                            <p id="questionText" style="font-size: 1.3em; font-weight: bold; margin-bottom: 20px;"></p>
+                            <div id="optionsContainer" class="survey-options"></div>
+                        </fieldset>
+                    </div>
+
+                    <div class="question-guidance">
+                        <div id="questionExplanation" class="explanation-box hidden"></div>
+                        <div id="industryAverageInfo" class="info-box hidden"></div>
+                    </div>
+                </div>
+
                 <div id="navigationContainer" class="form-actions hidden" style="justify-content: space-between; margin-top: 30px;">
                     <button type="button" id="prevQuestionBtn" class="button-secondary">이전 질문</button>
                     <button type="button" id="nextQuestionBtn" class="button-primary">다음</button>
