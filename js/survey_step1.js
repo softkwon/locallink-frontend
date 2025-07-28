@@ -1,19 +1,15 @@
-// js/survey_step1.js (2025-06-29 11:40:00)
 import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
 import { initializeIndustryModal } from './components/industry_modal.js';
     
 
-// 페이지 전역에서 사용할 변수
 let selectedIndustryCodes = []; 
 let allIndustries = [];
 
-// 모달에서 '선택완료' 시 호출될 콜백 함수를 window 객체에 할당
 window.handleIndustryCodeSelectionForSurveyStep1 = function(items) {
     selectedIndustryCodes = items;
     renderSelectedCodes();
 };
 
-// 선택된 산업 코드 UI를 화면에 그려주는 함수
 function renderSelectedCodes() {
     const container = document.getElementById('selectedIndustryCodesContainerSurveyStep1');
     const displayInput = document.getElementById('industryCodeDisplaySurvey');
@@ -43,7 +39,6 @@ function renderSelectedCodes() {
     }
 }
 
-// '저장 후 다음 단계로' 버튼 클릭 시 실행될 메인 함수
 async function saveAndProceed() {
     const form = document.getElementById('surveyStep1Form');
     if (!form.checkValidity() || selectedIndustryCodes.length === 0) {
@@ -61,7 +56,7 @@ async function saveAndProceed() {
         productsServices: document.getElementById('mainProducts').value,
         recentSales: parseFloat(document.getElementById('annualRevenue').value) * 100000000,
         recentOperatingProfit: parseFloat(document.getElementById('operatingProfit').value) * 100000000,
-        exportPercentage: document.getElementById('exportPercentage').value,
+        exportPercentage: document.querySelector('input[name="exportPercentage"]:checked')?.value,
         isListed: document.querySelector('input[name="listingStatus"]:checked')?.value === 'listed',
         companySize: document.querySelector('input[name="companySize"]:checked')?.value,
         mainBusinessRegion: Array.from(document.querySelectorAll('input[name="businessRegions"]:checked')).map(cb => cb.value).join(',')
@@ -93,10 +88,6 @@ async function saveAndProceed() {
     }
 }
 
-/**
- * 서버에서 가져온 초기 데이터로 폼 필드를 채우는 함수
- * @param {object} data - 진단 또는 사용자 정보 객체
- */
 function populateForm(data) {
     if (!data) return;
 
@@ -107,7 +98,11 @@ function populateForm(data) {
     document.getElementById('mainProducts').value = data.products_services || '';
     document.getElementById('annualRevenue').value = data.recent_sales ? (data.recent_sales / 100000000) : '';
     document.getElementById('operatingProfit').value = data.recent_operating_profit ? (data.recent_operating_profit / 100000000) : '';
-    document.getElementById('exportPercentage').value = data.export_percentage || '';
+    
+    if (data.export_percentage) {
+        const el = document.querySelector(`input[name="exportPercentage"][value="${data.export_percentage}"]`);
+        if (el) el.checked = true;
+    }
 
     if (data.is_listed !== undefined && data.is_listed !== null) {
         const el = document.querySelector(`input[name="listingStatus"][value="${data.is_listed ? 'listed' : 'unlisted'}"]`);
@@ -135,7 +130,6 @@ function populateForm(data) {
     }
 }
 
-// --- 페이지 로드 시 실행되는 메인 로직 ---
 document.addEventListener('DOMContentLoaded', async function() {
     
     const token = localStorage.getItem('locallink-token');
@@ -145,7 +139,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         return;
     }
 
-    // 산업 코드 목록 미리 불러오기
     try {
         const industryResponse = await fetch(`${API_BASE_URL}/industries`, { headers: { 'Authorization': `Bearer ${token}` } });
         const industryResult = await industryResponse.json();
@@ -158,11 +151,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         console.error("산업코드 목록 API 호출 실패:", e);
     }
 
-    // ★★★ 수정된 부분: 이벤트 리스너 연결 부분을 데이터 로딩과 분리하고, 모달 함수 존재 여부를 확실히 체크합니다. ★★★
     
-    // 1. 이벤트 리스너 먼저 연결
     document.getElementById('industryCodeInfoIconSurveyStep1')?.addEventListener('click', function() {
-        // 'initializeIndustryModal' 함수가 실제로 존재하는지 확인
         if (typeof initializeIndustryModal === 'function') {
             initializeIndustryModal({
                 initialSelection: selectedIndustryCodes,
@@ -178,7 +168,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     document.querySelector('.form-actions .button-primary')?.addEventListener('click', saveAndProceed);
 
 
-    // 2. 데이터 로딩 및 폼 채우기
     const diagnosisId = sessionStorage.getItem('currentDiagnosisId');
     const dataEndpoint = diagnosisId ? `${API_BASE_URL}/diagnoses/${diagnosisId}` : `${API_BASE_URL}/users/me`;
 
