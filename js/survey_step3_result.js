@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             elements.grade.textContent = grade;
             elements.comment.textContent = comment;
 
-            document.getElementById('mainResultTitle').textContent = `${diagnosis.company_name || '사용자'}님의 ESG 핵심영역 진단결과`;
+            document.getElementById('resultUsername').textContent = diagnosis.company_name || '사용자';
 
             renderCategoryResults(diagnosis);
             renderEvaluationTable(userAnswers);
