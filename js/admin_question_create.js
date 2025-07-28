@@ -1,15 +1,11 @@
-// js/admin_question_create.js (최종 완성본)
 import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
 import { checkAdminPermission } from './admin_common.js';
 
 document.addEventListener('DOMContentLoaded', async function() {
     
-    // --- 1. 권한 확인 ---
-    // auth.js, admin_common.js가 먼저 로드되어 checkAdminPermission 함수를 사용할 수 있다고 가정합니다.
     const hasPermission = await checkAdminPermission(['super_admin', 'content_manager']);
     if (!hasPermission) return;
 
-    // --- 2. 페이지 요소 및 변수 초기화 ---
     const form = document.getElementById('createQuestionForm');
     const token = localStorage.getItem('locallink-token');
     const optionsContainer = document.getElementById('options-container');
@@ -19,9 +15,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     const nextNoSelect = document.getElementById('next_question_if_no');
     const benchmarkMetricSelect = document.getElementById('benchmark_metric');
 
-    // --- 3. 기능 함수 정의 ---
-
-    // 드롭다운 메뉴들을 채우는 함수
     async function populateDropdowns() {
         try {
             const [allQuestionsRes, metricsRes] = await Promise.all([
@@ -58,7 +51,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     }
     
-    // '보기 추가' 버튼 클릭 이벤트
     addOptionBtn.addEventListener('click', () => {
         const newItem = document.createElement('div');
         newItem.className = 'option-item';
@@ -71,14 +63,12 @@ document.addEventListener('DOMContentLoaded', async function() {
         optionsContainer.appendChild(newItem);
     });
 
-    // '삭제' 버튼 클릭 이벤트 (이벤트 위임)
     optionsContainer.addEventListener('click', (e) => {
         if (e.target.classList.contains('remove-option-btn')) {
             e.target.closest('.option-item').remove();
         }
     });
 
-    // 폼 제출 이벤트 리스너
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         
@@ -91,13 +81,14 @@ document.addEventListener('DOMContentLoaded', async function() {
                 optionsArray.push({ text, value });
             }
         });
-        
+        const questionTextToSave = document.getElementById('question_text').value.replace(/\n/g, '<br>');
+
         const newQuestionData = {
             question_code: document.getElementById('question_code').value,
             display_order: parseInt(document.getElementById('display_order').value),
             esg_category: document.getElementById('esg_category').value,
-            diagnosis_type: document.getElementById('diagnosis_type').value, // ★★★ 이 줄 추가 ★★★
-            question_text: document.getElementById('question_text').value,
+            diagnosis_type: document.getElementById('diagnosis_type').value, 
+            question_text: questionTextToSave,
             explanation: document.getElementById('explanation').value,
             question_type: document.getElementById('question_type').value,
             options: optionsArray,
@@ -124,6 +115,5 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     });
 
-    // --- 4. 페이지 초기화 실행 ---
     populateDropdowns();
 });

@@ -92,7 +92,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         document.getElementById('display_order').value = question.display_order;
         document.getElementById('esg_category').value = question.esg_category;
         document.getElementById('diagnosis_type').value = question.diagnosis_type; 
-        document.getElementById('question_text').value = question.question_text;
+        const questionTextForEditing = (question.question_text || '').replace(/<br\s*\/?>/g, "\n");
+        document.getElementById('question_text').value = questionTextForEditing;
         document.getElementById('explanation').value = question.explanation || '';
         document.getElementById('question_type').value = question.question_type;
         document.getElementById('benchmark_metric').value = question.benchmark_metric || "";
@@ -134,6 +135,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 optionsArray.push({ text, value });
             }
         });
+        const questionTextToSave = document.getElementById('question_text').value.replace(/\n/g, '<br>');
         
         const updatedData = {
             display_order: parseInt(document.getElementById('display_order').value),
