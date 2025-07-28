@@ -57,25 +57,23 @@ document.addEventListener('DOMContentLoaded', async function() {
         const question = allQuestions[qIndex];
         if (!question) return;
 
-        const mainQuestionNumber = parseInt((question.question_code.match(/Q(\d+)/) || [])[1] || 0);
-        elements.legend.textContent = `문항 ${mainQuestionNumber}`;
         elements.text.innerHTML = question.question_text || '(질문 내용이 없습니다)';
         
         const explanationText = (question.explanation || '').replace(/<br\s*\/?>/g, "\n");
 
+        const existingBtn = elements.explanation.querySelector('.read-more-btn');
+        if (existingBtn) existingBtn.remove();
+        
         if (explanationText.trim()) {
             elements.explanation.innerHTML = explanationText.replace(/\n/g, '<br>');
-            elements.explanation.classList.remove('hidden'); 
+            elements.explanation.classList.remove('hidden');
 
-            const existingBtn = elements.explanation.querySelector('.read-more-btn');
-            if (existingBtn) existingBtn.remove();
-            
             setTimeout(() => {
                 if (elements.explanation.scrollHeight > elements.explanation.clientHeight) {
                     const readMoreBtn = document.createElement('button');
                     readMoreBtn.className = 'read-more-btn';
-                    readMoreBtn.textContent = '[더보기]';
-                    readMoreBtn.style.display = 'inline';
+                    readMoreBtn.textContent = '...[더보기]';
+                    readMoreBtn.style.display = 'inline-block'; 
                     readMoreBtn.dataset.fullExplanation = explanationText;
                     readMoreBtn.dataset.questionText = question.question_text;
                     elements.explanation.appendChild(readMoreBtn);
