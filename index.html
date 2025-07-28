@@ -222,7 +222,7 @@
             gap: 40px;
         }
         .section .text-content {
-            flex: 1;
+            text-align: left; /* 모든 화면 크기에서 왼쪽 정렬을 기본으로 설정 */
         }
         .section .image-content {
             flex: 1;
@@ -298,7 +298,15 @@
                 flex-direction: column !important; 
                 gap: 20px;
             }
-            .section .text-content,
+            .section .text-content {
+                text-align: left; /* 태블릿/모바일에서도 왼쪽 정렬 유지 */
+            }
+            .section .text-content h2 {
+                font-size: 1.8em; /* 모바일에 맞는 제목 크기 */
+            }
+            .section .text-content p {
+                font-size: 1em; /* 모바일에 맞는 본문 크기 */
+            }
             .section .image-content {
                 text-align: center; 
             }
@@ -393,7 +401,7 @@
                 margin: 20px auto 0; 
             }
         }
-        
+
         .section {
             background-color: #ffffff !important; /* 모든 섹션 배경을 흰색으로 통일 */
             border-radius: 16px;      /* 모서리를 부드럽게 */
@@ -412,17 +420,18 @@
 
         /* 2. 텍스트 가독성 및 디자인 강화 */
         .section .text-content h2 { /* Admin에서 입력하는 제목 스타일 (h2 또는 h3일 수 있음) */
-            font-size: 2em;
+            font-size: 2.2em;
             font-weight: 700;
             color: #212529; /* 더 진한 검은색으로 가시성 확보 */
             margin-top: 0;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             line-height: 1.4;
         }
 
         .section .text-content p {
-            font-size: 1.05em;
-            line-height: 1.8; /* 줄 간격을 넓혀 가독성 확보 */
+            font-size: 1.1em;
+            line-height: 1.9; /* 줄 간격을 넓혀 가독성 확보 */
+            margin-bottom: 1em;
             color: #495057;   /* 부드러운 회색 */
         }
 
