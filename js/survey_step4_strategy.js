@@ -355,12 +355,12 @@ function renderRegionalMapAndIssues(diagnosis, regionalIssues) {
         });
     }
 
-    const overlayItemsHtml = ['E', 'S', 'G'].map(cat => {
+    const issuesHtml = ['E', 'S', 'G'].map(cat => {
         if (issuesByCategory[cat].length > 0) {
             const listItems = issuesByCategory[cat].map(item => `<li>${item}</li>`).join('');
             return `
-                <div>
-                    <h4><span class="map-issue-badge badge-${cat}">${cat}</span></h4>
+                <div class="map-issue-item">
+                    <strong class="map-issue-badge badge-${cat}">${cat}</strong>
                     <ul>${listItems}</ul>
                 </div>
             `;
@@ -368,11 +368,27 @@ function renderRegionalMapAndIssues(diagnosis, regionalIssues) {
         return ''; 
     }).join('');
 
+    // [수정] 2단 그리드 레이아웃으로 전체 HTML 구조 변경
     container.innerHTML = `
-        <div class="regional-map-container">
-            <img src="${mapImageUrl}" alt="${locationName} 지도">
-            <div class="map-overlay">
-                ${overlayItemsHtml || '<p>해당 지역의 주요 현안 정보가 없습니다.</p>'}
+        <div class="regional-issue-grid">
+            <div class="regional-map-container">
+                <img src="${mapImageUrl}" alt="${locationName} 지도">
+            </div>
+
+            <div>
+                <div class="regional-issue-list">
+                    ${issuesHtml || '<p>해당 지역의 주요 현안 정보가 없습니다.</p>'}
+                </div>
+
+                <div class="luris-link-box">
+                    <p>
+                        소재지: <strong>${locationName}</strong><br>
+                        아래 버튼을 눌러 이동하신 후, 지도에서 <strong>'${locationName}'</strong>를 클릭하여 상세 규제 정보를 확인하세요.
+                    </p>
+                    <a href="https://www.laiis.go.kr/lips/mlo/wco/wholeCountryList.do" target="_blank" class="button-secondary">
+                        토지이용규제정보서비스 (LURIS) 바로가기
+                    </a>
+                </div>
             </div>
         </div>
     `;
