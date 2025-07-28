@@ -108,8 +108,8 @@ async function checkLoginAndRenderHeader() {
             <a href="main_member_info.html">회원정보 수정</a>
             <div class="dropdown-divider"></div>
             <a href="#" data-action="show-history">나의 진단 이력</a>
-            <a href="#" data-action="show-inquiries">나의 문의내역</a>
             <a href="main_my_esg_dashboard.html">나의 ESG 프로그램</a>
+            <a href="#" data-action="show-inquiries">나의 문의내역</a>
             ${adminLink ? `<div class="dropdown-divider"></div>${adminLink}` : ''}
             <div class="dropdown-divider"></div>
             <a href="#" id="logoutBtn" style="color: #dc3545;">로그아웃</a>

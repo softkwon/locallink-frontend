@@ -439,7 +439,6 @@
             visibility: visible;
         }
 
-        /* 카테고리 모달 */
         #categories-modal { 
             display: none; 
             position: fixed; 
@@ -452,7 +451,7 @@
         }
 
         #categories-modal .modal-content.large {
-            max-width: 800px; /* 모달 창 너비를 넓게 */
+            max-width: 800px;
         }
 
         .accordion-item {
@@ -478,13 +477,13 @@
         }
 
         .accordion-header::after {
-            content: '↓'; /* 아래쪽 화살표 */
+            content: '↓'; 
             font-size: 0.8em;
             transition: transform 0.2s ease;
         }
 
         .accordion-header.active::after {
-            transform: rotate(180deg); /* 위쪽 화살표 */
+            transform: rotate(180deg); 
         }
 
         .accordion-panel {
@@ -538,7 +537,7 @@
             font-weight: 500;
             color: #495057;
             border-bottom: 3px solid transparent;
-            margin-bottom: -1px; /* 아래 테두리와 겹치도록 */
+            margin-bottom: -1px;
         }
         .tab-link:hover {
             background-color: #f8f9fa;
@@ -551,12 +550,11 @@
         .tab-content .tab-pane {
             display: none;
             padding: 20px;
-            min-height: 400px; /* 필요에 따라 높이 조절 */
+            min-height: 400px; 
         }
         .tab-content .tab-pane.active {
             display: block;
         }
-        /* 탭 내부의 strategy-section 스타일 초기화 */
         .tab-pane .strategy-section {
             margin-bottom: 0;
             padding: 0;

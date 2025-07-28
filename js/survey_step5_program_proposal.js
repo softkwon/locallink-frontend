@@ -1,10 +1,7 @@
-// js/survey_step5_program_proposal.js (2025-07-24 최종 기능 통합본)
-
 import { API_BASE_URL, STATIC_BASE_URL } from './config.js'; 
 
 document.addEventListener('DOMContentLoaded', function() {
     
-    // --- 1. 페이지 요소 및 전역 변수 ---
     const token = localStorage.getItem('locallink-token');
     const diagId = new URLSearchParams(window.location.search).get('diagId');
     const mainContainer = document.querySelector('main.container');
@@ -15,7 +12,6 @@ document.addEventListener('DOMContentLoaded', function() {
     let allProgramsCache = [];
     let initialScores = null;
 
-    // --- 2. 페이지 초기화 ---
     async function initializePage() {
         if (!mainContainer || !diagId || !token) {
             mainContainer.innerHTML = '<h2>잘못된 접근입니다.</h2><p>Step4 페이지를 통해 접근해주세요.</p>';
@@ -26,7 +22,6 @@ document.addEventListener('DOMContentLoaded', function() {
         attachEventListeners();
     }
 
-    // --- 3. 데이터 로딩 및 전체 화면 렌더링 ---
     async function loadAndRenderAll() {
         try {
             const [programsRes, dashboardRes, userRes] = await Promise.all([
@@ -77,8 +72,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // --- 4. 렌더링 함수들 ---
-
     function renderProgramSection(container, programs, emptyMessage) {
         if (!container) return;
         container.innerHTML = '';
@@ -115,7 +108,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const tableEl = document.getElementById('score-simulator-table');
         if (!gaugeEl || !tableEl) return;
         
-        // [수정] 나눗셈 기준값 추가
         const QUESTION_COUNTS = { e: 4, s: 6, g: 6 };
         const programsByCategory = { e: [], s: [], g: [] };
         const rawImprovement = { e: 0, s: 0, g: 0 };
@@ -131,7 +123,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // [수정] 화면에 표시될 개선점수는 총합을 문항 수로 나눈 평균값
         const improvement = {
             e: QUESTION_COUNTS.e > 0 ? rawImprovement.e / QUESTION_COUNTS.e : 0,
             s: QUESTION_COUNTS.s > 0 ? rawImprovement.s / QUESTION_COUNTS.s : 0,
@@ -200,7 +191,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // --- 5. 헬퍼 함수 및 이벤트 리스너 ---
     function getRiskLevelInfo(score) {
         if (score >= 80) return { level: '우수' }; if (score >= 60) return { level: '양호' };
         if (score >= 40) return { level: '보통' }; return { level: '미흡' };
@@ -216,7 +206,15 @@ document.addEventListener('DOMContentLoaded', function() {
     function attachEventListeners() {
         document.addEventListener('click', async e => {
             const target = e.target;
-            
+
+            const dashboardLink = target.closest('a[href="main_my_esg_dashboard.html"]');
+            if (dashboardLink) {
+                e.preventDefault();
+                alert("진단결과, AI기반 ESG 전략 수립은 상단 '프로필 > 나의 진단이력'에서 다시 확인할 수 있습니다");
+                window.location.href = dashboardLink.href;
+                return;
+            }
+
             const cardWrapper = target.closest('.program-link-wrapper');
             if (cardWrapper) {
                 const programId = cardWrapper.dataset.programId;
@@ -283,6 +281,5 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // --- 6. 페이지 실행 ---
     initializePage();
 });

@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         document.getElementById('marketStatusTitle').textContent = `${userName}님이 속한 시장현황`;
         document.getElementById('marketStatusDescription').innerHTML = `설문결과를 기반하여 <strong>${userName}님</strong>의 동종업계 대비 현황, 현재 확정된 ESG 규제 타임라인을 분석하여 대응방안을 분석합니다.`;
         document.getElementById('customStrategyTitle').textContent = `${userName}님의 맞춤 ESG 대응`;
-        document.getElementById('customStrategyDescription').innerHTML = `설문결과를 기반하여 <strong>${userName}님</strong>의 ESG경영 개선을 도와 ESG 투자비용절감, 신규수익창출 및 국내외 ESG규제에 효과적으로 대응하기 위한 맞춤형 프로그램 분야를 제안합니다.`;
+        document.getElementById('customStrategyDescription').innerHTML = `설문결과를 기반하여 <strong>${userName}님</strong>의 ESG경영 개선을 도와 ESG 투자비용절감, 신규수익창출 및 국내외 ESG규제에 효과적으로 대응하기 위한 맞춤형 프로그램 분야를 제안합니다. <다음단계:ESG프로그램제안>에서 신청할 수 있습니다.`;
 
         const taskContainer = document.getElementById('taskAnalysisContainer');
         if (taskContainer) {
@@ -116,7 +116,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         if(loadingEl) loadingEl.innerHTML = `<h2>오류 발생</h2><p>${error.message}</p>`;
     }
 
-    // --- [추가] 탭 UI 이벤트 리스너 ---
     const tabContainer = document.querySelector('.tab-container');
     if(tabContainer) {
         const tabLinks = tabContainer.querySelectorAll('.tab-link');
@@ -233,7 +232,6 @@ function renderBenchmarkCharts(diagnosis, benchmarkScores, userAnswers, allQuest
     });
 }
 
-
 function renderAiAnalysis(analysisData) {
     const container = document.getElementById('aiAnalysisContent');
     if (!container || !analysisData) return;
@@ -242,13 +240,11 @@ function renderAiAnalysis(analysisData) {
     let comparisonText = '';
     let adviceText = '';
 
-    // [추가] 추천 카테고리 목록을 텍스트로 변환 (예: "'에너지', '폐기물'")
     const categories = analysisData.recommendedCategories || [];
     const categoryText = categories.length > 0 
         ? `특히 <strong>${categories.map(cat => `'${cat}'`).join(', ')}</strong> 분야에서` 
         : '';
 
-    // [수정] switch 문 전체를 새로운 문구로 변경
     switch (analysisData.status) {
         case '우수':
             comparisonText = `업계 평균보다 약 <strong>${diff.toFixed(1)}% 우수합니다.</strong>`;
@@ -258,7 +254,7 @@ function renderAiAnalysis(analysisData) {
             comparisonText = `업계 평균에 비해 약 <strong>${Math.abs(diff).toFixed(1)}% 부족한 상태입니다.</strong>`;
             adviceText = `현재 속하신 산업군에서는 <strong>'${analysisData.industryMainIssue}'</strong>, 주요 활동 지역에서는 <strong>'${analysisData.regionMainIssue}'</strong>(이)가 중요하게 다뤄지고 있으니 주의가 필요합니다. 진단 결과, ${categoryText} 개선이 필요하며, 부족한 부분을 중심으로 규제 리스크를 줄이고 새로운 사업 기회를 발굴하는 전략을 추천합니다.`;
             break;
-        default: // '비슷'
+        default: 
             const signedDiff = diff > 0 ? `+${diff.toFixed(1)}` : diff.toFixed(1);
             comparisonText = `업계 평균과 <strong>비슷한 수준입니다.</strong> <span style="font-size:0.9em; color:#555;">(업계 평균 대비 <strong>${signedDiff}%</strong>)</span>`;
             adviceText = `현재 산업군 및 지역의 핵심 이슈는 <strong>'${analysisData.industryMainIssue}'</strong> 입니다. 진단 결과에 따르면 ${categoryText} 관련 분야에 조금 더 집중하신다면, 경쟁사보다 앞서 나갈 수 있는 좋은 기회가 될 것입니다.`;
@@ -289,7 +285,6 @@ function renderIndustryIssues(issues, diagnosis) {
     const opportunities = issues.map(i => i.opportunity).filter(Boolean).join('<br>') || '-';
     const threats = issues.map(i => i.threat).filter(Boolean).join('<br>') || '-';
 
-    // [수정] 테이블 부분만 생성하도록 변경
     container.innerHTML = `
         <table class="styled-table">
             <thead><tr><th>구분</th><th>주요 내용</th></tr></thead>
@@ -344,7 +339,6 @@ function renderCompanySizeIssues(issueData, userCompanySizeCode) {
 
 
 function renderRegionalMapAndIssues(diagnosis, regionalIssues) {
-    // [수정] 컨테이너를 regionalIssuesContent로 직접 지정
     const container = document.getElementById('regionalIssuesContent'); 
     if (!container) return;
 
@@ -374,7 +368,6 @@ function renderRegionalMapAndIssues(diagnosis, regionalIssues) {
         return ''; 
     }).join('');
 
-    // [수정] h3 제목을 제외한 내용 부분만 생성
     container.innerHTML = `
         <div class="regional-map-container">
             <img src="${mapImageUrl}" alt="${locationName} 지도">
