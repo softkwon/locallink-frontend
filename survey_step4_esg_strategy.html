@@ -84,7 +84,11 @@
         }
         .tab-content {
             padding: 25px;
-            overflow: hidden; 
+        }
+        .tab-content::after {
+            content: "";
+            display: table;
+            clear: both;
         }
         .tab-content .tab-pane { display: none; }
         .tab-content .tab-pane.active { display: block; }
