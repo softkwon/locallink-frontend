@@ -110,7 +110,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         if(loadingEl) loadingEl.style.display = 'none';
         if(contentEl) contentEl.classList.remove('hidden');
         
-        equalizeSectionHeights();
 
     } catch (error) {
         if(loadingEl) loadingEl.innerHTML = `<h2>오류 발생</h2><p>${error.message}</p>`;
