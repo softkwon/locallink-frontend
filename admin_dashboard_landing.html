@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 선택 - ESGlink</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        .landing-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            min-height: 60vh;
+            padding: 40px 0;
+        }
+        .landing-box {
+            width: 300px;
+            height: 300px;
+            padding: 30px;
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            text-align: center;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .landing-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .landing-box h2 {
+            font-size: 1.8em;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        .landing-box p {
+            font-size: 1em;
+            line-height: 1.6;
+        }
+
+        .landing-box.admin-box {
+            background-color: #ffffe7;
+            border-color: #f9e3bd;
+            color: #eeae3f;
+        }
+        .landing-box.admin-box:hover {
+            border-color: #007bff;
+        }
+        .landing-box.admin-box h2 {
+            color: #0056b3;
+        }
+
+        .landing-box.partner-box {
+            background-color: #d8ebfe;
+            border-color: #dee2e6;
+            color: #495057;
+        }
+        .landing-box.partner-box:hover {
+            border-color: #868e96;
+        }
+        .landing-box.partner-box h2 {
+            color: #495057;
+        }
+        .landing-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border-color: #007bff;
+        }
+        .landing-box h2 {
+            font-size: 1.8em;
+            margin-top: 0; /* [수정] 상단 여백 제거 */
+            margin-bottom: 15px;
+            color: #0056b3;
+        }
+        .landing-box p {
+            font-size: 1em;
+            color: #6c757d;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">
+                    <img src="/images/logo_admin.png" alt="ESGlink Admin 로고" class="header-logo-img">
+                </a>
+            </div>
+            <nav class="desktop-nav">
+                <ul>
+                    <li><a href="index.html">ESGlink로 돌아가기</a></li>
+                </ul>
+            </nav>
+            <div class="header-right-group">
+                <div id="user-menu-container"></div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="landing-container">
+            <a href="admin_dashboard.html" class="landing-box admin-box">
+                <h2>관리자</h2>
+                <p>ESGlink 서비스의 전체 데이터를 관리합니다.</p>
+            </a>
+            <a href="admin_dashboard_partner.html" class="landing-box partner-box">
+                <h2>협력사</h2>
+                <p>협력사 전용 대시보드로 이동합니다.</p>
+            </a>
+        </div>
+    </main>
+
+    <footer id="footer-placeholder"></footer>
+    
+    <script type="module" src="js/auth.js" defer></script>
+</body>
+</html>

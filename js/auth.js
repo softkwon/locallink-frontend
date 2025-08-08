@@ -95,7 +95,7 @@ async function checkLoginAndRenderHeader() {
 
         const user = result.user;
         const isAdmin = ['super_admin', 'user_manager', 'content_manager'].includes(user.role);
-        const adminLink = isAdmin ? `<a href="admin_dashboard.html">관리자 페이지</a>` : '';
+        const adminLink = isAdmin ? `<a href="admin_dashboard_landing.html">관리자 페이지</a>` : '';
         const profileImgUrl = (user.profile_image_url && user.profile_image_url.startsWith('http'))
             ? user.profile_image_url
             : `${STATIC_BASE_URL}/images/default_avatar.png`;
