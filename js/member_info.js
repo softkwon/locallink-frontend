@@ -1,10 +1,3 @@
-/**
- * 파일명: js/member_info.js
- * 기능: 회원 정보 페이지의 모든 기능(정보 조회/수정, 모달/우편번호 연동 등)
- * 수정 일시: 2025-07-03 03:10
- */
-
-// 1. 필요한 모듈들을 각 파일에서 가져옵니다.
 import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
 import { openPostcodeSearch } from './helpers/postcode_helper.js';
 import { initializeIndustryModal } from './components/industry_modal.js';
@@ -62,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const tbody = basicInfoTable.querySelector('tbody');
         if (!tbody) return;
 
-        const { email, company_name, industry_codes, representative, address, business_location, manager_name, manager_phone, interests, profile_image_url, agreed_to_marketing } = currentUserData;
+        const { email, company_name, industry_codes, representative, address, business_location, manager_name, manager_phone, interests, profile_image_url, agreed_to_marketing, used_referral_code } = currentUserData;
         
         const addressParts = (address || '').match(/(.*)\s\((\d{5})\)\s*(.*)/) || [null, address || '', '', ''];
         const mainAddress = addressParts[1];
@@ -70,7 +63,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const detailAddress = addressParts[3];
         
         const profileImageUrl = (profile_image_url && profile_image_url.startsWith('http'))
-        ? profile_image_url  // S3 전체 주소이면 그대로 사용
+        ? profile_image_url  
         : `${STATIC_BASE_URL}/images/default_avatar.png`;   
         
         const locations = [ { value: "", text: "선택하세요" }, { value: "서울", text: "서울특별시" }, { value: "부산", text: "부산광역시" }, { value: "대구", text: "대구광역시" }, { value: "인천", text: "인천광역시" }, { value: "광주", text: "광주광역시" }, { value: "대전", text: "대전광역시" }, { value: "울산", text: "울산광역시" }, { value: "세종", text: "세종특별자치시" }, { value: "경기", text: "경기도" }, { value: "강원", text: "강원특별자치도" }, { value: "충북", text: "충청북도" }, { value: "충남", text: "충청남도" }, { value: "전북", text: "전북특별자치도" }, { value: "전남", text: "전라남도" }, { value: "경북", text: "경상북도" }, { value: "경남", text: "경상남도" }, { value: "제주", text: "제주특별자치도" } ];
@@ -85,7 +78,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <tr>
                 <th>프로필 이미지</th>
                 <td>
-                    <div id="profileImagePreview" style="width:100px; height:100px; border-radius:50%; background:#eee; margin-bottom:10px; background-image: url('${profileImageUrl}'); background-size: cover; background-position: center;"></div>
+                    <div id="profileImagePreview" style="width:100px; height:100px; border-radius:50%; background:#eee; margin-bottom:10px; background-image: url('${profile_image_url || '/images/default_avatar.png'}'); background-size: cover; background-position: center;"></div>
                     <div id="profileImageUploader" style="display: ${isEditing ? 'block' : 'none'};">
                         <input type="file" id="profileImageInput" accept="image/*" style="display: block; margin-bottom: 5px;">
                         <button type="button" id="uploadProfileImageBtn" class="button-secondary button-sm">이미지 업로드</button>
@@ -102,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <tr><th>대표자명</th><td>${isEditing ? `<input type="text" id="edit_representative" class="form-control" value="${representative || ''}">` : representative || "-"}</td></tr>
             <tr><th>회사주소</th><td>
                 ${isEditing 
-                    ? `<div style="display:flex; flex-direction:column; gap:8px;"><div style="display:flex; gap:10px;"><input type="text" id="edit_postalCode" class="form-control readonly-input" value="${postalCode}"><button type="button" id="edit_search_post_btn" class="button-secondary">우편번호 검색</button></div><input type="text" id="edit_address" class="form-control readonly-input" value="${mainAddress}"><input type="text" id="edit_address_detail" class="form-control" value="${detailAddress}"></div>` 
+                    ? `<div style="display:flex; flex-direction:column; gap:8px;"><div style="display:flex; gap:10px;"><input type="text" id="edit_postalCode" class="form-control readonly-input" value="${(address || '').split('(')[1]?.split(')')[0] || ''}"><button type="button" id="edit_search_post_btn" class="button-secondary">우편번호 검색</button></div><input type="text" id="edit_address" class="form-control readonly-input" value="${(address || '').split('(')[0].trim()}"><input type="text" id="edit_address_detail" class="form-control" value="${(address || '').split(')')[1]?.trim() || ''}"></div>` 
                     : address || "-"}
             </td></tr>
             <tr><th>주요사업장 소재지</th><td>${isEditing ? `<select id="edit_business_location" class="form-control">${locations.map(loc => `<option value="${loc.value}" ${loc.value === business_location ? 'selected' : ''}>${loc.text}</option>`).join('')}</select>`: (locations.find(l => l.value === business_location)?.text || "-")}</td></tr>
@@ -110,9 +103,18 @@ document.addEventListener('DOMContentLoaded', function() {
             <tr><th>담당자 연락처</th><td>${isEditing ? `<input type="tel" id="edit_manager_phone" class="form-control" value="${manager_phone || ''}">` : manager_phone || "-"}</td></tr>
             <tr><th>관심분야</th><td>
                 ${isEditing 
-                    ? Object.keys(allInterestOptions).map(catKey => `<div class="interest-category-edit"><h5>${catKey}</h5><div class="checkbox-group-vertical">${allInterestOptions[catKey].map(opt => `<label><input type="checkbox" name="edit_interests" value="${opt.value}" ${ safeInterests.includes(opt.value) ? 'checked' : ''}> ${opt.text}</label>`).join('')}</div></div>`).join('')
-                    : (safeInterests.length > 0) ? `<ul class="interest-list">${safeInterests.map(val => `<li>${Object.values(allInterestOptions).flat().find(opt => opt.value === val)?.text || ''}</li>`).join('')}</ul>` : "<span>-</span>"}
+                    ? Object.keys(allInterestOptions).map(catKey => `<div class="interest-category-edit"><h5>${catKey}</h5><div class="checkbox-group-vertical">${allInterestOptions[catKey].map(opt => `<label><input type="checkbox" name="edit_interests" value="${opt.value}" ${ (interests || []).includes(opt.value) ? 'checked' : ''}> ${opt.text}</label>`).join('')}</div></div>`).join('')
+                    : ((interests || []).length > 0) ? `<ul class="interest-list">${interests.map(val => `<li>${Object.values(allInterestOptions).flat().find(opt => opt.value === val)?.text || ''}</li>`).join('')}</ul>` : "<span>-</span>"}
             </td></tr>
+            <tr>
+                <th>추천 코드</th>
+                <td>
+                    ${isEditing
+                        ? (used_referral_code ? `<input type="text" class="form-control readonly-input" value="${used_referral_code}" readonly>` : `<input type="text" id="edit_referral_code" class="form-control" placeholder="추천 코드가 있다면 입력해주세요.">`)
+                        : used_referral_code || "-"
+                    }
+                </td>
+            </tr>
             <tr>
                 <th>마케팅 정보 수신</th>
                 <td>
@@ -169,7 +171,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 result.history.forEach(item => {
                     const li = document.createElement('li');
                     li.className = 'history-item';
-                    // [수정] 삭제 버튼 추가 및 버튼 그룹으로 묶기
                     li.innerHTML = `
                         <span class="history-item-text">
                             ${new Date(item.created_at).toLocaleDateString()} - 종합점수: <strong>${parseFloat(item.total_score || 0).toFixed(1)}점</strong>
@@ -268,8 +269,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         saveInfoBtn.addEventListener('click', async () => {
-            const agreeMarketing = document.getElementById('edit_agree_marketing')?.checked || false;
-            
+            // 1. 기본 정보 수집
             const updatedData = {
                 companyName: document.getElementById('edit_company_name').value,
                 representativeName: document.getElementById('edit_representative').value,
@@ -279,27 +279,54 @@ document.addEventListener('DOMContentLoaded', function() {
                 managerPhone: document.getElementById('edit_manager_phone').value.replace(/\D/g, ''),
                 industryCodes: selectedIndustryCodesForEdit,
                 interests: Array.from(document.querySelectorAll('input[name="edit_interests"]:checked')).map(cb => cb.value),
-                agreed_to_marketing: agreeMarketing
+                agreed_to_marketing: document.getElementById('edit_agree_marketing')?.checked || false
             };
 
+            // 2. 새로 입력된 추천 코드 값 가져오기
+            const referralCodeInput = document.getElementById('edit_referral_code');
+            const newReferralCode = referralCodeInput ? referralCodeInput.value.trim() : null;
+
             try {
+                // 3. 기본 정보 먼저 저장
                 const response = await fetch(`${API_BASE_URL}/users/me`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify(updatedData)
                 });
                 const result = await response.json();
-                if (result.success) {
-                    alert('정보가 성공적으로 수정되었습니다.');
-                    currentUserData = result.user;
-                    renderUserInfo(false);
-                    editInfoBtn.classList.remove('hidden');
-                    saveInfoBtn.classList.add('hidden');
-                    cancelEditBtn.classList.add('hidden');
-                } else {
-                    alert('정보 수정에 실패했습니다: ' + result.message);
+
+                if (!result.success) {
+                    throw new Error(result.message || '정보 수정에 실패했습니다.');
                 }
-            } catch (error) { alert('오류가 발생했습니다.'); }
+                
+                currentUserData = result.user; 
+
+                // 4. 기본 정보 저장이 성공하고, 새 추천 코드가 입력되었으면 추천 코드 등록 API 호출
+                if (newReferralCode) {
+                    const referralResponse = await fetch(`${API_BASE_URL}/users/me/referral`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify({ referral_code: newReferralCode })
+                    });
+                    const referralResult = await referralResponse.json();
+                    if (!referralResult.success) {
+                        alert(`기본 정보는 저장되었으나, 추천 코드 등록에 실패했습니다: ${referralResult.message}`);
+                    } else {
+                        const meRes = await fetch(`${API_BASE_URL}/users/me`, { headers: { 'Authorization': `Bearer ${token}` } });
+                        const meResult = await meRes.json();
+                        currentUserData = meResult.user;
+                    }
+                }
+
+                alert('정보가 성공적으로 수정되었습니다.');
+                renderUserInfo(false);
+                editInfoBtn.classList.remove('hidden');
+                saveInfoBtn.classList.add('hidden');
+                cancelEditBtn.classList.add('hidden');
+
+            } catch (error) {
+                alert('오류가 발생했습니다: ' + error.message);
+            }
         });
 
         basicInfoTable.addEventListener('click', function(event) {

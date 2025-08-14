@@ -78,6 +78,11 @@ document.addEventListener('DOMContentLoaded', function() {
         safeSetValue('potential_s', program.potential_s);
         safeSetValue('potential_g', program.potential_g);
 
+        const isAdminRecommendedCheckbox = document.getElementById('is_admin_recommended');
+        if (isAdminRecommendedCheckbox) {
+            isAdminRecommendedCheckbox.checked = program.is_admin_recommended || false;
+        }
+
         // --- [수정] 서비스 비용 정보 채우기 ---
         if (program.existing_cost_details) {
             safeSetValue('existing_cost_description', program.existing_cost_details.description);
@@ -444,6 +449,9 @@ document.addEventListener('DOMContentLoaded', function() {
             formData.append('potential_s', safeGetValue('potential_s'));
             formData.append('potential_g', safeGetValue('potential_g'));
 
+            const isAdminRecommended = document.getElementById('is_admin_recommended')?.checked || false;
+            formData.append('is_admin_recommended', isAdminRecommended);
+            
             const executionType = document.querySelector('input[name="executionType"]:checked')?.value || 'donation';
             formData.append('execution_type', executionType);
             

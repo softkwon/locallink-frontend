@@ -3,12 +3,10 @@ import { API_BASE_URL } from '/js/config.js';
 import { initializeIndustryModal } from '/js/components/industry_modal.js';
 import { openPostcodeSearch } from '/js/helpers/postcode_helper.js';
 
-// 2. 페이지의 모든 HTML 요소가 로드된 후에 아래의 모든 코드를 실행합니다.
 document.addEventListener('DOMContentLoaded', function() {
     
-    // --- 페이지에서 사용할 상태(데이터) 변수 선언 ---
-    let selectedIndustryCodes = []; // 사용자가 선택한 산업 코드를 저장하는 배열
-    let emailVerificationTimer; // 이메일 인증 타이머 ID
+    let selectedIndustryCodes = []; 
+    let emailVerificationTimer; 
 
     // --- 페이지의 HTML 요소들을 변수에 할당 ---
     const signupForm = document.getElementById('signupForm');
@@ -20,8 +18,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const passwordInput = document.getElementById('password');
     const passwordConfirmInput = document.getElementById('passwordConfirm');
     const passwordMessage = document.getElementById('password-message');
-
-    // --- 기능 함수 정의 ---
 
     /** 선택된 산업분류 코드를 화면에 태그 형태로 그려주는 함수 */
     function renderSelectedCodes() {
@@ -57,7 +53,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     /** 최종 회원가입 버튼 클릭 시 실행될 함수 */
     async function handleSignup(event) {
-        // ✨ [수정] event.preventDefault()를 맨 위로 옮겨 form의 기본 동작(새로고침)을 먼저 막습니다.
         event.preventDefault();
 
         // --- 1. 모든 유효성 검사 ---
@@ -65,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return alert('필수 약관에 동의해주세요.');
         }
         if (!signupForm.checkValidity()) {
-            signupForm.reportValidity(); // HTML5 기본 유효성 검사 메시지를 표시합니다.
+            signupForm.reportValidity(); 
             return;
         }
         if (selectedIndustryCodes.length === 0) {
@@ -76,7 +71,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (password !== passwordConfirm) {
             return alert('비밀번호가 일치하지 않습니다.');
         }
-        // TODO: 이메일 인증 완료 여부 확인 로직 추가 필요
 
         // --- 2. 백엔드 API로 전송할 데이터 생성 ---
         const formData = {
@@ -90,7 +84,8 @@ document.addEventListener('DOMContentLoaded', function() {
             email: document.getElementById('contactPersonEmail').value.trim(),
             password: password,
             interests: Array.from(document.querySelectorAll('input[name="interests"]:checked')).map(cb => cb.value),
-            verificationCode: document.getElementById('verificationCode') ? document.getElementById('verificationCode').value : undefined
+            verificationCode: document.getElementById('verificationCode') ? document.getElementById('verificationCode').value : undefined,
+            referral_code: document.getElementById('referral_code').value.trim()
         };
         
         // --- 3. 백엔드 API 호출 ---

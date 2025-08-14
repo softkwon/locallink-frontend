@@ -1,0 +1,115 @@
+<!-- 
+############################################################
+# 날짜: 2025-08-14
+# 파일 이름: admin_referral_codes.html
+# 수정할 부분: 자동 사이드바 기능 제거, 직접 헤더를 수정할 수 있도록 구조 변경
+############################################################
+-->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 페이지 - 추천 코드 관리</title>
+    <!-- 기존에 사용하시던 CSS 파일들을 연결해주세요 -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        /* 이 페이지에서만 사용할 간단한 스타일 */
+        .admin-section { max-width: 1200px; margin: 40px auto; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-body label { display: block; margin-bottom: 8px; font-weight: 600; }
+        .modal-body input, .modal-body select { width: 100%; padding: 8px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <!-- ▼▼▼ 이 헤더 부분을 다른 관리자 페이지에 맞게 직접 수정해주세요 ▼▼▼ -->
+    <header>
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">
+                    <img src="/images/logo_admin.png" alt="ESGlink Admin 로고" class="header-logo-img">
+                </a>
+            </div>
+            <nav class="desktop-nav">
+                <ul>
+                    <li><a href="admin_dashboard.html">관리자 대시보드로 돌아가기</a></li>
+                    <li><a href="index.html">ESGlink로 돌아가기</a></li>
+                </ul>
+            </nav>
+            <div class="header-right-group">
+                <div id="user-menu-container"></div>
+                <button id="mobile-menu-toggle" class="mobile-menu-toggle">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+        <div id="mobile-menu-overlay" class="mobile-menu-overlay"></div>
+        <div id="mobile-menu" class="mobile-menu"></div>
+    </header>
+    <!-- ▲▲▲ 여기까지 헤더 부분입니다 ▲▲▲ -->
+
+    <main class="container">
+        <section class="admin-section">
+            <div class="section-header">
+                <div>
+                    <h2>추천 코드 관리</h2>
+                    <p>추천 코드를 생성하고 파트너사와 연결합니다.</p>
+                </div>
+                <button id="add-code-btn" class="button-primary">신규 코드 추가</button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>추천 코드</th>
+                            <th>연결된 추천 단체</th>
+                            <th>만료일</th>
+                            <th>관리</th>
+                        </tr>
+                    </thead>
+                    <tbody id="codes-table-body">
+                        <!-- JS를 통해 데이터가 채워집니다. -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer id="footer-placeholder"></footer>
+
+    <!-- 신규 코드 추가 모달 -->
+    <div id="code-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">신규 코드 추가</h2>
+                <span class="close-button">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="code-form">
+                    <input type="hidden" id="code-id">
+                    <label for="code">추천 코드</label>
+                    <input type="text" id="code" name="code" required>
+
+                    <label for="linked-admin-id">연결할 추천 단체 (선택)</label>
+                    <select id="linked-admin-id" name="linked_admin_id">
+                        <option value="">-- 단체 선택 --</option>
+                    </select>
+
+                    <label for="expires-at">만료일 (선택)</label>
+                    <input type="datetime-local" id="expires-at" name="expires_at">
+                    
+                    <div class="modal-footer">
+                        <button type="submit" class="button-primary">저장</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 스크립트 로드 (type="module" 확인) -->
+    <script type="module" src="js/auth.js" defer></script>
+    <script type="module" src="js/admin_referral_codes.js" defer></script>
+</body>
+</html>

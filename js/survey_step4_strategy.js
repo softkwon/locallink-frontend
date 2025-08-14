@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         renderAiAnalysis(data.aiAnalysis); 
         renderBenchmarkCharts(data.userDiagnosis, data.benchmarkScores, data.userAnswers, data.allQuestions);
         renderIndustryIssues(data.industryIssues, data.userDiagnosis);
-        renderTasksAndAnalysis(data.recommendedPrograms, data.allSolutionCategories);
+        renderTasksAndAnalysis(data.priorityRecommendedPrograms, data.engineRecommendedPrograms, data.allSolutionCategories);
         renderRegionalMapAndIssues(data.userDiagnosis, data.regionalIssues); 
         renderCompanySizeIssues(data.companySizeIssue, data.userDiagnosis.company_size);
 
@@ -412,18 +412,46 @@ function equalizeSectionHeights() {
     }, 100); 
 }
 
-function renderTasksAndAnalysis(programs, allSolutionCategories) {
-    const container = document.getElementById('taskAnalysisContainer');
-    if (!container) return;
-
-    if (!programs || programs.length === 0) {
-        container.innerHTML = '<div class="solution-card" style="text-align: center;"><h4 class="solution-category-title">👍 축하합니다!</h4><p>현재 분석된 데이터를 기반으로 추천되는 시급한 ESG 개선 과제가 없습니다.</p></div>';
-        return;
-    }
+function renderTasksAndAnalysis(priorityPrograms, enginePrograms, allSolutionCategories) {
+    const priorityContainer = document.getElementById('priorityTaskContainer');
+    const engineContainer = document.getElementById('taskAnalysisContainer');
+    
+    if (!priorityContainer || !engineContainer) return;
 
     const categoryDescriptionMap = new Map((allSolutionCategories || []).map(cat => [cat.category_name, cat.description]));
 
-    const groupedPrograms = programs.reduce((acc, program) => {
+    // --- 1. 우선 추천 프로그램 렌더링 ---
+    if (priorityPrograms && priorityPrograms.length > 0) {
+        let priorityHtml = `
+            <div class="strategy-section">
+                <h3>⭐ 추천 단체 제안 프로그램</h3>
+                <div class="solution-card-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px;">
+        `;
+        
+        priorityPrograms.forEach(program => {
+            const mainEsgCategory = program.esg_category || 'E';
+            priorityHtml += `
+                <div class="solution-card category-${mainEsgCategory}">
+                    <h4 class="solution-category-title">${program.title}</h4>
+                    <p class="solution-category-description">${program.program_overview || '프로그램 개요가 없습니다.'}</p>
+                    <a href="esg_program_detail.html?id=${program.id}&from=strategy&diagId=${new URLSearchParams(window.location.search).get('diagId')}" target="_blank" class="button-primary">자세히 보기</a>
+                </div>
+            `;
+        });
+
+        priorityHtml += `</div></div>`;
+        priorityContainer.innerHTML = priorityHtml;
+    } else {
+        priorityContainer.innerHTML = ''; // 우선 추천 프로그램이 없으면 아무것도 표시하지 않음
+    }
+
+    // --- 2. 엔진 추천 프로그램 렌더링 (기존 로직 활용) ---
+    if (!enginePrograms || enginePrograms.length === 0) {
+        engineContainer.innerHTML = '<div class="solution-card" style="text-align: center;"><h4 class="solution-category-title">👍 훌륭합니다!</h4><p>현재 진단 결과, AI가 추천하는 시급한 개선 과제는 없습니다.</p></div>';
+        return;
+    }
+
+    const groupedPrograms = enginePrograms.reduce((acc, program) => {
         const categories = program.solution_categories || ['기타'];
         categories.forEach(category => {
             if (!acc[category]) acc[category] = [];
@@ -432,30 +460,24 @@ function renderTasksAndAnalysis(programs, allSolutionCategories) {
         return acc;
     }, {});
 
-    let finalHtml = '';
-
+    let engineHtml = '';
     for (const category in groupedPrograms) {
         const categoryPrograms = groupedPrograms[category];
         const description = categoryDescriptionMap.get(category) || `${category} 관련 개선이 필요합니다.`;
-        
         const mainEsgCategory = categoryPrograms[0]?.esg_category || 'E';
-
         const riskSummaries = [...new Set(categoryPrograms.map(p => p.risk_text).filter(Boolean))];
         const programLinks = categoryPrograms.map(p => `<li><a href="esg_program_detail.html?id=${p.id}&from=strategy&diagId=${new URLSearchParams(window.location.search).get('diagId')}" target="_blank">${p.title}</a></li>`).join('');
 
-        finalHtml += `
+        engineHtml += `
             <div class="solution-card category-${mainEsgCategory}">
-                
                 <h4 class="solution-category-title">${category}</h4>
                 <p class="solution-category-description">${description.substring(0, 100)}${description.length > 100 ? '...' : ''}</p>
-                
                 <div class="solution-card-content">
                     <div>
                         <h5>추천 프로그램</h5>
                         <ul class="solution-program-list">${programLinks}</ul>
                     </div>
                 </div>
-
                 <div class="details-on-hover">
                     <h4>${category}</h4>
                     <p>${description}</p>
@@ -467,8 +489,7 @@ function renderTasksAndAnalysis(programs, allSolutionCategories) {
             </div>
         `;
     }
-
-    container.innerHTML = finalHtml;
+    engineContainer.innerHTML = engineHtml;
 }
 
 function getFinancialImpactText(program, industryAverageData) {
