@@ -2,11 +2,10 @@ import { API_BASE_URL } from './config.js';
 import { checkAdminPermission } from './admin_common.js';
 
 document.addEventListener('DOMContentLoaded', async function() {
-    // 페이지 접근 권한 확인
     const hasPermission = await checkAdminPermission(['super_admin', 'vice_super_admin']);
     if (!hasPermission) return;
 
-    const token = localStorage.getItem('locallink-token'); // 토큰 이름은 실제 사용하는 이름으로 변경해주세요.
+    const token = localStorage.getItem('locallink-token'); 
 
     const tableBody = document.getElementById('codes-table-body');
     const addCodeBtn = document.getElementById('add-code-btn');
@@ -16,10 +15,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     const codeForm = document.getElementById('code-form');
     const adminSelect = document.getElementById('linked-admin-id');
 
-    // 추천 단체(관리자) 목록 불러오기
     async function loadAdmins() {
         try {
-            // ★★★ API 경로 수정 ★★★
             const response = await fetch(`${API_BASE_URL}/admin/admins-list`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -38,7 +35,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     }
 
-    // 추천 코드 목록 불러오기
     async function loadCodes() {
         try {
             const response = await fetch(`${API_BASE_URL}/admin/referral-codes`, {
@@ -69,7 +65,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     }
 
-    // 테이블 렌더링
     function renderTable(codes) {
         tableBody.innerHTML = '';
         if (codes.length === 0) {
@@ -82,6 +77,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 <td>${code.id}</td>
                 <td>${code.code}</td>
                 <td>${code.organization_name || 'N/A'}</td>
+                <td>${new Date(code.created_at).toLocaleDateString()}</td>
                 <td>${code.expires_at ? new Date(code.expires_at).toLocaleString() : '없음'}</td>
                 <td>
                     <button class="button-danger button-sm delete-btn" data-id="${code.id}">삭제</button>
@@ -91,7 +87,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
     }
 
-    // 모달 열기/닫기 및 폼 제출 로직 (이전과 동일)
     function openModal() {
         modalTitle.textContent = '신규 코드 추가';
         codeForm.reset();
@@ -150,7 +145,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     }
 
-    // 이벤트 리스너 등록
     addCodeBtn.addEventListener('click', openModal);
     closeButton.addEventListener('click', closeModal);
     window.addEventListener('click', (event) => { if (event.target == modal) closeModal(); });
@@ -161,7 +155,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     });
 
-    // 초기 데이터 로드
     loadAdmins();
     loadCodes();
 });
