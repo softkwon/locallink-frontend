@@ -1,3 +1,4 @@
+import { API_BASE_URL } from './config.js';
 import { checkAdminPermission } from './admin_common.js';
 
 document.addEventListener('DOMContentLoaded', async function() {
@@ -18,7 +19,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     // 추천 단체(관리자) 목록 불러오기
     async function loadAdmins() {
         try {
-            const response = await fetch('/api/admin/admins-list', {
+            // ★★★ API 경로 수정 ★★★
+            const response = await fetch(`${API_BASE_URL}/admin/admins-list`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
@@ -39,12 +41,11 @@ document.addEventListener('DOMContentLoaded', async function() {
     // 추천 코드 목록 불러오기
     async function loadCodes() {
         try {
-            const response = await fetch('/api/admin/referral-codes', {
+            const response = await fetch(`${API_BASE_URL}/admin/referral-codes`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
             if (response.status === 404) {
-                console.warn('추천 코드 API(/api/admin/referral-codes)를 찾을 수 없습니다. 빈 목록으로 처리합니다.');
                 renderTable([]);
                 return;
             }
@@ -57,15 +58,14 @@ document.addEventListener('DOMContentLoaded', async function() {
             if (data.success) {
                 renderTable(data.codes);
             } else {
-                alert(data.message);
+                if (data.codes && data.codes.length === 0) {
+                    renderTable([]);
+                } else {
+                    alert(data.message);
+                }
             }
         } catch (error) {
             console.error('추천 코드 로딩 실패:', error);
-            if (error.message.includes('404')) {
-                 renderTable([]); 
-            } else {
-                alert('데이터를 불러오는 데 실패했습니다. 서버 상태를 확인해주세요.');
-            }
         }
     }
 
@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             expires_at: formData.get('expires_at') || null
         };
         try {
-            const response = await fetch('/api/admin/referral-codes', {
+            const response = await fetch(`${API_BASE_URL}/admin/referral-codes`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify(codeData)
@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     async function deleteCode(codeId) {
         if (!confirm(`정말로 이 추천 코드를 삭제하시겠습니까?`)) return;
         try {
-            const response = await fetch(`/api/admin/referral-codes/${codeId}`, {
+            const response = await fetch(`${API_BASE_URL}/admin/referral-codes/${codeId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
