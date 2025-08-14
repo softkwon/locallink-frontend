@@ -60,32 +60,52 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     function renderUserTable(users) {
+        // 이 함수는 js/admin_user_list.js 파일 내에 있어야 합니다.
+        // 전역 스코프에 tableBodyEl, currentUserRole, getMyUserId() 함수가 있어야 합니다.
+        const tableBodyEl = document.getElementById('userListTableBody');
+        const loadingEl = document.getElementById('loadingMessage');
+        const tableEl = document.getElementById('userListTable');
+
         if (!tableBodyEl) return;
         tableBodyEl.innerHTML = '';
+        
         if (users.length === 0) {
-            tableBodyEl.innerHTML = `<tr><td colspan="9" style="text-align:center;">등록된 회원이 없습니다.</td></tr>`;
+            tableBodyEl.innerHTML = `<tr><td colspan="11" style="text-align:center;">등록된 회원이 없습니다.</td></tr>`;
+            if(loadingEl) loadingEl.style.display = 'none';
+            if(tableEl) tableEl.classList.remove('hidden');
             return;
         }
 
-        const myUserId = getMyUserId(); 
+        const myUserId = getMyUserId(); // auth.js에서 export된 함수
 
         users.forEach(user => {
             const row = tableBodyEl.insertRow();
+
+            // --- 요청하신 순서대로 테이블 셀(td)을 생성합니다. ---
+            
+            // 1. ID
             row.insertCell().textContent = user.id;
+            
+            // 2. 이메일
             row.insertCell().textContent = user.email;
+            
+            // 3. 회사명
             row.insertCell().textContent = user.company_name || '-';
+            
+            // 4. 담당자명
             row.insertCell().textContent = user.manager_name || '-';
+            
+            // 5. 전화번호
             row.insertCell().textContent = user.manager_phone || '-';
             
+            // 6. 역할 (Role)
             const roleCell = row.insertCell();
-            const actionCell = row.insertCell();
-
-            const canEditRole = (currentUserRole === 'super_admin' && user.id !== myUserId) ||
-                                (currentUserRole === 'vice_super_admin' && user.role !== 'super_admin');
-
             const roleSelect = document.createElement('select');
             roleSelect.className = 'form-control-sm';
             roleSelect.dataset.userid = user.id;
+            
+            const canEditRole = (currentUserRole === 'super_admin' && user.id !== myUserId) ||
+                                (currentUserRole === 'vice_super_admin' && user.role !== 'super_admin');
             
             const roles = ['user', 'content_manager', 'user_manager', 'vice_super_admin', 'super_admin'];
             roles.forEach(role => {
@@ -101,15 +121,22 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
             roleCell.appendChild(roleSelect);
             
+            // 7. 가입일 (Join Date)
+            row.insertCell().textContent = new Date(user.created_at).toLocaleDateString();
+
+            // 8. 추천 코드 (Referral Code)
+            row.insertCell().textContent = user.used_referral_code || '-';
+
+            // 9. 추천 단체 (Recommending Org)
+            row.insertCell().textContent = user.recommending_organization_name || '-';
+            
+            // 10. 레벨 (Level)
             const levelCell = row.insertCell();
             levelCell.innerHTML = `<span class="user-level-badge level-${user.level}">LV.${user.level}</span>`;
             levelCell.style.textAlign = 'center';
             
-            row.insertCell().textContent = new Date(user.created_at).toLocaleDateString();
-
-            row.insertCell().textContent = user.used_referral_code || '-';
-            row.insertCell().textContent = user.recommending_organization_name || '-';
-            
+            // 11. 관리 (Manage)
+            const actionCell = row.insertCell();
             if (canEditRole) {
                 actionCell.innerHTML = `
                     <div class="button-group">
