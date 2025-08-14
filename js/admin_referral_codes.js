@@ -42,6 +42,17 @@ document.addEventListener('DOMContentLoaded', async function() {
             const response = await fetch('/api/admin/referral-codes', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
+
+            if (response.status === 404) {
+                console.warn('추천 코드 API(/api/admin/referral-codes)를 찾을 수 없습니다. 빈 목록으로 처리합니다.');
+                renderTable([]);
+                return;
+            }
+            
+            if (!response.ok) {
+                throw new Error(`서버 응답 오류: ${response.status}`);
+            }
+
             const data = await response.json();
             if (data.success) {
                 renderTable(data.codes);
@@ -50,7 +61,11 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
         } catch (error) {
             console.error('추천 코드 로딩 실패:', error);
-            alert('데이터를 불러오는 데 실패했습니다.');
+            if (error.message.includes('404')) {
+                 renderTable([]); 
+            } else {
+                alert('데이터를 불러오는 데 실패했습니다. 서버 상태를 확인해주세요.');
+            }
         }
     }
 
