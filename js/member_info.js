@@ -50,16 +50,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function renderUserInfo(isEditing = false) {
-    if (!currentUserData || !document.getElementById('basicInfoTable')) return;
-    const tbody = document.getElementById('basicInfoTable').querySelector('tbody');
-    if (!tbody) return;
+        if (!currentUserData || !document.getElementById('basicInfoTable')) return;
+        const tbody = document.getElementById('basicInfoTable').querySelector('tbody');
+        if (!tbody) return;
 
-    const { 
-        email, company_name, industry_codes, representative, address, 
-        business_location, manager_name, manager_phone, interests, 
-        profile_image_url, agreed_to_marketing, used_referral_code, 
-        recommending_organization_name = null 
-    } = currentUserData;
+        const { 
+            email, company_name, industry_codes, representative, address, 
+            business_location, manager_name, manager_phone, interests, 
+            profile_image_url, agreed_to_marketing, used_referral_code, 
+            recommending_organization_name = null 
+        } = currentUserData;
         
         const addressParts = (address || '').match(/(.*)\s\((\d{5})\)\s*(.*)/) || [null, address || '', '', ''];
         const mainAddress = addressParts[1];
@@ -105,16 +105,19 @@ document.addEventListener('DOMContentLoaded', function() {
             <tr><th>담당자명</th><td>${isEditing ? `<input type="text" id="edit_manager_name" class="form-control" value="${manager_name || ''}">` : manager_name || "-"}</td></tr>
             <tr><th>담당자 연락처</th><td>${isEditing ? `<input type="tel" id="edit_manager_phone" class="form-control" value="${manager_phone || ''}">` : manager_phone || "-"}</td></tr>
             <tr><th>관심분야</th><td>
-                ${isEditing 
-                    ? Object.keys(allInterestOptions).map(catKey => `<div class="interest-category-edit"><h5>${catKey}</h5><div class="checkbox-group-vertical">${allInterestOptions[catKey].map(opt => `<label><input type="checkbox" name="edit_interests" value="${opt.value}" ${ safeInterests.includes(opt.value) ? 'checked' : ''}> ${opt.text}</label>`).join('')}</div></div>`).join('')
-                    : (safeInterests.length > 0) ? `<ul class="interest-list">${safeInterests.map(val => `<li>${Object.values(allInterestOptions).flat().find(opt => opt.value === val)?.text || ''}</li>`).join('')}</ul>` : "<span>-</span>"}
+            ${isEditing 
+                ? Object.keys(allInterestOptions).map(catKey => `<div class="interest-category-edit"><h5>${catKey}</h5><div class="checkbox-group-vertical">${allInterestOptions[catKey].map(opt => `<label><input type="checkbox" name="edit_interests" value="${opt.value}" ${ safeInterests.includes(opt.value) ? 'checked' : ''}> ${opt.text}</label>`).join('')}</div></div>`).join('')
+                : (safeInterests.length > 0) ? `<ul class="interest-list">${safeInterests.map(val => `<li>${Object.values(allInterestOptions).flat().find(opt => opt.value === val)?.text || ''}</li>`).join('')}</ul>` : "<span>-</span>"}
             </td></tr>
             <tr>
                 <th>추천 코드</th>
                 <td>
                     ${isEditing
-                        ? (used_referral_code ? `<input type="text" class="form-control readonly-input" value="${used_referral_code}" readonly>` : `<input type="text" id="edit_referral_code" class="form-control" placeholder="추천 코드가 있다면 입력해주세요.">`)
-                        : `${used_referral_code || "-"} ${used_referral_code ? `<button id="deleteReferralBtn" class="button-danger button-sm" style="margin-left:10px;">삭제</button>` : ''}`
+                        ? (used_referral_code 
+                            ? `<div style="display:flex; align-items:center; gap:10px;"><input type="text" class="form-control readonly-input" value="${used_referral_code}" readonly><button id="deleteReferralBtn" class="button-danger button-sm">삭제</button></div>` 
+                            : `<input type="text" id="edit_referral_code" class="form-control" placeholder="추천 코드가 있다면 입력해주세요.">`
+                        )
+                        : used_referral_code || "-"
                     }
                 </td>
             </tr>
@@ -259,6 +262,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function attachEventListeners() {
+        if (!document.getElementById('basicInfoTable')) return;
+
+        const editInfoBtn = document.getElementById('editInfoBtn');
+        const saveInfoBtn = document.getElementById('saveInfoBtn');
+        const cancelEditBtn = document.getElementById('cancelEditBtn');
+        const withdrawalBtn = document.getElementById('withdrawalBtn');
+        const basicInfoTable = document.getElementById('basicInfoTable');
+
         editInfoBtn.addEventListener('click', () => { 
             renderUserInfo(true); 
             editInfoBtn.classList.add('hidden');
@@ -274,7 +285,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         saveInfoBtn.addEventListener('click', async () => {
-            // 1. 기본 정보 수집
             const updatedData = {
                 companyName: document.getElementById('edit_company_name').value,
                 representativeName: document.getElementById('edit_representative').value,
@@ -287,12 +297,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 agreed_to_marketing: document.getElementById('edit_agree_marketing')?.checked || false
             };
 
-            // 2. 새로 입력된 추천 코드 값 가져오기
             const referralCodeInput = document.getElementById('edit_referral_code');
-            const newReferralCode = referralCodeInput ? referralCodeInput.value.trim() : null;
+            const newReferralCode = document.getElementById('edit_referral_code')?.value.trim() || null;
 
             try {
-                // 3. 기본 정보 먼저 저장
                 const response = await fetch(`${API_BASE_URL}/users/me`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -306,7 +314,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 currentUserData = result.user; 
 
-                // 4. 기본 정보 저장이 성공하고, 새 추천 코드가 입력되었으면 추천 코드 등록 API 호출
                 if (newReferralCode) {
                     const referralResponse = await fetch(`${API_BASE_URL}/users/me/referral`, {
                         method: 'PUT',
@@ -336,17 +343,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
         basicInfoTable.addEventListener('click', async function(event) {
             if (event.target.id === 'deleteReferralBtn') {
-                if (confirm('등록된 추천 코드 정보를 삭제하시겠습니까?')) {
+                if (confirm('등록된 추천 코드 정보를 삭제하시겠습니까? 삭제 후 새로운 코드를 등록할 수 있습니다.')) {
                     try {
                         const response = await fetch(`${API_BASE_URL}/users/me/referral`, {
                             method: 'DELETE',
-                            headers: { 'Authorization': `Bearer ${token}` }
+                            headers: { 'Authorization': `Bearer ${localStorage.getItem('locallink-token')}` }
                         });
                         const result = await response.json();
                         alert(result.message);
                         if(result.success) {
-                            // 성공 시, 최신 사용자 정보로 다시 렌더링
-                            await initializePage();
+                            currentUserData.used_referral_code = null;
+                            currentUserData.recommending_organization_name = null;
+                            currentUserData.recommending_organization_id = null;
+                            renderUserInfo(true);
                         }
                     } catch (error) {
                         alert('추천 코드 삭제 중 오류가 발생했습니다.');
