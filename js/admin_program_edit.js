@@ -23,15 +23,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let existingImages = {}; 
     let newSectionFiles = {}; 
+    let currentUserRole = null;
 
     async function initializePage() {
         if (!form) {
             console.error('오류: 폼 요소를 찾을 수 없습니다. HTML의 form 태그 id를 확인해주세요.');
             return;
         }
-        const hasPermission = await checkAdminPermission(['super_admin', 'content_manager']);
-        if (!hasPermission) return;
         
+        const permissionResult = await checkAdminPermission(['super_admin', 'content_manager'], true); 
+        
+        if (!permissionResult.hasPermission) return;
+        
+        currentUserRole = permissionResult.user.role; 
+
+        if (currentUserRole === 'super_admin') {
+            const authorContainer = document.getElementById('author-select-container');
+            if (authorContainer) {
+                authorContainer.style.display = 'block';
+                await loadContentManagers(); 
+            }
+        }
+
         attachEventListeners(); 
 
         if (isEditMode) {
@@ -44,6 +57,26 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    async function loadContentManagers() {
+        const authorSelect = document.getElementById('author_id');
+        if (!authorSelect) return;
+        try {
+            const response = await fetch(`${API_BASE_URL}/admin/admins-list`, { headers: { 'Authorization': `Bearer ${token}` } });
+            const result = await response.json();
+            if (result.success) {
+                authorSelect.innerHTML = '<option value="">-- 소유자 선택 (기본: 본인) --</option>';
+                result.admins.forEach(admin => {
+                    const option = document.createElement('option');
+                    option.value = admin.id;
+                    option.textContent = `${admin.company_name} (ID: ${admin.id})`;
+                    authorSelect.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.error("콘텐츠 매니저 목록 로딩 실패:", error);
+        }
+    }
+    
     async function loadAndRenderProgramData() {
         try {
             const response = await fetch(`${API_BASE_URL}/admin/programs/${programId}`, {
@@ -439,6 +472,13 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const formData = new FormData();
             
+            if (currentUserRole === 'super_admin') {
+                const authorId = document.getElementById('author_id').value;
+                if (authorId) {
+                    formData.append('author_id', authorId);
+                }
+            }
+
             formData.append('title', safeGetValue('title'));
             formData.append('program_code', safeGetValue('program_code'));
             formData.append('esg_category', safeGetValue('esg_category'));

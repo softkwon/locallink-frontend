@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
             };
 
             if (priorityPrograms.length > 0) {
-                prioritySection.classList.remove('hidden');
+                if(prioritySection) prioritySection.classList.remove('hidden');
                 renderProgramSection(priorityContainer, priorityPrograms, "");
             }
 
