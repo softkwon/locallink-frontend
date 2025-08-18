@@ -110,9 +110,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>
                     ${isEditing
                         ? (used_referral_code ? `<input type="text" class="form-control readonly-input" value="${used_referral_code}" readonly>` : `<input type="text" id="edit_referral_code" class="form-control" placeholder="추천 코드가 있다면 입력해주세요.">`)
-                        : used_referral_code || "-"
+                        : `${used_referral_code || "-"} ${used_referral_code ? `<button id="deleteReferralBtn" class="button-danger button-sm" style="margin-left:10px;">삭제</button>` : ''}`
                     }
                 </td>
+            </tr>
+            <tr>
+                <th>추천 단체</th>
+                <td>${recommending_organization_name || "-"}</td>
             </tr>
             <tr>
                 <th>마케팅 정보 수신</th>
@@ -131,7 +135,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    /** 수정 모드에서 선택된 산업 코드를 태그로 그려주는 함수 */
     function renderSelectedEditCodes() {
         const container = document.getElementById('selected_codes_container');
         const displayInput = document.getElementById('edit_industry_code_display');
@@ -251,7 +254,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    /** 이벤트 리스너(기능) 연결 함수 */
     function attachEventListeners() {
         editInfoBtn.addEventListener('click', () => { 
             renderUserInfo(true); 
@@ -328,7 +330,25 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        basicInfoTable.addEventListener('click', function(event) {
+        basicInfoTable.addEventListener('click', async function(event) {
+            if (event.target.id === 'deleteReferralBtn') {
+                if (confirm('등록된 추천 코드 정보를 삭제하시겠습니까?')) {
+                    try {
+                        const response = await fetch(`${API_BASE_URL}/users/me/referral`, {
+                            method: 'DELETE',
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        const result = await response.json();
+                        alert(result.message);
+                        if(result.success) {
+                            // 성공 시, 최신 사용자 정보로 다시 렌더링
+                            await initializePage();
+                        }
+                    } catch (error) {
+                        alert('추천 코드 삭제 중 오류가 발생했습니다.');
+                    }
+                }
+            }
             if (event.target.id === 'edit_industry_btn') {
                 initializeIndustryModal({
                     initialSelection: selectedIndustryCodesForEdit.map(code => ({ 

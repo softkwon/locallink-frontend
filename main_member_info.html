@@ -109,20 +109,19 @@
         .history-item-buttons {
             display: flex;
             gap: 5px;
-            flex-shrink: 0; /* 버튼이 줄어들지 않도록 설정 */
+            flex-shrink: 0;
         }
         .history-item-text {
             margin-right: 10px;
         }
 
-        /* --- 문의 내역 스타일 --- */
         .inquiry-item-text {
             flex-grow: 1;
             white-space: nowrap;
             overflow: hidden;
-            text-overflow: ellipsis; /* 말줄임표(...) 효과 */
+            text-overflow: ellipsis; 
             margin-right: 10px;
-            cursor: default; /* 마우스오버 시 커서 기본 모양 */
+            cursor: default; 
         }
         .inquiry-status {
             padding: 2px 6px;
@@ -135,7 +134,7 @@
         .status-new { background-color: #007bff; }
         .status-in_progress { background-color: #ffc107; color: #333; }
         .status-resolved { background-color: #28a745; }
-        /* ★★★ 반응형 웹 디자인을 위한 미디어 쿼리 ★★★ */
+
         @media (max-width: 768px) {
             .info-table th, 
             .info-table td {
@@ -243,6 +242,8 @@
                         <tr><th>담당자 연락처</th><td data-field="contactPersonPhone"><span>-</span></td></tr>
                         <tr><th>관심분야</th><td data-field="interests"><span>-</span></td></tr>
                         <tr><th>추천 코드</th><td data-field="referralCode"><span>-</span></td></tr>
+                        <tr><th>추천 단체</th><td data-field="recommendingOrganization"><span>-</span></td></tr>
+                        <tr><th>마케팅 정보 수신</th><td data-field="marketingConsent"><span>-</span></td></tr>
                     </tbody>
                 </table>
                 <div class="action-buttons">
