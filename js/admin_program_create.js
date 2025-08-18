@@ -3,7 +3,6 @@ import { checkAdminPermission } from './admin_common.js';
 
 document.addEventListener('DOMContentLoaded', function() {
     
-    // --- 1. 기본 변수 선언 ---
     const token = localStorage.getItem('locallink-token');
     const form = document.getElementById('createProgramForm');
     
@@ -19,21 +18,30 @@ document.addEventListener('DOMContentLoaded', function() {
     const addServiceCostBtn = document.getElementById('add-service-cost-btn');
 
     let newSectionFiles = {}; 
+    let currentUserRole = null;
 
-    // --- 2. 페이지 초기화 ---
     async function initializePage() {
         if (!form) {
             console.error('오류: 폼 요소를 찾을 수 없습니다. HTML id를 확인해주세요.');
             return;
         }
-        const hasPermission = await checkAdminPermission(['super_admin', 'content_manager']);
-        if (!hasPermission) {
+        
+        const permissionResult = await checkAdminPermission(['super_admin', 'content_manager'], true);
+        if (!permissionResult.hasPermission) {
             form.innerHTML = '<h2>접근 권한이 없습니다.</h2>';
             return;
         }
+        currentUserRole = permissionResult.user.role;
+
+        if (currentUserRole === 'super_admin') {
+            const authorContainer = document.getElementById('author-select-container');
+            if (authorContainer) {
+                authorContainer.style.display = 'block';
+                await loadContentManagers();
+            }
+        }
         
         attachEventListeners();
-
         addSectionRow(); 
         addEffectRow(); 
         addOrganizationRow(); 
@@ -41,7 +49,26 @@ document.addEventListener('DOMContentLoaded', function() {
         addServiceCostRow();
     }
 
-    // --- 3. 동적 UI 생성 함수들 ---
+    async function loadContentManagers() {
+        const authorSelect = document.getElementById('author_id');
+        if (!authorSelect) return;
+        try {
+            const response = await fetch(`${API_BASE_URL}/admin/admins-list`, { headers: { 'Authorization': `Bearer ${token}` } });
+            const result = await response.json();
+            if (result.success) {
+                authorSelect.innerHTML = '<option value="">-- 소유자 선택 (기본: 본인) --</option>';
+                result.admins.forEach(admin => {
+                    const option = document.createElement('option');
+                    option.value = admin.id;
+                    option.textContent = `${admin.company_name} (ID: ${admin.id})`;
+                    authorSelect.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.error("콘텐츠 매니저 목록 로딩 실패:", error);
+        }
+    }    
+
     function addSectionRow() {
         const sectionId = 'section-' + Date.now() + Math.random().toString(36).substr(2, 9);
         newSectionFiles[sectionId] = [];
@@ -205,7 +232,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return element ? element.value : '';
     }
 
-    // --- 4. 폼 제출 핸들러 ---
     async function handleProgramSubmit(event) {
         event.preventDefault();
         const submitButton = form.querySelector('button[type="submit"]');
@@ -215,6 +241,15 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const formData = new FormData();
             
+            if (currentUserRole === 'super_admin') {
+                const authorId = document.getElementById('author_id').value;
+                if (authorId) {
+                    formData.append('author_id', authorId);
+                }
+            }
+            const isAdminRecommended = document.getElementById('is_admin_recommended')?.checked || false;
+            formData.append('is_admin_recommended', isAdminRecommended);
+
             formData.append('title', safeGetValue('title'));
             formData.append('program_code', safeGetValue('program_code'));
             formData.append('esg_category', safeGetValue('esg_category'));

@@ -60,6 +60,14 @@
             <form id="createProgramForm">
                 <fieldset class="form-fieldset">
                     <legend>기본 정보</legend>
+                    <div class="form-group" id="author-select-container" style="display: none;">
+                        <label for="author_id">프로그램 소유자 (Super Admin 전용)</label>
+                        <select id="author_id" class="form-control">
+                            <!-- JS를 통해 채워집니다. -->
+                        </select>
+                        <p class="form-text">이 프로그램을 특정 파트너사(콘텐츠 매니저)의 소유로 지정할 수 있습니다.</p>
+                    </div>
+
                     <div class="form-group">
                         <label for="title">프로그램 제목 *</label>
                         <input type="text" id="title" class="form-control" required>
@@ -114,6 +122,14 @@
                         </div>
                     </div>
                     
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="is_admin_recommended">
+                            관리자 우선 추천으로 지정
+                        </label>
+                        <p class="form-text">체크 시, 진단 결과와 상관없이 추천 프로그램 목록 상단에 항상 노출됩니다.</p>
+                    </div>
+
                     <div class="form-group-inline">
                         <div class="form-group">
                             <label for="potential_e">예상 개선 점수 (E)</label>

@@ -10,7 +10,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const priorityContainer = document.getElementById('priority-programs-container');
     const recommendedContainer = document.getElementById('recommended-programs-container');
     const regionalContainer = document.getElementById('regional-programs-container');
-    const allProgramsContainer = document.getElementById('all-programs-container');
 
     let allProgramsCache = [];
     let initialScores = null;
@@ -53,12 +52,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 total: parseFloat(strategyData.userDiagnosis.total_score) || 0
             };
 
-            if (priorityPrograms.length > 0) {
-                if(prioritySection) prioritySection.classList.remove('hidden');
-                renderProgramSection(priorityContainer, priorityPrograms, "");
-            } else {
-                renderProgramSection(priorityContainer, [], "추천 단체에서 제안한 프로그램이 없습니다.");
-            }
+            renderProgramSection(priorityContainer, priorityPrograms, "추천 단체에서 제안한 프로그램이 없습니다.");
 
             const priorityCategorySet = new Set(priorityPrograms.flatMap(p => p.solution_categories || []));
             const filteredEnginePrograms = enginePrograms.filter(program => {
@@ -73,12 +67,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 !recommendedIds.has(p.id) && p.service_regions && userRegion && 
                 (p.service_regions.includes(userRegion) || p.service_regions.includes('전국'))
             );
-            const regionalIds = new Set(regionalPrograms.map(p => p.id));
-            otherProgramsCache = allProgramsCache.filter(p => !recommendedIds.has(p.id) && !regionalIds.has(p.id));
             
             renderProgramSection(regionalContainer, regionalPrograms, "우리 회사 지역에 맞는 프로그램이 없습니다.");
-            
-            if(allProgramsContainer) allProgramsContainer.innerHTML = '';
             
             updateSimulator();
             
@@ -219,17 +209,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function attachEventListeners() {
-        const loadMoreBtn = document.getElementById('loadMoreProgramsBtn');
-        if (loadMoreBtn) {
-            loadMoreBtn.addEventListener('click', () => {
-                renderProgramSection(allProgramsContainer, otherProgramsCache, "더 이상 표시할 프로그램이 없습니다.");
-                
-                if (allProgramsContainer) allProgramsContainer.style.display = 'grid';
-                loadMoreBtn.style.display = 'none';
-            });
-        }
-
+    function attachEventListeners() {       
         document.addEventListener('click', async e => {
             const target = e.target;
 
