@@ -49,10 +49,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    /** 사용자 정보를 화면에 그려주는 함수 (수정 모드 포함) */
     function renderUserInfo(isEditing = false) {
-        if (!currentUserData || !basicInfoTable) return;
-        const tbody = basicInfoTable.querySelector('tbody');
+        if (!currentUserData || !document.getElementById('basicInfoTable')) return;
+        const tbody = document.getElementById('basicInfoTable').querySelector('tbody');
         if (!tbody) return;
 
         const { email, company_name, industry_codes, representative, address, business_location, manager_name, manager_phone, interests, profile_image_url, agreed_to_marketing, used_referral_code } = currentUserData;
@@ -61,11 +60,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const mainAddress = addressParts[1];
         const postalCode = addressParts[2];
         const detailAddress = addressParts[3];
-        
-        const profileImageUrl = (profile_image_url && profile_image_url.startsWith('http'))
-        ? profile_image_url  
-        : `${STATIC_BASE_URL}/images/default_avatar.png`;   
-        
+
+        const finalProfileImageUrl = (profile_image_url && profile_image_url.startsWith('http'))
+            ? profile_image_url
+            : `/images/default_avatar.png`; 
+
         const locations = [ { value: "", text: "선택하세요" }, { value: "서울", text: "서울특별시" }, { value: "부산", text: "부산광역시" }, { value: "대구", text: "대구광역시" }, { value: "인천", text: "인천광역시" }, { value: "광주", text: "광주광역시" }, { value: "대전", text: "대전광역시" }, { value: "울산", text: "울산광역시" }, { value: "세종", text: "세종특별자치시" }, { value: "경기", text: "경기도" }, { value: "강원", text: "강원특별자치도" }, { value: "충북", text: "충청북도" }, { value: "충남", text: "충청남도" }, { value: "전북", text: "전북특별자치도" }, { value: "전남", text: "전라남도" }, { value: "경북", text: "경상북도" }, { value: "경남", text: "경상남도" }, { value: "제주", text: "제주특별자치도" } ];
         const allInterestOptions = {
             E: [ { text: "온실가스 배출 감축", value: "E_interest_1" }, { text: "에너지 사용 효율화", value: "E_interest_2" }, { text: "폐기물 및 자원순환 관리", value: "E_interest_3" }, { text: "오염물질 저감 및 수질·대기 관리", value: "E_interest_4" }, { text: "친환경 인증 및 제품 개발", value: "E_interest_5" } ],
@@ -78,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <tr>
                 <th>프로필 이미지</th>
                 <td>
-                    <div id="profileImagePreview" style="width:100px; height:100px; border-radius:50%; background:#eee; margin-bottom:10px; background-image: url('${profile_image_url || '/images/default_avatar.png'}'); background-size: cover; background-position: center;"></div>
+                    <div id="profileImagePreview" style="width:100px; height:100px; border-radius:50%; background:#eee; margin-bottom:10px; background-image: url('${finalProfileImageUrl}'); background-size: cover; background-position: center;"></div>
                     <div id="profileImageUploader" style="display: ${isEditing ? 'block' : 'none'};">
                         <input type="file" id="profileImageInput" accept="image/*" style="display: block; margin-bottom: 5px;">
                         <button type="button" id="uploadProfileImageBtn" class="button-secondary button-sm">이미지 업로드</button>
@@ -95,7 +94,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <tr><th>대표자명</th><td>${isEditing ? `<input type="text" id="edit_representative" class="form-control" value="${representative || ''}">` : representative || "-"}</td></tr>
             <tr><th>회사주소</th><td>
                 ${isEditing 
-                    ? `<div style="display:flex; flex-direction:column; gap:8px;"><div style="display:flex; gap:10px;"><input type="text" id="edit_postalCode" class="form-control readonly-input" value="${(address || '').split('(')[1]?.split(')')[0] || ''}"><button type="button" id="edit_search_post_btn" class="button-secondary">우편번호 검색</button></div><input type="text" id="edit_address" class="form-control readonly-input" value="${(address || '').split('(')[0].trim()}"><input type="text" id="edit_address_detail" class="form-control" value="${(address || '').split(')')[1]?.trim() || ''}"></div>` 
+                    ? `<div style="display:flex; flex-direction:column; gap:8px;"><div style="display:flex; gap:10px;"><input type="text" id="edit_postalCode" class="form-control readonly-input" value="${postalCode}"><button type="button" id="edit_search_post_btn" class="button-secondary">우편번호 검색</button></div><input type="text" id="edit_address" class="form-control readonly-input" value="${mainAddress}"><input type="text" id="edit_address_detail" class="form-control" value="${detailAddress}"></div>` 
                     : address || "-"}
             </td></tr>
             <tr><th>주요사업장 소재지</th><td>${isEditing ? `<select id="edit_business_location" class="form-control">${locations.map(loc => `<option value="${loc.value}" ${loc.value === business_location ? 'selected' : ''}>${loc.text}</option>`).join('')}</select>`: (locations.find(l => l.value === business_location)?.text || "-")}</td></tr>
@@ -103,8 +102,8 @@ document.addEventListener('DOMContentLoaded', function() {
             <tr><th>담당자 연락처</th><td>${isEditing ? `<input type="tel" id="edit_manager_phone" class="form-control" value="${manager_phone || ''}">` : manager_phone || "-"}</td></tr>
             <tr><th>관심분야</th><td>
                 ${isEditing 
-                    ? Object.keys(allInterestOptions).map(catKey => `<div class="interest-category-edit"><h5>${catKey}</h5><div class="checkbox-group-vertical">${allInterestOptions[catKey].map(opt => `<label><input type="checkbox" name="edit_interests" value="${opt.value}" ${ (interests || []).includes(opt.value) ? 'checked' : ''}> ${opt.text}</label>`).join('')}</div></div>`).join('')
-                    : ((interests || []).length > 0) ? `<ul class="interest-list">${interests.map(val => `<li>${Object.values(allInterestOptions).flat().find(opt => opt.value === val)?.text || ''}</li>`).join('')}</ul>` : "<span>-</span>"}
+                    ? Object.keys(allInterestOptions).map(catKey => `<div class="interest-category-edit"><h5>${catKey}</h5><div class="checkbox-group-vertical">${allInterestOptions[catKey].map(opt => `<label><input type="checkbox" name="edit_interests" value="${opt.value}" ${ safeInterests.includes(opt.value) ? 'checked' : ''}> ${opt.text}</label>`).join('')}</div></div>`).join('')
+                    : (safeInterests.length > 0) ? `<ul class="interest-list">${safeInterests.map(val => `<li>${Object.values(allInterestOptions).flat().find(opt => opt.value === val)?.text || ''}</li>`).join('')}</ul>` : "<span>-</span>"}
             </td></tr>
             <tr>
                 <th>추천 코드</th>
