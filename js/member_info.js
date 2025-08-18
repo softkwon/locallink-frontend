@@ -50,11 +50,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function renderUserInfo(isEditing = false) {
-        if (!currentUserData || !document.getElementById('basicInfoTable')) return;
-        const tbody = document.getElementById('basicInfoTable').querySelector('tbody');
-        if (!tbody) return;
+    if (!currentUserData || !document.getElementById('basicInfoTable')) return;
+    const tbody = document.getElementById('basicInfoTable').querySelector('tbody');
+    if (!tbody) return;
 
-        const { email, company_name, industry_codes, representative, address, business_location, manager_name, manager_phone, interests, profile_image_url, agreed_to_marketing, used_referral_code } = currentUserData;
+    const { 
+        email, company_name, industry_codes, representative, address, 
+        business_location, manager_name, manager_phone, interests, 
+        profile_image_url, agreed_to_marketing, used_referral_code, 
+        recommending_organization_name = null 
+    } = currentUserData;
         
         const addressParts = (address || '').match(/(.*)\s\((\d{5})\)\s*(.*)/) || [null, address || '', '', ''];
         const mainAddress = addressParts[1];
@@ -77,10 +82,9 @@ document.addEventListener('DOMContentLoaded', function() {
             <tr>
                 <th>프로필 이미지</th>
                 <td>
-                    <div id="profileImagePreview" style="width:100px; height:100px; border-radius:50%; background:#eee; margin-bottom:10px; background-image: url('${finalProfileImageUrl}'); background-size: cover; background-position: center;"></div>
+                    <div id="profileImagePreview" style="width:100px; height:100px; border-radius:50%; background-image: url('${finalProfileImageUrl}'); background-size: cover; background-position: center;"></div>
                     <div id="profileImageUploader" style="display: ${isEditing ? 'block' : 'none'};">
-                        <input type="file" id="profileImageInput" accept="image/*" style="display: block; margin-bottom: 5px;">
-                        <button type="button" id="uploadProfileImageBtn" class="button-secondary button-sm">이미지 업로드</button>
+                        <input type="file" id="profileImageInput" accept="image/*"><button type="button" id="uploadProfileImageBtn" class="button-secondary button-sm">이미지 업로드</button>
                     </div>
                 </td>
             </tr>
@@ -88,13 +92,13 @@ document.addEventListener('DOMContentLoaded', function() {
             <tr><th>회사명</th><td>${isEditing ? `<input type="text" id="edit_company_name" class="form-control" value="${company_name || ''}">` : company_name || "-"}</td></tr>
             <tr><th>산업분류코드</th><td>
                 ${isEditing 
-                    ? `<div style="position: relative;"><input type="text" id="edit_industry_code_display" class="form-control readonly-input" style="margin-bottom:8px;" readonly placeholder="우측 ⓘ 아이콘으로 검색/선택"><div id="selected_codes_container"></div><span class="info-icon-member-edit" id="edit_industry_btn">ⓘ</span></div>` 
+                    ? `<div style="position: relative;"><input type="text" id="edit_industry_code_display" class="form-control readonly-input" readonly><div id="selected_codes_container"></div><span class="info-icon-member-edit" id="edit_industry_btn">ⓘ</span></div>` 
                     : (industry_codes && industry_codes.length > 0) ? `<ul class="interest-list">${industry_codes.map(code => `<li>[${code}] ${window.allIndustriesDataForLookup.find(i => i.code === code)?.name || ''}</li>`).join('')}</ul>` : "<span>-</span>"}
             </td></tr>
             <tr><th>대표자명</th><td>${isEditing ? `<input type="text" id="edit_representative" class="form-control" value="${representative || ''}">` : representative || "-"}</td></tr>
             <tr><th>회사주소</th><td>
                 ${isEditing 
-                    ? `<div style="display:flex; flex-direction:column; gap:8px;"><div style="display:flex; gap:10px;"><input type="text" id="edit_postalCode" class="form-control readonly-input" value="${postalCode}"><button type="button" id="edit_search_post_btn" class="button-secondary">우편번호 검색</button></div><input type="text" id="edit_address" class="form-control readonly-input" value="${mainAddress}"><input type="text" id="edit_address_detail" class="form-control" value="${detailAddress}"></div>` 
+                    ? `<div style="display:flex; flex-direction:column; gap:8px;"><div style="display:flex; gap:10px;"><input type="text" id="edit_postalCode" class="form-control readonly-input" value="${(address || '').split('(')[1]?.split(')')[0] || ''}"><button type="button" id="edit_search_post_btn" class="button-secondary">우편번호 검색</button></div><input type="text" id="edit_address" class="form-control readonly-input" value="${(address || '').split('(')[0].trim()}"><input type="text" id="edit_address_detail" class="form-control" value="${(address || '').split(')')[1]?.trim() || ''}"></div>` 
                     : address || "-"}
             </td></tr>
             <tr><th>주요사업장 소재지</th><td>${isEditing ? `<select id="edit_business_location" class="form-control">${locations.map(loc => `<option value="${loc.value}" ${loc.value === business_location ? 'selected' : ''}>${loc.text}</option>`).join('')}</select>`: (locations.find(l => l.value === business_location)?.text || "-")}</td></tr>
