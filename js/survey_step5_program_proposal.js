@@ -220,6 +220,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function attachEventListeners() {
+        const loadMoreBtn = document.getElementById('loadMoreProgramsBtn');
+        if (loadMoreBtn) {
+            loadMoreBtn.addEventListener('click', () => {
+                renderProgramSection(allProgramsContainer, otherProgramsCache, "더 이상 표시할 프로그램이 없습니다.");
+                
+                if (allProgramsContainer) allProgramsContainer.style.display = 'grid';
+                loadMoreBtn.style.display = 'none';
+            });
+        }
+
         document.addEventListener('click', async e => {
             const target = e.target;
 
