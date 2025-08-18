@@ -143,29 +143,19 @@ async function checkLoginAndRenderHeader() {
 function attachHeaderLinkListeners() {
     const token = localStorage.getItem('locallink-token');
 
-    const advancedLink = document.getElementById('startAdvancedDiagnosisLink');
-    if (advancedLink) {
-        advancedLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            alert('관리자에게 문의하세요.');
-        });
-    }
+    document.body.addEventListener('click', async (e) => {
+        const simpleLink = e.target.closest('#startSimpleDiagnosisLink');
+        const advancedLink = e.target.closest('#startAdvancedDiagnosisLink');
 
-    const simpleLink = document.getElementById('startSimpleDiagnosisLink');
-    if(simpleLink) {
-        simpleLink.addEventListener('click', async (e) => {
+        if (simpleLink) {
             e.preventDefault();
             if (!token) { 
                 alert('로그인이 필요한 서비스입니다.');
                 return window.location.href = 'main_login.html';
             }
-            
             try {
-                const response = await fetch(`${API_BASE_URL}/diagnoses/check-eligibility`, { 
-                    headers: { 'Authorization': `Bearer ${token}` } 
-                });
+                const response = await fetch(`${API_BASE_URL}/diagnoses/check-eligibility`, { headers: { 'Authorization': `Bearer ${token}` } });
                 const result = await response.json();
-
                 if (result.success && result.eligible) {
                     sessionStorage.removeItem('currentDiagnosisId');
                     window.location.href = 'survey_step1.html';
@@ -176,8 +166,14 @@ function attachHeaderLinkListeners() {
                 console.error("진단 자격 확인 중 에러:", error);
                 alert('오류가 발생했습니다. 잠시 후 다시 시도해주세요.'); 
             }
-        });
-    }
+        }
+
+        if (advancedLink) {
+            e.preventDefault();
+            alert('관리자에게 문의하세요.');
+        }
+    });
+
 
     const menuButton = document.getElementById('user-menu-button');
     const dropdown = document.getElementById('user-menu-dropdown');
@@ -217,7 +213,8 @@ function attachHeaderLinkListeners() {
         }
     });
     document.addEventListener('click', (e) => {
-        if (menuButton && dropdown && !menuButton.contains(e.target) && !dropdown.contains(e.target)) {
+        const userMenu = document.getElementById('user-menu');
+        if (userMenu && dropdown && !userMenu.contains(e.target)) {
             dropdown.style.display = 'none';
         }
     });
