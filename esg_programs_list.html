@@ -1,3 +1,10 @@
+<!-- 
+############################################################
+# 날짜: 2025-08-18
+# 파일 이름: esg_programs_list.html
+# 수정할 부분: E, S, G 대분류 및 솔루션 카드 아코디언 형태로 UI/UX 전면 개편
+############################################################
+-->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -6,49 +13,89 @@
     <title>ESG 실천 프로그램 - ESGlink</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/components.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        /* --- 기존 카드 스타일은 유지 --- */
-        .program-card-grid { display: grid; gap: 30px; grid-template-columns: 1fr; }
-        @media (min-width: 768px) { .program-card-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (min-width: 992px) { .program-card-grid { grid-template-columns: repeat(3, 1fr); } }
-        .program-card { background-color: #fff; border: 1px solid #e9ecef; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); display: flex; flex-direction: column; transition: all 0.3s ease; overflow: hidden; }
-        .program-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.12); }
-        .card-image { width: 100%; height: 180px; object-fit: cover; background-color: #f8f9fa; }
-        .card-content { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; }
-        .card-content h4 { margin: 0 0 10px 0; font-size: 1.2em; color: #343a40; }
-        .card-content .overview { font-size: 0.9em; color: #6c757d; line-height: 1.6; margin-bottom: 15px; flex-grow: 1; }
-        .card-content .service-regions { font-size: 0.8em; color: #868e96; margin-top: auto; }
-        .program-actions { padding: 15px 20px; border-top: 1px solid #f1f3f5; background-color: #fcfcfc; text-align: right; }
+        /* ★★★ 페이지 UI/UX 개편을 위한 신규 스타일 ★★★ */
+        .page-header { text-align: center; margin-bottom: 40px; }
 
-        /* ★★★ 아코디언 UI 스타일 (신규 추가) ★★★ */
-        .accordion-item {
-            background-color: #ffffff;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-            overflow: hidden;
+        /* E, S, G 대분류 그리드 */
+        .esg-main-grid {
+            display: grid;
+            grid-template-columns: 1fr; /* 모바일에서는 1열 */
+            gap: 30px;
         }
-        .accordion-header {
-            padding: 20px 25px;
+        @media (min-width: 992px) {
+            .esg-main-grid {
+                grid-template-columns: repeat(3, 1fr); /* 데스크탑에서는 3열 */
+            }
+        }
+
+        /* E, S, G 각 컬럼 스타일 */
+        .esg-category-column {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            padding: 25px;
+        }
+        .esg-category-column h2 {
+            margin: 0 0 25px 0;
+            padding-bottom: 15px;
+            border-bottom: 2px solid;
+            font-size: 1.8em;
+            text-align: center;
+        }
+        #category-E h2 { border-color: #28a745; color: #28a745; }
+        #category-S h2 { border-color: #ffc107; color: #ffc107; }
+        #category-G h2 { border-color: #6f42c1; color: #6f42c1; }
+
+        /* 솔루션 카테고리 아코디언 아이템 */
+        .solution-card-item {
+            background-color: #ffffff;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transition: box-shadow 0.3s ease;
+        }
+        .solution-card-item:hover { box-shadow: 0 6px 15px rgba(0,0,0,0.1); }
+
+        .solution-card-header {
+            padding: 15px 20px;
             cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: background-color 0.3s ease;
         }
-        .accordion-header:hover { background-color: #f8f9fa; }
-        .accordion-header-content h3 { margin: 0; font-size: 1.4em; color: #0056b3; }
-        .accordion-header-content p { margin: 5px 0 0 0; color: #6c757d; font-size: 0.95em; }
-        .accordion-arrow { font-size: 1.5em; color: #adb5bd; transition: transform 0.3s ease; }
-        .accordion-header.active .accordion-arrow { transform: rotate(180deg); }
-        .accordion-panel {
-            padding: 0 25px 25px 25px;
+        .solution-card-header-content h3 { margin: 0; font-size: 1.1em; color: #343a40; }
+        .solution-card-header-content p { margin: 4px 0 0 0; color: #6c757d; font-size: 0.85em; }
+        .solution-card-arrow { font-size: 1.2em; color: #adb5bd; transition: transform 0.3s ease; }
+        .solution-card-header.active .solution-card-arrow { transform: rotate(180deg); }
+        
+        .solution-card-panel {
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.4s ease-out, padding 0.4s ease-out;
-            border-top: 1px solid #e9ecef;
+        }
+        .program-link-list {
+            list-style: none;
+            padding: 15px 20px;
+            margin: 0;
+            border-top: 1px solid #f1f3f5;
+        }
+        .program-link-list li { margin-bottom: 10px; }
+        .program-link-list li:last-child { margin-bottom: 0; }
+        .program-link-list a {
+            text-decoration: none;
+            color: #007bff;
+            font-weight: 500;
+            font-size: 0.95em;
+            display: block;
+            padding: 8px 12px;
+            border-radius: 5px;
+            transition: background-color 0.2s ease;
+        }
+        .program-link-list a:hover {
+            background-color: #e9f7ff;
+            color: #0056b3;
         }
     </style>
 </head>
@@ -88,18 +135,28 @@
         <div class="page-header">
             <h1>ESGlink ESG 프로그램</h1>
             <p>우리 기업에 필요한 ESG 활동을 탐색하고 지속가능한 성장을 계획하세요.</p> 
-            <p>기부금으로 프로그램을 이용할 수 있습니다.(일부 프로그램 제외)</p>
         </div>
 
         <div id="loadingMessage" style="text-align:center; padding: 50px;"><p>프로그램 목록을 불러오는 중입니다...</p></div>
 
-        <div id="program-accordion-container">
-            <!-- JS를 통해 아코디언 UI가 여기에 생성됩니다. -->
+        <!-- ★★★ 프로그램 목록을 표시할 새로운 컨테이너 ★★★ -->
+        <div id="esg-category-container" class="esg-main-grid">
+            <div class="esg-category-column" id="category-E">
+                <h2>환경 (E)</h2>
+                <div class="solution-cards-wrapper"></div>
+            </div>
+            <div class="esg-category-column" id="category-S">
+                <h2>사회 (S)</h2>
+                <div class="solution-cards-wrapper"></div>
+            </div>
+            <div class="esg-category-column" id="category-G">
+                <h2>지배구조 (G)</h2>
+                <div class="solution-cards-wrapper"></div>
+            </div>
         </div>
     </main>
     <footer id="footer-placeholder"></footer>
     
-
     <script type="module" src="js/auth.js" defer></script>
     <script type="module" src="js/esg_programs_list.js" defer></script>
 </body>

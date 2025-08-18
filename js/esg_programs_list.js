@@ -1,15 +1,14 @@
-import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
+
+import { API_BASE_URL } from './config.js';
 
 document.addEventListener('DOMContentLoaded', function() {
     
-    const accordionContainer = document.getElementById('program-accordion-container');
+    const esgContainer = document.getElementById('esg-category-container');
     const loadingEl = document.getElementById('loadingMessage');
-    const token = localStorage.getItem('locallink-token');
     const diagId = new URLSearchParams(window.location.search).get('diagId');
-    const hasCompletedDiagnosis = !!diagId; 
 
     async function initializePage() {
-        if (!accordionContainer) return;
+        if (!esgContainer) return;
 
         try {
             const [programsRes, categoriesRes] = await Promise.all([
@@ -21,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const categoriesResult = await categoriesRes.json();
 
             if (programsResult.success && categoriesResult.success) {
-                displayProgramsByCategory(programsResult.programs, categoriesResult.categories);
+                displayProgramsByEsgCategory(programsResult.programs, categoriesResult.categories);
                 attachEventListeners();
             } else {
                 throw new Error(programsResult.message || categoriesResult.message);
@@ -34,84 +33,66 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     
-    function displayProgramsByCategory(programs, categories) {
-        if (!accordionContainer) return;
-        accordionContainer.innerHTML = '';
-
-        const programsByCat = {};
+    function displayProgramsByEsgCategory(programs, categories) {
+        // 1. 프로그램을 솔루션 카테고리 이름별로 그룹화
+        const programsByCatName = {};
         programs.forEach(program => {
             (program.solution_categories || []).forEach(catName => {
-                if (!programsByCat[catName]) {
-                    programsByCat[catName] = [];
-                }
-                programsByCat[catName].push(program);
+                if (!programsByCatName[catName]) programsByCatName[catName] = [];
+                programsByCatName[catName].push(program);
             });
         });
 
+        // 2. 솔루션 카테고리를 E, S, G 대분류별로 그룹화
+        const categoriesByParent = { E: [], S: [], G: [] };
         categories.forEach(category => {
-            const categoryPrograms = programsByCat[category.category_name] || [];
-            if (categoryPrograms.length === 0) return; 
-
-            const accordionItem = document.createElement('div');
-            accordionItem.className = 'accordion-item';
-            
-            accordionItem.innerHTML = `
-                <div class="accordion-header">
-                    <div class="accordion-header-content">
-                        <h3>${category.category_name}</h3>
-                        <p>${category.description || '카테고리 설명이 없습니다.'}</p>
-                    </div>
-                    <span class="accordion-arrow">▼</span>
-                </div>
-                <div class="accordion-panel">
-                    <div class="program-card-grid">
-                        ${categoryPrograms.map(program => renderProgramCard(program)).join('')}
-                    </div>
-                </div>
-            `;
-            accordionContainer.appendChild(accordionItem);
+            if (categoriesByParent[category.parent_category]) {
+                categoriesByParent[category.parent_category].push(category);
+            }
         });
-    }
 
-    
-    function renderProgramCard(program) {
-        const representativeImage = program.content && program.content[0]?.images?.length > 0 
-            ? (program.content[0].images[0].startsWith('http') ? program.content[0].images[0] : `${STATIC_BASE_URL}/${program.content[0].images[0]}`)
-            : '/images/default_program.png';
-        
-        const regionsText = (program.service_regions && program.service_regions.length > 0) ? program.service_regions.join(', ') : '전국';
-        const detailUrl = `esg_program_detail.html?id=${program.id}${diagId ? '&diagId='+diagId : ''}`;
+        // 3. 각 대분류(E, S, G)를 순회하며 UI 생성
+        for (const parentCat in categoriesByParent) {
+            const container = document.querySelector(`#category-${parentCat} .solution-cards-wrapper`);
+            if (!container) continue;
 
-        let actionsHtml = `<button type="button" class="button-primary button-sm apply-btn" data-program-id="${program.id}" data-program-title="${program.title}">신청하기</button>`;
-        if (hasCompletedDiagnosis) {
-            actionsHtml = `
-                <button type="button" class="button-secondary button-sm add-to-plan-btn" data-program-id="${program.id}" data-program-title="${program.title}">내 플랜에 담기</button>
-                ${actionsHtml}
-            `;
-        }
+            container.innerHTML = '';
+            const solutionCategories = categoriesByParent[parentCat];
 
-        return `
-            <div class="program-card">
-                <a href="${detailUrl}" target="_blank" style="text-decoration:none; color:inherit; display:flex; flex-direction:column; flex-grow:1;">
-                    <img src="${representativeImage}" alt="${program.title}" class="card-image">
-                    <div class="card-content">
-                        <span class="category-badge category-${program.esg_category.toLowerCase()}">${program.esg_category}</span>
-                        <h4>${program.title}</h4>
-                        <p class="overview">${program.program_overview || '프로그램 개요가 없습니다.'}</p>
-                        <div class="service-regions"><strong>서비스 지역:</strong> ${regionsText}</div>
+            solutionCategories.forEach(category => {
+                const categoryPrograms = programsByCat[category.category_name] || [];
+                if (categoryPrograms.length === 0) return; // 프로그램이 없는 카테고리는 표시하지 않음
+
+                const accordionItem = document.createElement('div');
+                accordionItem.className = 'solution-card-item';
+                accordionItem.innerHTML = `
+                    <div class="solution-card-header">
+                        <div class="solution-card-header-content">
+                            <h3>${category.category_name}</h3>
+                            <p>${category.description || ''}</p>
+                        </div>
+                        <span class="solution-card-arrow">▼</span>
                     </div>
-                </a>
-                <div class="program-actions">${actionsHtml}</div>
-            </div>
-        `;
+                    <div class="solution-card-panel">
+                        <ul class="program-link-list">
+                            ${categoryPrograms.map(p => `<li><a href="esg_program_detail.html?id=${p.id}${diagId ? '&diagId='+diagId : ''}" target="_blank">${p.title}</a></li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+                container.appendChild(accordionItem);
+            });
+        }
     }
 
-    
+    /**
+     * 이벤트 리스너를 연결하는 함수
+     */
     function attachEventListeners() {
-        if (!accordionContainer) return;
+        if (!esgContainer) return;
         
-        accordionContainer.addEventListener('click', e => {
-            const header = e.target.closest('.accordion-header');
+        // 아코디언 토글 이벤트 (이벤트 위임)
+        esgContainer.addEventListener('click', e => {
+            const header = e.target.closest('.solution-card-header');
             if (header) {
                 header.classList.toggle('active');
                 const panel = header.nextElementSibling;
@@ -121,58 +102,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     panel.style.maxHeight = panel.scrollHeight + "px";
                 }
             }
-
-            const button = e.target.closest('button');
-            if (button) {
-                handleButtonClick(button);
-            }
         });
-    }
-
-    
-    async function handleButtonClick(button) {
-        const programId = button.dataset.programId;
-        if (!programId) return;
-
-        const programTitle = button.dataset.programTitle;
-
-        if (button.classList.contains('add-to-plan-btn')) {
-            let myPlan = JSON.parse(localStorage.getItem('esgMyPlan')) || [];
-            if (myPlan.some(p => p.id == programId)) {
-                alert('이미 플랜에 추가된 프로그램입니다.');
-                return;
-            }
-            myPlan.push({ id: parseInt(programId), title: programTitle });
-            localStorage.setItem('esgMyPlan', JSON.stringify(myPlan));
-            alert(`'${programTitle}' 프로그램이 내 플랜에 추가되었습니다.\n[ESG프로그램 제안] 페이지의 시뮬레이터에서 확인하세요.`);
-        }
-
-        if (button.classList.contains('apply-btn')) {
-            if (!token) {
-                alert('로그인이 필요한 기능입니다.');
-                window.location.href = 'main_login.html';
-                return;
-            }
-            
-            if (!hasCompletedDiagnosis) {
-                alert("먼저 간이진단을 진행하세요.");
-                return;
-            }
-            
-            if (confirm(`'${programTitle}' 프로그램을 신청하시겠습니까?`)) {
-                try {
-                    const response = await fetch(`${API_BASE_URL}/applications/me`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                        body: JSON.stringify({ programId: parseInt(programId) })
-                    });
-                    const result = await response.json();
-                    alert(result.message);
-                } catch (error) {
-                    alert('신청 처리 중 오류가 발생했습니다.');
-                }
-            }
-        }
     }
 
     initializePage();
