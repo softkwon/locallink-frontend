@@ -460,14 +460,16 @@
                 <p>지역 맞춤 프로그램을 불러오는 중입니다...</p>
             </div>
         </section>        
-        <section>
-            <h3>전체 프로그램 둘러보기</h3>
-            <div class="program-proposal-grid" id="all-programs-container">
-                </div>
-            <div class="form-actions" style="text-align: center; margin-top: 20px;">
-                <a id="viewAllProgramsLink" href="esg_programs_list.html" class="button-secondary">전체 프로그램 더보기</a>
+        <section class="strategy-section" style="background-color: #f0f6ff; border: 1px solid #cce0ff; text-align: center;">
+             <h3>더 많은 프로그램 둘러보기</h3>
+            <p style="margin-bottom: 25px; color: #555;">진단 결과 외에도 ESGlink가 제공하는 다양한 프로그램을 확인해보세요.</p>
+
+             <div class="program-proposal-grid" id="all-programs-container" style="display: none; margin-bottom: 25px;">
+                <!-- JS를 통해 채워집니다. -->
             </div>
-            
+            <div class="form-actions" style="text-align: center; margin-top: 0;">
+                <button type="button" id="loadMoreProgramsBtn" class="button-primary">전체 프로그램 더보기</button>
+            </div>
         </section>
     </main>
     <footer id="footer-placeholder"></footer>

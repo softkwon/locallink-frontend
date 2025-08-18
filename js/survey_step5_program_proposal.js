@@ -52,18 +52,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 total: parseFloat(strategyData.userDiagnosis.total_score) || 0
             };
 
-            renderProgramSection(priorityContainer, priorityPrograms, "추천 단체에서 제안한 프로그램이 없습니다.");
+            if (priorityPrograms.length > 0) {
+                if(prioritySection) prioritySection.classList.remove('hidden');
+                renderProgramSection(priorityContainer, priorityPrograms, "");
+            } else {
+                renderProgramSection(priorityContainer, [], "추천 단체에서 제안한 프로그램이 없습니다.");
+            }
 
-            const priorityCategorySet = new Set(
-                priorityPrograms.flatMap(p => p.solution_categories || [])
-            );
-
+            const priorityCategorySet = new Set(priorityPrograms.flatMap(p => p.solution_categories || []));
             const filteredEnginePrograms = enginePrograms.filter(program => {
                 const programCategories = program.solution_categories || [];
                 const hasOverlap = programCategories.some(cat => priorityCategorySet.has(cat));
                 return !hasOverlap;
             });
-
             renderProgramSection(recommendedContainer, filteredEnginePrograms, "진단 결과에 따른 맞춤 추천 프로그램이 없습니다.");
 
             const recommendedIds = new Set([...priorityPrograms, ...enginePrograms].map(p => p.id));
@@ -72,10 +73,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 (p.service_regions.includes(userRegion) || p.service_regions.includes('전국'))
             );
             const regionalIds = new Set(regionalPrograms.map(p => p.id));
-            const otherPrograms = allProgramsCache.filter(p => !recommendedIds.has(p.id) && !regionalIds.has(p.id));
+            otherProgramsCache = allProgramsCache.filter(p => !recommendedIds.has(p.id) && !regionalIds.has(p.id));
             
             renderProgramSection(regionalContainer, regionalPrograms, "우리 회사 지역에 맞는 프로그램이 없습니다.");
-            renderProgramSection(allProgramsContainer, otherPrograms.slice(0, 3), "다른 프로그램이 없습니다.");
+            
+            if(allProgramsContainer) allProgramsContainer.innerHTML = '';
             
             updateSimulator();
             
