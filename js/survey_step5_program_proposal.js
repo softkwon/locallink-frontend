@@ -5,6 +5,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const token = localStorage.getItem('locallink-token');
     const diagId = new URLSearchParams(window.location.search).get('diagId');
     const mainContainer = document.querySelector('main.container');
+    const prioritySection = document.getElementById('priority-programs-section');
+    const priorityContainer = document.getElementById('priority-programs-container');
     const recommendedContainer = document.getElementById('recommended-programs-container');
     const regionalContainer = document.getElementById('regional-programs-container');
     const allProgramsContainer = document.getElementById('all-programs-container');
@@ -24,43 +26,46 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function loadAndRenderAll() {
         try {
-            const [programsRes, dashboardRes, userRes] = await Promise.all([
-                fetch(`${API_BASE_URL}/programs`),
-                fetch(`${API_BASE_URL}/users/me/dashboard`, { headers: { 'Authorization': `Bearer ${token}` } }),
-                fetch(`${API_BASE_URL}/users/me`, { headers: { 'Authorization': `Bearer ${token}` } })
+            // 1. API 호출을 strategy 엔드포인트로 변경하고, 전체 프로그램 목록도 함께 가져옵니다.
+            const [strategyRes, allProgramsRes] = await Promise.all([
+                fetch(`${API_BASE_URL}/strategy/${diagId}`, { headers: { 'Authorization': `Bearer ${token}` } }),
+                fetch(`${API_BASE_URL}/programs`)
             ]);
 
-            const programsResult = await programsRes.json();
-            if (!programsResult.success) throw new Error('프로그램 목록 로딩 실패');
-            allProgramsCache = programsResult.programs;
+            if (!strategyRes.ok) throw new Error('전략 데이터를 불러오는 데 실패했습니다.');
+            const strategyResult = await strategyRes.json();
+            if (!strategyResult.success) throw new Error(strategyResult.message);
+            const strategyData = strategyResult.strategyData;
 
-            const dashboardResult = await dashboardRes.json();
-            if (dashboardResult.success) {
-                initialScores = dashboardResult.dashboard.realtimeScores;
-            } else {
-                initialScores = { e: 50, s: 50, g: 50, total: 50 };
+            if (!allProgramsRes.ok) throw new Error('전체 프로그램 목록을 불러오는 데 실패했습니다.');
+            const allProgramsResult = await allProgramsRes.json();
+            if (allProgramsResult.success) allProgramsCache = allProgramsResult.programs;
+
+            // 2. API로부터 받은 데이터를 변수에 할당합니다.
+            const priorityPrograms = strategyData.priorityRecommendedPrograms || [];
+            const enginePrograms = strategyData.engineRecommendedPrograms || [];
+            const userRegion = strategyData.userDiagnosis.business_location;
+            initialScores = strategyData.aiAnalysis; // 시뮬레이터용 점수
+
+            // 3. 각 섹션에 맞는 프로그램을 렌더링합니다.
+            // 우선 추천 프로그램 렌더링
+            if (priorityPrograms.length > 0) {
+                prioritySection.classList.remove('hidden');
+                renderProgramSection(priorityContainer, priorityPrograms, "");
             }
 
-            const statusRes = await fetch(`${API_BASE_URL}/users/me/diagnosis-status?diagId=${diagId}`, { headers: { 'Authorization': `Bearer ${token}` } });
-            let diagnosisStatus = { recommended_program_ids: [] };
-            if (statusRes.ok) {
-                const statusResult = await statusRes.json();
-                if (statusResult.success) diagnosisStatus = statusResult;
-            }
+            // 진단 추천 프로그램 렌더링
+            renderProgramSection(recommendedContainer, enginePrograms, "진단 결과에 따른 맞춤 추천 프로그램이 없습니다.");
 
-            let userRegion = null;
-            if (userRes.ok) {
-                const userResult = await userRes.json();
-                if(userResult.success) userRegion = userResult.user.business_location;
-            }
-
-            const recommendedIds = new Set(diagnosisStatus.recommended_program_ids || []);
-            const recommendedPrograms = allProgramsCache.filter(p => recommendedIds.has(p.id));
-            const regionalPrograms = allProgramsCache.filter(p => !recommendedIds.has(p.id) && p.service_regions && userRegion && (p.service_regions.includes(userRegion) || p.service_regions.includes('전국')));
+            // 4. 지역 및 기타 프로그램 필터링 (중복 제거)
+            const recommendedIds = new Set([...priorityPrograms, ...enginePrograms].map(p => p.id));
+            const regionalPrograms = allProgramsCache.filter(p => 
+                !recommendedIds.has(p.id) && p.service_regions && userRegion && 
+                (p.service_regions.includes(userRegion) || p.service_regions.includes('전국'))
+            );
             const regionalIds = new Set(regionalPrograms.map(p => p.id));
             const otherPrograms = allProgramsCache.filter(p => !recommendedIds.has(p.id) && !regionalIds.has(p.id));
             
-            renderProgramSection(recommendedContainer, recommendedPrograms, "진단 결과에 따른 맞춤 추천 프로그램이 없습니다.");
             renderProgramSection(regionalContainer, regionalPrograms, "우리 회사 지역에 맞는 프로그램이 없습니다.");
             renderProgramSection(allProgramsContainer, otherPrograms.slice(0, 3), "다른 프로그램이 없습니다.");
             
