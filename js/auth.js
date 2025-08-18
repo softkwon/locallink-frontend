@@ -1,14 +1,8 @@
-// js/auth.js (2025-07-01 23:55:00) - 최종 완성본
 import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
 
-let sessionTimerInterval; // 세션 타이머의 interval ID를 저장하는 전역 변수
+let sessionTimerInterval; 
 
-// --- 모바일 햄버거 메뉴 기능 ---
-/**
- * 파일명: js/auth.js
- * 수정 위치: initializeMobileMenu 함수 전체
- * 수정 일시: 2025-07-04 03:50
- */
+
 function initializeMobileMenu() {
     const toggleButton = document.getElementById('mobile-menu-toggle');
     const mobileMenu = document.getElementById('mobile-menu');
@@ -17,24 +11,19 @@ function initializeMobileMenu() {
 
     if (!toggleButton || !mobileMenu || !desktopNavList || !overlay) return;
 
-    // --- ★★★ 메뉴 복제 로직 수정 ★★★ ---
-    // 기존 innerHTML 복사 대신, 각 메뉴 항목을 순회하며 '현재 href 속성'을 복사합니다.
     const mobileNavList = document.createElement('ul');
     
-    // 데스크탑 메뉴의 모든 li 항목을 가져옵니다.
     const desktopListItems = desktopNavList.querySelectorAll(':scope > li');
 
     desktopListItems.forEach(item => {
-        // 각 항목을 그대로 복제합니다. 이렇게 하면 이벤트 리스너는 복제되지 않지만,
-        // href나 class 같은 속성은 그대로 복사됩니다.
+        
         const clonedItem = item.cloneNode(true);
         mobileNavList.appendChild(clonedItem);
     });
 
-    mobileMenu.innerHTML = ''; // 기존 내용을 비우고
-    mobileMenu.appendChild(mobileNavList); // 새로 만든 리스트를 추가합니다.
+    mobileMenu.innerHTML = ''; 
+    mobileMenu.appendChild(mobileNavList); 
 
-    // --- (이하 메뉴 열고 닫는 기능은 기존과 동일) ---
     function openMenu() {
         mobileMenu.classList.add('is-open');
         overlay.classList.add('is-active');
@@ -46,7 +35,6 @@ function initializeMobileMenu() {
 
     toggleButton.addEventListener('click', (e) => {
         e.stopPropagation();
-        // ★★★ 다른 페이지의 스크립트가 링크를 업데이트할 시간을 벌기 위해, 메뉴를 열 때마다 내용을 다시 복제합니다. ★★★
         if (!mobileMenu.classList.contains('is-open')) {
             const currentDesktopListItems = desktopNavList.querySelectorAll(':scope > li');
             const newMobileNavList = document.createElement('ul');
@@ -120,8 +108,6 @@ async function checkLoginAndRenderHeader() {
             </div>
         `;
         
-        // ★★★ 수정된 부분 ★★★
-        // 기존 menuContainer의 innerHTML을 수정하여, 알림 아이콘 관련 HTML을 user-menu 앞에 추가합니다.
         menuContainer.innerHTML = `
             <div class="notification-container">
                 <button id="notification-bell-btn" class="notification-bell">
@@ -145,8 +131,6 @@ async function checkLoginAndRenderHeader() {
         attachHeaderLinkListeners();
         startSessionTimer(token);
         
-        // ★★★ 추가된 부분 ★★★
-        // 사용자 메뉴가 그려진 후, 알림 기능을 초기화하는 함수를 호출합니다.
         initializeNotifications();
 
     } catch (error) {
@@ -155,13 +139,10 @@ async function checkLoginAndRenderHeader() {
     }
 }
 
-/**
- * 헤더의 모든 링크와 버튼에 이벤트 리스너를 연결하는 함수
- */
+
 function attachHeaderLinkListeners() {
     const token = localStorage.getItem('locallink-token');
 
-    // '심화진단' 버튼 클릭 이벤트
     const advancedLink = document.getElementById('startAdvancedDiagnosisLink');
     if (advancedLink) {
         advancedLink.addEventListener('click', (e) => {
@@ -170,7 +151,6 @@ function attachHeaderLinkListeners() {
         });
     }
 
-    // '간이진단' 버튼 클릭 이벤트
     const simpleLink = document.getElementById('startSimpleDiagnosisLink');
     if(simpleLink) {
         simpleLink.addEventListener('click', async (e) => {
@@ -179,20 +159,26 @@ function attachHeaderLinkListeners() {
                 alert('로그인이 필요한 서비스입니다.');
                 return window.location.href = 'main_login.html';
             }
+            
             try {
-                const response = await fetch(`${API_BASE_URL}/diagnoses/count`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const response = await fetch(`${API_BASE_URL}/diagnoses/check-eligibility`, { 
+                    headers: { 'Authorization': `Bearer ${token}` } 
+                });
                 const result = await response.json();
-                if (result.success && result.count < result.limit) {
+
+                if (result.success && result.eligible) {
                     sessionStorage.removeItem('currentDiagnosisId');
                     window.location.href = 'survey_step1.html';
                 } else {
-                    alert(`진단 횟수(${result.limit}회)를 모두 사용하셨습니다.\n회원정보에서 이전 진단 기록을 삭제하고 다시 시도해주세요.`);
+                    alert('추천코드가 필요합니다. 관리자에게 문의하세요.');
                 }
-            } catch (error) { alert('오류가 발생했습니다.'); }
+            } catch (error) { 
+                console.error("진단 자격 확인 중 에러:", error);
+                alert('오류가 발생했습니다. 잠시 후 다시 시도해주세요.'); 
+            }
         });
     }
 
-    // 사용자 메뉴 드롭다운 관련 이벤트
     const menuButton = document.getElementById('user-menu-button');
     const dropdown = document.getElementById('user-menu-dropdown');
     if (menuButton && dropdown) {
@@ -237,9 +223,7 @@ function attachHeaderLinkListeners() {
     });
 }
 
-/**
- * 로그아웃을 처리하는 공통 함수
- */
+
 function logout(message = '로그아웃 되었습니다.') {
     localStorage.removeItem('locallink-token');
     sessionStorage.clear();
@@ -272,9 +256,7 @@ function startSessionTimer(token) {
     }
 }
 
-/**
- * 모달창을 생성하고 화면에 표시하는 공통 함수
- */
+
 function showModal(title, contentHtml, onModalOpen) {
     document.querySelector('.modal-overlay')?.remove();
     const modalOverlay = document.createElement('div');
@@ -295,9 +277,7 @@ function showModal(title, contentHtml, onModalOpen) {
     }
 }
 
-/**
- * '나의 진단 이력' 데이터를 API로 가져와 모달로 표시하는 함수
- */
+
 async function fetchAndShowHistory() {
     try {
         const token = localStorage.getItem('locallink-token');
@@ -308,7 +288,6 @@ async function fetchAndShowHistory() {
             result.history.forEach(item => {
                 const date = new Date(item.created_at).toLocaleDateString();
                 const score = parseFloat(item.total_score || 0).toFixed(1);
-                // ★★★ '결과보기' 링크를 step4 전략 페이지로 수정합니다. ★★★
                 contentHtml += `<div class="modal-list-item"><span>${date} - 종합점수: <strong>${score}점</strong></span><div class="button-group"><a href="survey_step3_esg_result.html?diagId=${item.id}" class="button-secondary button-sm">결과보기</a><button type="button" class="button-danger button-sm delete-diagnosis-btn" data-diag-id="${item.id}">삭제</button></div></div>`;
             });
         } else {
@@ -337,9 +316,7 @@ async function fetchAndShowHistory() {
     }
 }
 
-/**
- * '나의 문의 내역' 데이터를 API로 가져와 모달로 표시하는 함수
- */
+
 async function fetchAndShowInquiries() {
     try {
         const token = localStorage.getItem('locallink-token');
@@ -366,12 +343,7 @@ async function fetchAndShowInquiries() {
     }
 }
 
-/**
- * ★★★ getCompanySizeName 함수를 auth.js에 추가합니다. ★★★
- * 회사 규모 영문 코드를 한글명으로 변환하는 함수
- * @param {string} sizeCode - 'large', 'medium' 등 영문 코드
- * @returns {string} - '대기업', '중견기업' 등 한글명
- */
+
 function getCompanySizeName(sizeCode) {
     const sizeMap = {
         'large': '대기업',
@@ -382,9 +354,7 @@ function getCompanySizeName(sizeCode) {
     return sizeMap[sizeCode] || sizeCode;
 }
 
-/**
- * footer.html을 불러와서 푸터를 완성하고, 이벤트 리스너를 연결하는 함수
- */
+
 async function loadAndRenderFooter() {
     const placeholder = document.getElementById('footer-placeholder');
     if (!placeholder) return;
@@ -418,7 +388,6 @@ async function loadAndRenderFooter() {
             }
         }
         
-        // 푸터가 그려진 후, 문의하기 버튼에 기능을 연결합니다.
         attachContactModalEvents();
 
     } catch (error) { 
@@ -426,11 +395,8 @@ async function loadAndRenderFooter() {
     }
 }
 
-/**
- * '문의하기' 버튼에 클릭 이벤트를 연결하는 함수
- */
+
 function attachContactModalEvents() {
-    // 헤더와 푸터에 있는 모든 '문의하기' 버튼을 찾습니다.
     const contactTriggers = document.querySelectorAll('#navContactTrigger, #footerContactTrigger');
     const token = localStorage.getItem('locallink-token');
 
@@ -456,9 +422,7 @@ function attachContactModalEvents() {
     });
 }
 
-/**
- * '문의하기' 모달을 동적으로 생성하고 화면에 표시하는 함수
- */
+
 function showContactModal(user = {}) {
     document.querySelector('.modal-overlay')?.remove();
 
@@ -538,9 +502,7 @@ function showSuccessModal() {
     });
 }
 
-/**
- * 🔔 알림 아이콘과 관련된 모든 기능을 초기화하는 함수
- */
+
 async function initializeNotifications() {
     const token = localStorage.getItem('locallink-token');
     if (!token) return;
@@ -550,14 +512,12 @@ async function initializeNotifications() {
     const panel = document.getElementById('notification-panel');
     const list = document.getElementById('notification-list');
 
-    // HTML 요소가 없으면 함수를 종료합니다.
     if (!bellBtn || !dot || !panel || !list) {
         console.error("Notification elements not found.");
         return;
     }
 
     try {
-        // 1. 내 알림 목록 가져오기
         const response = await fetch(`${API_BASE_URL}/notifications`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -566,11 +526,9 @@ async function initializeNotifications() {
         if (result.success && result.notifications.length > 0) {
             const notifications = result.notifications;
             
-            // 2. 안 읽은 알림이 있는지 확인하고 빨간 점 표시
             const hasUnread = notifications.some(n => !n.is_read);
             dot.classList.toggle('hidden', !hasUnread);
 
-            // 3. 알림 목록 렌더링
             list.innerHTML = notifications.map(n => `
                 <li class="${n.is_read ? 'is-read' : ''}">
                     <a href="${n.link_url || '#'}">
@@ -589,12 +547,10 @@ async function initializeNotifications() {
         list.innerHTML = '<li>알림을 불러오는 데 실패했습니다.</li>';
     }
 
-    // 4. 벨 아이콘 클릭 이벤트 리스너 추가
     bellBtn.addEventListener('click', (e) => {
-        e.stopPropagation(); // 이벤트 버블링 방지
+        e.stopPropagation(); 
         panel.classList.toggle('hidden');
         
-        // 알림창이 열리고, 안 읽은 알림이 있으면 '읽음' 처리 API 호출
         if (!panel.classList.contains('hidden') && !dot.classList.contains('hidden')) {
             fetch(`${API_BASE_URL}/notifications/mark-as-read`, {
                 method: 'POST',
@@ -602,13 +558,12 @@ async function initializeNotifications() {
             }).then(res => res.json())
               .then(result => {
                 if (result.success) {
-                    dot.classList.add('hidden'); // API 호출 성공 시 바로 빨간 점 숨기기
+                    dot.classList.add('hidden'); 
                 }
               });
         }
     });
 
-    // 5. 알림창 바깥을 클릭하면 닫히도록 설정
     document.addEventListener('click', (e) => {
         if (!bellBtn.contains(e.target) && !panel.contains(e.target)) {
             panel.classList.add('hidden');
