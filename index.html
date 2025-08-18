@@ -459,138 +459,145 @@
         메인 히어로 - 그래픽 애니메이션 스타일
         ================================== */
 
+        /* 4. 전체 배경을 옅은 푸른 계열로 변경 */
         .hero-interactive {
-    background-color: #f8f9fa;
-    padding: 60px 0;
-    overflow: hidden;
-}
+            background-color: #F0F8FF; /* 옅은 하늘색 배경 */
+            padding: 80px 0;
+            overflow: hidden;
+        }
 
-/* 요청 1: 상단 텍스트 중앙 정렬 */
-.hero-interactive .intro-text {
-    text-align: center;
-    max-width: 800px; /* 텍스트 너비를 제한하여 중앙에 배치 */
-    margin: 0 auto 60px auto; /* 좌우 자동 여백으로 중앙 정렬 및 아래쪽 간격 */
-}
+        /* 요청 1: 상단 텍스트 중앙 정렬 */
+        .hero-interactive .intro-text {
+            text-align: center;
+            max-width: 800px; /* 텍스트 너비를 제한하여 중앙에 배치 */
+            margin: 0 auto 60px auto; /* 좌우 자동 여백으로 중앙 정렬 및 아래쪽 간격 */
+        }
 
-.hero-interactive .intro-text h1 {
-    font-size: 2.8em;
-    margin-bottom: 15px;
-    line-height: 1.3;
-}
-.hero-interactive .intro-text p {
-    font-size: 1.2em;
-    color: #6c757d;
-}
+        .hero-interactive .intro-text h1 {
+            font-size: 2.8em;
+            margin-bottom: 15px;
+            line-height: 1.3;
+        }
+        .hero-interactive .intro-text p {
+            font-size: 1.2em;
+            color: #6c757d;
+        }
 
-.growth-process {
-    position: relative;
-    width: 100%;
-    max-width: 800px;
-    height: 180px;
-    margin: 0 auto;
-}
+        .growth-process {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 180px; /* SVG와 아이콘이 표시될 높이 확보 */
+            margin: 0 auto;
+        }
 
-.steps-container {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    z-index: 2;
-}
+        .steps-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
 
-.growth-arrow {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-}
-.growth-arrow path {
-    /* 애니메이션 관련 속성을 모두 제거하고,
-       stroke-dashoffset을 0으로 고정하여 항상 선이 보이게 합니다. */
-    stroke-dashoffset: 0;
-}
+        /* 1. 화살표가 항상 표시되도록 수정 */
+        .growth-arrow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1; /* 아이콘보다 뒤에 위치 */
+        }
+        .growth-arrow path {
+            stroke-dashoffset: 0; /* 애니메이션 없이 즉시 표시 */
+        }
 
-.step {
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0.8); /* X, Y축 모두 중앙 정렬 */
-    transition: opacity 0.5s ease, transform 0.5s ease;
-}
+        /* 2. 원형 박스를 그래프 선 중앙에 배치 */
+        .step {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transform: translate(-50%, -50%); /* 요소의 정중앙을 기준으로 위치 잡기 */
+            z-index: 2; /* 화살표보다 위에 위치 */
+            transition: transform 0.3s ease;
+        }
 
-/* 요청 2: 원형 박스를 그래프 선 중앙에 배치 */
-.step[data-step="1"] { top: 85%; left: 6%; }
-.step[data-step="2"] { top: 50%; left: 37%; }
-.step[data-step="3"] { top: 22%; left: 69%; }
-.step[data-step="4"] { top: 10%; left: 94%; }
+        /* 각 원형 박스의 위치를 새로운 화살표 경로에 맞게 미세 조정 */
+        .step[data-step="1"] { top: 94%; left: 7%; }
+        .step[data-step="2"] { top: 77%; left: 35%; }
+        .step[data-step="3"] { top: 45%; left: 62%; }
+        .step[data-step="4"] { top: 20%; left: 88%; }
 
-.step-icon {
-    width: 80px;
-    height: 80px;
-    background-color: #fff;
-    border: 3px solid #dee2e6;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 2.5em;
-    margin-bottom: 15px;
-    transition: all 0.4s ease;
-}
+        .step:hover {
+            transform: translate(-50%, -50%) scale(1.1); /* 마우스 올리면 살짝 커지는 효과 */
+        }
 
-.step-label {
-    font-size: 1.1em;
-    font-weight: 500;
-    color: #495057;
-}
+        .step-icon {
+            width: 80px;
+            height: 80px;
+            background-color: #fff;
+            border: 3px solid #007bff; /* 파란색 테두리로 강조 */
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0, 86, 179, 0.15);
+        }
 
-.step.active {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-}
-.step[data-step="3"].active,
-.step[data-step="4"].active {
-    animation: riseUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-}
+        .step-label {
+            font-size: 1.1em;
+            font-weight: 600; /* 글씨를 조금 더 굵게 */
+            color: #343a40;
+            background-color: rgba(255, 255, 255, 0.7); /* 텍스트 배경 살짝 추가 */
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
 
-@keyframes riseUp {
-    from {
-        opacity: 0;
-        transform: translate(-50%, -30%) scale(0.8); /* Y축 시작 위치 조정 */
-    }
-    to {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1);
-    }
-}
+        /* 애니메이션 활성화 스타일 */
+        .step.active {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1); /* 원래 크기로 나타남 */
+        }
 
-.step.active .step-icon {
-    border-color: #007bff;
-    background-color: #e7f1ff;
-    box-shadow: 0 5px 15px rgba(0, 123, 255, 0.2);
-}
+        /* ★★★ 원형 박스 색상 채우는 부분 ★★★ */
+        .step.active .step-icon {
+            border-color: #007bff; 
+            background-color: #defdff; 
+            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.2);
+        }
 
-.cta-button-wrapper {
-    margin-top: 40px;
-    text-align: center;
-}
-.cta-button {
-    background-color: #007bff; color: white; padding: 15px 35px;
-    text-decoration: none; font-size: 1.2em; font-weight: bold;
-    border-radius: 50px; transition: all 0.3s ease;
-}
-.cta-button:hover { background-color: #0056b3; transform: translateY(-2px); }
+        @keyframes riseUp {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -30%) scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
 
-/* 모바일 반응형 */
-@media (max-width: 768px) {
-    .growth-process { height: 120px; }
-    .hero-interactive .intro-text h1 { font-size: 2em; }
-    .step-icon { width: 60px; height: 60px; font-size: 2em; }
-    .step-label { font-size: 0.9em; }
-}
+        .step[data-step="3"].active,
+        .step[data-step="4"].active {
+            animation: riseUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        .cta-button-wrapper { margin-top: 40px; text-align: center; }
+        .cta-button {
+            background-color: #007bff; color: white; padding: 15px 35px;
+            text-decoration: none; font-size: 1.2em; font-weight: bold;
+            border-radius: 50px; transition: all 0.3s ease;
+        }
+        .cta-button:hover { background-color: #0056b3; transform: translateY(-2px); }
+
+
+        /* 모바일 반응형 */
+        @media (max-width: 768px) {
+            .growth-process { height: 120px; }
+            .step-icon { width: 60px; height: 60px; font-size: 2em; }
+            .step-label { font-size: 0.9em; }
+        }
 
 
     </style>    
@@ -654,10 +661,10 @@
                 <svg class="growth-arrow" viewBox="0 0 800 200" preserveAspectRatio="none">
                     <defs>
                         <marker id="arrowhead" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="strokeWidth" markerWidth="6" markerHeight="4" orient="auto">
-                            <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(0, 123, 255, 0.7)" />
+                            <path d="M 0 0 L 10 5 L 0 10 z" fill="#FF5733" />
                         </marker>
                     </defs>
-                    <path d="M 50 170 C 250 170, 350 50, 750 20" stroke="rgba(0, 123, 255, 0.3)" stroke-width="4" fill="none" marker-end="url(#arrowhead)" />
+                    <path d="M 40 160 C 350 200, 400 20, 780 9" stroke="#FFC300" stroke-width="5" fill="none" marker-end="url(#arrowhead)" />
                 </svg>
 
                 <div class="steps-container">
@@ -679,13 +686,13 @@
                     </div>
                 </div>
             </div>
-            
+            <br>
             <div class="cta-button-wrapper">
                 <a href="survey_step1.html" class="cta-button">지금 바로 시작하기</a>
             </div>
         </div>
     </section>
-            
+    <br>        
 
     <section class="container page-section">
         <div class="section-header">
