@@ -1,8 +1,3 @@
-/**
- * 파일명: js/main_index.js
- * 기능: 메인 페이지의 동적 콘텐츠, 협력사, 최신 소식을 불러와 표시합니다.
- * 수정 일시: 2025-07-03 14:15
- */
 import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -11,27 +6,22 @@ document.addEventListener('DOMContentLoaded', function() {
         loadMainContent();
         initializePartnerGrid();
         loadLatestNews();
-        attachEventListeners(); // 이 파일에서는 현재 필요 없어 보임
     }
 
-    /**
-     * 메인 페이지의 동적 콘텐츠 섹션을 불러와서 그리는 함수
-     */
     async function loadMainContent() {
         const container = document.getElementById('main-content-container');
         if (!container) return;
         try {
             const response = await fetch(`${API_BASE_URL}/content/main_page_sections`);
-            const result = await response.json(); // ★★★ 오타 수정: jon -> json ★★★
+            const result = await response.json(); 
 
             if (result.success && Array.isArray(result.content) && result.content.length > 0) {
                 container.innerHTML = '';
                 result.content.forEach(section => {
                     const imagesHtml = (section.images || []).map(imgData => {
-                        // ★★★ 이미지 URL 처리 로직 수정 ★★★
                         const imageUrl = (imgData.file && imgData.file.startsWith('http')) 
-                            ? imgData.file // 전체 S3 URL이면 그대로 사용
-                            : `${STATIC_BASE_URL}${imgData.file}`; // 그렇지 않으면 기존 방식 사용
+                            ? imgData.file 
+                            : `${STATIC_BASE_URL}${imgData.file}`; 
                         return `<img src="${imageUrl}" alt="${section.title || ''}" style="width: auto; max-height:300px; object-fit:contain;">`;
                     }).join('');
 
@@ -57,11 +47,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    /**
-     * 파일명: js/main_index.js
-     * 수정 위치: initializePartnerGrid 함수 전체
-     * 수정 일시: 2025-07-04 03:03
-     */
     async function initializePartnerGrid() {
         const gridContainer = document.getElementById('partner-grid');
         if(!gridContainer) return;
@@ -71,14 +56,12 @@ document.addEventListener('DOMContentLoaded', function() {
             if (result.success && result.partners.length > 0) {
                 gridContainer.innerHTML = '';
                 result.partners.forEach(p => {
-                    // ★★★ 이미지 URL 처리 로직 수정 ★★★
                     const logoUrl = (p.logo_url && p.logo_url.startsWith('http'))
                         ? p.logo_url // S3 전체 주소이면 그대로 사용
                         : `${STATIC_BASE_URL}${p.logo_url}`; // 아니면 기존 방식
 
                     const partnerDiv = document.createElement('div');
                     partnerDiv.className = 'partner-item';
-                    // 링크가 있을 때만 a 태그로 감싸기
                     partnerDiv.innerHTML = p.link_url
                         ? `<a href="${p.link_url}" target="_blank" title="${p.name}"><img src="${logoUrl}" alt="${p.name}"></a>`
                         : `<img src="${logoUrl}" alt="${p.name}">`;
@@ -94,9 +77,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    /**
-     * '최신 소식'을 5개까지 불러와서 표시하는 함수
-     */
     async function loadLatestNews() {
         const container = document.getElementById('latest-news-container');
         if (!container) return;
@@ -108,7 +88,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (result.success && result.posts.length > 0) {
                 container.innerHTML = '';
                 
-                // ★★★ 1. 게시물 HTML 요소들을 배열에 먼저 담습니다. ★★★
                 const postElements = result.posts.map(post => {
                     let representativeImage = `${STATIC_BASE_URL}/images/default_news.png`;
                     let snippet = '내용을 불러올 수 없습니다.';
@@ -145,10 +124,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 moreLinkBox.href = 'news_list.html?category=trends';
                 moreLinkBox.innerHTML = `<span class="plus-icon">+</span><span>더보기</span>`;
 
-                // ★★★ 2. 원본 목록과 복제된 목록을 추가하여 무한 회전 효과를 만듭니다. ★★★
                 postElements.forEach(el => container.appendChild(el));
                 container.appendChild(moreLinkBox);
-                // 원본 목록을 한 번 더 복제해서 뒤에 붙입니다.
                 postElements.forEach(el => container.appendChild(el.cloneNode(true))); 
                 container.appendChild(moreLinkBox.cloneNode(true));
 
@@ -161,13 +138,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    /**
-     * 페이지의 주요 이벤트 리스너를 설정하는 함수
-     */
     function attachEventListeners() {
-        // 이 부분은 기존 코드에 있던 '문의하기'나 'ESG 진단하기' 등의
-        // 버튼 클릭 이벤트를 처리하는 로직을 그대로 가져오시면 됩니다.
-        // 예를 들어, 문의하기 모달 기능은 아래와 같습니다.
+       
         const contactModal = document.getElementById('contactModal');
         const navContactTrigger = document.getElementById('navContactTrigger');
         const closeContactModalBtn = document.getElementById('closeContactModal');
@@ -186,6 +158,5 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // --- 페이지 시작 ---
     initializePage();
 });
