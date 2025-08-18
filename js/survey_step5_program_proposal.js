@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let allProgramsCache = [];
     let initialScores = null;
+    let otherProgramsCache = [];
 
     async function initializePage() {
         if (!mainContainer || !diagId || !token) {
