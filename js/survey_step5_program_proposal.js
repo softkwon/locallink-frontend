@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const token = localStorage.getItem('locallink-token');
     const diagId = new URLSearchParams(window.location.search).get('diagId');
     const mainContainer = document.querySelector('main.container');
+    
     const prioritySection = document.getElementById('priority-programs-section');
     const priorityContainer = document.getElementById('priority-programs-container');
     const recommendedContainer = document.getElementById('recommended-programs-container');
@@ -26,7 +27,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function loadAndRenderAll() {
         try {
-            // 1. API 호출을 strategy 엔드포인트로 변경하고, 전체 프로그램 목록도 함께 가져옵니다.
             const [strategyRes, allProgramsRes] = await Promise.all([
                 fetch(`${API_BASE_URL}/strategy/${diagId}`, { headers: { 'Authorization': `Bearer ${token}` } }),
                 fetch(`${API_BASE_URL}/programs`)
@@ -41,23 +41,24 @@ document.addEventListener('DOMContentLoaded', function() {
             const allProgramsResult = await allProgramsRes.json();
             if (allProgramsResult.success) allProgramsCache = allProgramsResult.programs;
 
-            // 2. API로부터 받은 데이터를 변수에 할당합니다.
             const priorityPrograms = strategyData.priorityRecommendedPrograms || [];
             const enginePrograms = strategyData.engineRecommendedPrograms || [];
             const userRegion = strategyData.userDiagnosis.business_location;
-            initialScores = strategyData.aiAnalysis; // 시뮬레이터용 점수
+            
+            initialScores = {
+                e: parseFloat(strategyData.userDiagnosis.e_score) || 0,
+                s: parseFloat(strategyData.userDiagnosis.s_score) || 0,
+                g: parseFloat(strategyData.userDiagnosis.g_score) || 0,
+                total: parseFloat(strategyData.userDiagnosis.total_score) || 0
+            };
 
-            // 3. 각 섹션에 맞는 프로그램을 렌더링합니다.
-            // 우선 추천 프로그램 렌더링
             if (priorityPrograms.length > 0) {
                 prioritySection.classList.remove('hidden');
                 renderProgramSection(priorityContainer, priorityPrograms, "");
             }
 
-            // 진단 추천 프로그램 렌더링
             renderProgramSection(recommendedContainer, enginePrograms, "진단 결과에 따른 맞춤 추천 프로그램이 없습니다.");
 
-            // 4. 지역 및 기타 프로그램 필터링 (중복 제거)
             const recommendedIds = new Set([...priorityPrograms, ...enginePrograms].map(p => p.id));
             const regionalPrograms = allProgramsCache.filter(p => 
                 !recommendedIds.has(p.id) && p.service_regions && userRegion && 
@@ -111,9 +112,9 @@ document.addEventListener('DOMContentLoaded', function() {
     function renderScoreSimulator(currentScores, planPrograms) {
         const gaugeEl = document.getElementById('score-simulator-gauge');
         const tableEl = document.getElementById('score-simulator-table');
-        if (!gaugeEl || !tableEl) return;
+        if (!gaugeEl || !tableEl || !currentScores) return;
         
-        const QUESTION_COUNTS = { e: 4, s: 6, g: 6 };
+        const QUESTION_COUNTS = { e: 4, s: 6, g: 6 }; // 이 값은 실제 질문 개수에 맞게 조정해야 할 수 있습니다.
         const programsByCategory = { e: [], s: [], g: [] };
         const rawImprovement = { e: 0, s: 0, g: 0 };
 
