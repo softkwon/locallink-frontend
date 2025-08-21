@@ -1,6 +1,11 @@
-// js/esg_program_detail.js (기능 복원 및 버튼 순서 수정 최종본)
+import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
 
-import { API_BASE_URL } from './config.js';
+function formatTextWithBreaks(text = '') {
+    if (!text) return '';
+    return text
+        .replace(/\n/g, '<br>')         
+        .replace(/  /g, ' &nbsp;');   
+}
 
 document.addEventListener('DOMContentLoaded', async function() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -56,10 +61,8 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
     document.querySelector('meta[property="og:description"]').setAttribute('content', program.program_overview || 'ESGlink에서 제공하는 ESG 프로그램을 확인하세요.');
     document.querySelector('meta[property="og:image"]').setAttribute('content', firstImage);
     
-    // --- [수정] 버튼 순서 변경 로직 ---
     let noticeHtml = '';
     let actionButtons = [];
-
     const serviceCostButton = (program.service_costs && program.service_costs.length > 0) 
         ? `<button id="open-cost-modal-btn" class="button-secondary action-btn">서비스 비용 안내</button>` 
         : null;
@@ -71,23 +74,23 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
     } else {
         if (hasCompletedDiagnosis) {
             actionButtons.push(`<button class="button-secondary action-btn" data-action="add_plan">내 플랜에 담기</button>`);
-            actionButtons.push(serviceCostButton); // 서비스 비용 안내
+            actionButtons.push(serviceCostButton);
             actionButtons.push(`<button class="button-primary action-btn" data-action="apply">신청하기</button>`);
         } else {
-            actionButtons.push(serviceCostButton); // 서비스 비용 안내
+            actionButtons.push(serviceCostButton);
             actionButtons.push(`<button class="button-primary action-btn" data-action="apply_prompt">신청하기</button>`);
         }
     }
     const actionsHtml = actionButtons.filter(Boolean).join(' ');
-    // --- 여기까지 수정 ---
 
+    // 상세 내용(content) 렌더링 시 formatTextWithBreaks 함수 사용
     const contentHtml = contentSections.map(section => {
         const layoutClass = section.layout || 'img-top';
         const imagesHtml = (section.images || []).map(imgUrl => `<img src="${imgUrl}" alt="프로그램 상세 이미지">`).join('');
         const textHtml = `
             <div class="text-content">
                 <h3>${section.subheading || ''}</h3>
-                <div style="font-size: ${section.description_size || 16}px;">${(section.description || '').replace(/\n/g, '<br>')}</div>
+                <div style="font-size: ${section.description_size || 16}px;">${formatTextWithBreaks(section.description)}</div>
             </div>`;
         const imageContainerHtml = imagesHtml ? `<div class="image-content">${imagesHtml}</div>` : '';
         return `<div class="content-section-body layout-${layoutClass}">${textHtml}${imageContainerHtml}</div>`;
@@ -100,7 +103,7 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
         <div class="program-detail-wrapper">
             <header class="program-header category-${(program.esg_category || 'e').toLowerCase()}">
                 <h1>${program.title}</h1>
-                <p>${program.program_overview || ''}</p>
+                <p>${formatTextWithBreaks(program.program_overview)}</p> <!-- 프로그램 개요에도 적용 -->
                 <div class="share-container">
                     <button class="share-button" id="shareBtn" title="공유하기">🔗</button>
                     <div class="share-dropdown" id="shareDropdown">
@@ -114,7 +117,7 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
                 <section class="detail-section"><h4>서비스 지역</h4><p>${program.service_regions?.join(', ') || '전국'}</p></section>
                 <section class="detail-section"><h4>프로그램 상세 내용</h4>${contentHtml || '<p>상세 내용이 없습니다.</p>'}</section>
                 <section class="detail-section"><h4>연계 단체</h4><ul>${orgsHtml}</ul></section>
-                <section class="detail-section"><h4>방치 시 리스크</h4><p>${program.risk_text || '-'}</p></section>
+                <section class="detail-section"><h4>방치 시 리스크</h4><p>${formatTextWithBreaks(program.risk_text)}</p></section> <!-- 리스크 텍스트에도 적용 -->
                 <section class="detail-section"><h4>개선 시 기대효과</h4><ul>${oppsHtml}</ul></section>
                 <section class="program-actions-section">
                     <a href="esg_programs_list.html" class="button-secondary">목록으로</a>
