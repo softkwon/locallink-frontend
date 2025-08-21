@@ -100,7 +100,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function renderProgramForm(program) {
-        // --- 기본 정보 채우기 ---
         safeSetValue('title', program.title);
         safeSetValue('program_code', program.program_code);
         safeSetValue('esg_category', program.esg_category);
@@ -111,12 +110,18 @@ document.addEventListener('DOMContentLoaded', function() {
         safeSetValue('potential_s', program.potential_s);
         safeSetValue('potential_g', program.potential_g);
 
+        if (currentUserRole === 'super_admin') {
+            const authorSelect = document.getElementById('author_id');
+            if (authorSelect && program.author_id) {
+                authorSelect.value = program.author_id;
+            }
+        }
+
         const isAdminRecommendedCheckbox = document.getElementById('is_admin_recommended');
         if (isAdminRecommendedCheckbox) {
             isAdminRecommendedCheckbox.checked = program.is_admin_recommended || false;
         }
 
-        // --- [수정] 서비스 비용 정보 채우기 ---
         if (program.existing_cost_details) {
             safeSetValue('existing_cost_description', program.existing_cost_details.description);
             safeSetValue('existing_cost_amount', program.existing_cost_details.amount);
