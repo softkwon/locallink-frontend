@@ -198,6 +198,14 @@
                         <div id="selectedIndustryCodesContainerSurveyStep1" class="selected-codes-container"></div>
                     </div>
                     <div class="form-group">
+                        <label for="majorCompanyDisplay"> 
+                            벤치마킹 대기업 (선택)
+                            <span class="info-icon-survey" id="majorCompanyInfoIcon" title="벤치마킹할 대기업 검색">ⓘ</span> 
+                        </label>
+                        <input type="text" id="majorCompanyDisplay" readonly style="background-color: #e9ecef; cursor: default;" placeholder="우측 ⓘ 아이콘으로 검색/선택">
+                        <div id="selectedMajorCompanyContainer" class="selected-codes-container"></div>
+                    </div>
+                    <div class="form-group">
                         <label for="establishmentYear">설립연도 (YYYY) <span class="required">*</span></label>
                         <input type="number" id="establishmentYear" placeholder="예: 2020" min="1800" max="2099" required style="width: 150px;">
                     </div>

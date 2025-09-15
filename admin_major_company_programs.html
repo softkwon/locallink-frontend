@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 페이지 - 대표 프로그램 관리</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        .admin-section { max-width: 1200px; margin: 40px auto; }
+        .page-header { margin-bottom: 30px; }
+        .management-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            align-items: flex-start;
+        }
+        .company-list-card, .program-list-card {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            background-color: #fff;
+        }
+        .card-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .card-header h3 { margin: 0; font-size: 1.2em; }
+        .card-body { padding: 20px; }
+        .company-list ul { list-style: none; padding: 0; margin: 0; }
+        .company-list li {
+            padding: 12px 15px;
+            cursor: pointer;
+            border-radius: 6px;
+            margin-bottom: 5px;
+            border: 1px solid transparent;
+            transition: background-color 0.2s, border-color 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .company-list li:hover { background-color: #f8f9fa; }
+        .company-list li.active {
+            background-color: #e7f1ff;
+            border-color: #007bff;
+            font-weight: bold;
+            color: #0056b3;
+        }
+        .company-actions button { font-size: 0.8em; padding: 3px 6px; }
+        .program-list-card .card-header { background-color: #f8f9fa; }
+        #programs-table { width: 100%; }
+        .modal-body label { display: block; margin-bottom: 8px; font-weight: 600; }
+        .modal-body input, .modal-body textarea, .modal-body select { width: 100%; padding: 8px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <a href="index.html"><img src="/images/logo_admin.png" alt="ESGlink Admin 로고" class="header-logo-img"></a>
+            </div>
+            <nav class="desktop-nav">
+                <ul>
+                    <li><a href="admin_dashboard.html">관리자 대시보드로 돌아가기</a></li>
+                    <li><a href="index.html">ESGlink로 돌아가기</a></li>
+                </ul>
+            </nav>
+            <div class="header-right-group">
+                <div id="user-menu-container"></div>
+                <button id="mobile-menu-toggle" class="mobile-menu-toggle"><span></span><span></span><span></span></button>
+            </div>
+        </div>
+        <div id="mobile-menu-overlay" class="mobile-menu-overlay"></div>
+        <div id="mobile-menu" class="mobile-menu"></div>
+    </header>
+
+    <main class="container">
+        <section class="admin-section">
+            <div class="page-header">
+                <h2>대표 프로그램 관리</h2>
+                <p>벤치마킹 대상이 될 대기업과 각 기업의 대표 사회공헌 프로그램을 관리합니다.</p>
+            </div>
+
+            <div class="management-grid">
+                <!-- 대기업 목록 섹션 -->
+                <div class="company-list-card">
+                    <div class="card-header">
+                        <h3>대기업 목록</h3>
+                        <button id="add-company-btn" class="button-primary button-sm">기업 추가</button>
+                    </div>
+                    <div class="card-body company-list">
+                        <ul id="company-list-ul">
+                            <!-- JS로 채워집니다 -->
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 대표 프로그램 목록 섹션 -->
+                <div class="program-list-card">
+                    <div class="card-header">
+                        <h3 id="program-list-title">대표 프로그램 목록</h3>
+                        <button id="add-program-btn" class="button-primary button-sm" style="display: none;">프로그램 추가</button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table id="programs-table" class="styled-table">
+                                <thead>
+                                    <tr>
+                                        <th>프로그램명</th>
+                                        <th>설명</th>
+                                        <th>링크</th>
+                                        <th style="width: 120px;">관리</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="programs-table-body">
+                                    <tr><td colspan="4" style="text-align:center;">먼저 왼쪽에서 기업을 선택해주세요.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer id="footer-placeholder"></footer>
+
+    <!-- 공용 모달 (기업, 프로그램 추가/수정용) -->
+    <div id="form-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title"></h2>
+                <span class="close-button">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="modal-form">
+                    <!-- JS로 폼 내용이 채워집니다 -->
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="js/auth.js" defer></script>
+    <script type="module" src="js/admin_major_company_programs.js" defer></script>
+</body>
+</html>

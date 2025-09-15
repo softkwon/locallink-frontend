@@ -1,7 +1,8 @@
-import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
+import { API_BASE_URL} from './config.js';
 import { initializeIndustryModal } from './components/industry_modal.js';
-    
 
+let selectedMajorCompany = null; 
+let allMajorCompanies = [];
 let selectedIndustryCodes = []; 
 let allIndustries = [];
 
@@ -39,6 +40,102 @@ function renderSelectedCodes() {
     }
 }
 
+function initializeMajorCompanyModal() {
+    const modalOverlay = document.createElement('div');
+    modalOverlay.className = 'modal-overlay';
+    
+    modalOverlay.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>벤치마킹 대기업 선택</h3>
+                <button class="modal-close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="majorCompanySearchInput" class="form-control" placeholder="기업명으로 검색하세요..." style="margin-bottom: 15px;">
+                <ul class="industry-list-container" id="majorCompanyListContainer" style="max-height: 300px; overflow-y: auto;">
+                    </ul>
+            </div>
+            <div class="modal-footer">
+                <p class="modal-footnote">목록에서 벤치마킹할 기업을 1개 선택해주세요.</p>
+                <button id="confirmMajorCompanySelection" class="button-primary">확인</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modalOverlay);
+
+    const searchInput = document.getElementById('majorCompanySearchInput');
+    const listContainer = document.getElementById('majorCompanyListContainer');
+    
+    const renderList = (filter = '') => {
+        listContainer.innerHTML = '';
+        const filtered = allMajorCompanies.filter(c => c.company_name.toLowerCase().includes(filter.toLowerCase()));
+        
+        filtered.forEach(company => {
+            const li = document.createElement('li');
+            li.textContent = company.company_name;
+            li.dataset.companyId = company.id;
+            li.dataset.companyName = company.company_name;
+            if (selectedMajorCompany && selectedMajorCompany.id === company.id) {
+                li.classList.add('selected');
+            }
+            li.addEventListener('click', () => {
+                listContainer.querySelectorAll('li').forEach(item => item.classList.remove('selected'));
+                li.classList.add('selected');
+            });
+            listContainer.appendChild(li);
+        });
+    };
+
+    searchInput.addEventListener('input', () => renderList(searchInput.value));
+    
+    const closeModal = () => modalOverlay.remove();
+    modalOverlay.querySelector('.modal-close-btn').addEventListener('click', closeModal);
+    modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) closeModal(); });
+
+    document.getElementById('confirmMajorCompanySelection').addEventListener('click', () => {
+        const selectedLi = listContainer.querySelector('li.selected');
+        if (selectedLi) {
+            selectedMajorCompany = {
+                id: parseInt(selectedLi.dataset.companyId),
+                company_name: selectedLi.dataset.companyName
+            };
+        } else {
+            selectedMajorCompany = null; 
+        }
+        renderSelectedMajorCompany();
+        closeModal();
+    });
+
+    renderList(); 
+}
+
+function renderSelectedMajorCompany() {
+    const container = document.getElementById('selectedMajorCompanyContainer');
+    const displayInput = document.getElementById('majorCompanyDisplay');
+    if (!container || !displayInput) return;
+
+    container.innerHTML = '';
+    if (selectedMajorCompany) {
+        displayInput.value = `1개 선택됨`;
+        const tag = document.createElement('span');
+        tag.className = 'selected-code-tag';
+        tag.textContent = `${selectedMajorCompany.company_name} `;
+        const removeBtn = document.createElement('span');
+        removeBtn.className = 'remove-code';
+        removeBtn.innerHTML = '&times;';
+        removeBtn.onclick = (e) => {
+            e.stopPropagation();
+            selectedMajorCompany = null;
+            renderSelectedMajorCompany();
+        };
+        tag.appendChild(removeBtn);
+        container.appendChild(tag);
+    } else {
+        displayInput.placeholder = '우측 ⓘ 아이콘으로 검색/선택';
+        displayInput.value = '';
+    }
+}
+
 async function saveAndProceed() {
     const form = document.getElementById('surveyStep1Form');
     if (!form.checkValidity() || selectedIndustryCodes.length === 0) {
@@ -59,7 +156,9 @@ async function saveAndProceed() {
         exportPercentage: document.querySelector('input[name="exportPercentage"]:checked')?.value,
         isListed: document.querySelector('input[name="listingStatus"]:checked')?.value === 'listed',
         companySize: document.querySelector('input[name="companySize"]:checked')?.value,
-        mainBusinessRegion: Array.from(document.querySelectorAll('input[name="businessRegions"]:checked')).map(cb => cb.value).join(',')
+        mainBusinessRegion: Array.from(document.querySelectorAll('input[name="businessRegions"]:checked')).map(cb => cb.value).join(','),
+        selected_major_company_id: selectedMajorCompany ? selectedMajorCompany.id : null
+
     };
 
     const token = localStorage.getItem('locallink-token');
@@ -128,6 +227,14 @@ function populateForm(data) {
         }).filter(Boolean);
         renderSelectedCodes();
     }
+
+    if (data.selected_major_company_id && allMajorCompanies.length > 0) {
+        const found = allMajorCompanies.find(c => c.id === data.selected_major_company_id);
+        if (found) {
+            selectedMajorCompany = { id: found.id, company_name: found.company_name };
+            renderSelectedMajorCompany();
+        }
+    }
 }
 
 document.addEventListener('DOMContentLoaded', async function() {
@@ -140,7 +247,10 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     try {
-        const industryResponse = await fetch(`${API_BASE_URL}/industries`, { headers: { 'Authorization': `Bearer ${token}` } });
+        const [industryResponse, majorCompanyResponse] = await Promise.all([
+            fetch(`${API_BASE_URL}/industries`, { headers: { 'Authorization': `Bearer ${token}` } }),
+            fetch(`${API_BASE_URL}/admin/major-companies-public`) 
+        ]);        
         const industryResult = await industryResponse.json();
         if (industryResult.success) {
             allIndustries = industryResult.industries;
@@ -165,8 +275,12 @@ document.addEventListener('DOMContentLoaded', async function() {
             alert('산업분류표를 여는 데 실패했습니다. 페이지를 새로고침하거나 관리자에게 문의하세요.');
         }
     });
-    document.querySelector('.form-actions .button-primary')?.addEventListener('click', saveAndProceed);
 
+    document.getElementById('majorCompanyInfoIcon')?.addEventListener('click', function() {
+        initializeMajorCompanyModal();
+    });
+
+    document.querySelector('.form-actions .button-primary')?.addEventListener('click', saveAndProceed);
 
     const diagnosisId = sessionStorage.getItem('currentDiagnosisId');
     const dataEndpoint = diagnosisId ? `${API_BASE_URL}/diagnoses/${diagnosisId}` : `${API_BASE_URL}/users/me`;
