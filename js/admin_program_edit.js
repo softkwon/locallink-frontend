@@ -21,6 +21,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const serviceCostsContainer = document.getElementById('service-costs-container');
     const addServiceCostBtn = document.getElementById('add-service-cost-btn');
 
+    let allKpiData = [];
+    let selectedKpiIds = new Set();
+    let selectedSdgs = new Set();
     let existingImages = {}; 
     let newSectionFiles = {}; 
     let currentUserRole = null;
@@ -30,6 +33,10 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('오류: 폼 요소를 찾을 수 없습니다. HTML의 form 태그 id를 확인해주세요.');
             return;
         }
+        
+        await loadKpiData();
+        document.getElementById('select-sdgs-btn')?.addEventListener('click', openSdgsModal);
+        document.getElementById('select-kpi-btn')?.addEventListener('click', openKpiModal);
         
         const permissionResult = await checkAdminPermission(['super_admin', 'content_manager'], true); 
         
@@ -44,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 await loadContentManagers(); 
             }
         }
-
+        await loadKpiData();
         attachEventListeners(); 
 
         if (isEditMode) {
@@ -110,6 +117,16 @@ document.addEventListener('DOMContentLoaded', function() {
         safeSetValue('potential_s', program.potential_s);
         safeSetValue('potential_g', program.potential_g);
 
+        safeSetValue('outcome_description', program.outcome_description);
+        safeSetValue('outcome_level', program.outcome_level);
+        safeSetValue('outcome_threshold', program.outcome_threshold);
+        safeSetValue('stakeholder_type', program.stakeholder_type);
+        safeSetValue('scale_value', program.scale_value);
+        safeSetValue('scale_unit', program.scale_unit);
+        safeSetValue('duration_days', program.duration_days);
+        safeSetValue('depth_description', program.depth_description);
+        safeSetValue('risk_description', program.risk_description);
+        
         if (currentUserRole === 'super_admin') {
             const authorSelect = document.getElementById('author_id');
             if (authorSelect && program.author_id) {
@@ -117,6 +134,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
+        if (program.sdgs_goals && Array.isArray(program.sdgs_goals)) {
+        selectedSdgs = new Set(program.sdgs_goals);
+        renderSelectedSdgs();
+        }
+        if (program.linked_kpis && Array.isArray(program.linked_kpis)) {
+            selectedKpiIds = new Set(program.linked_kpis);
+            renderSelectedKpis();
+        }
+        
         const isAdminRecommendedCheckbox = document.getElementById('is_admin_recommended');
         if (isAdminRecommendedCheckbox) {
             isAdminRecommendedCheckbox.checked = program.is_admin_recommended || false;
@@ -463,8 +489,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         }
-        
         form.addEventListener('submit', handleProgramSubmit);
+
+        document.getElementById('select-sdgs-btn')?.addEventListener('click', openSdgsModal);
+        document.getElementById('select-kpi-btn')?.addEventListener('click', openKpiModal);
+
+        document.body.addEventListener('click', e => {
+            if (e.target.matches('.remove-tag')) {
+                const id = parseInt(e.target.dataset.id);
+                const type = e.target.dataset.type;
+                if (type === 'sdg') {
+                    selectedSdgs.delete(id);
+                    renderSelectedSdgs();
+                } else if (type === 'kpi') {
+                    selectedKpiIds.delete(id);
+                    renderSelectedKpis();
+                }
+            }
+        });
     }
         
     
@@ -493,6 +535,19 @@ document.addEventListener('DOMContentLoaded', function() {
             formData.append('potential_e', safeGetValue('potential_e'));
             formData.append('potential_s', safeGetValue('potential_s'));
             formData.append('potential_g', safeGetValue('potential_g'));
+
+            formData.append('outcome_description', document.getElementById('outcome_description').value);
+            formData.append('outcome_level', document.getElementById('outcome_level').value);
+            formData.append('outcome_threshold', document.getElementById('outcome_threshold').value);
+            formData.append('stakeholder_type', document.getElementById('stakeholder_type').value);
+            formData.append('scale_value', document.getElementById('scale_value').value);
+            formData.append('scale_unit', document.getElementById('scale_unit').value);
+            formData.append('duration_days', document.getElementById('duration_days').value);
+            formData.append('depth_description', document.getElementById('depth_description').value);
+            formData.append('risk_description', document.getElementById('risk_description').value);
+            
+            formData.append('sdgs_goals', Array.from(selectedSdgs).join(','));
+            formData.append('k_esg_indicator_ids', Array.from(selectedKpiIds).join(','));
 
             const isAdminRecommended = document.getElementById('is_admin_recommended')?.checked || false;
             formData.append('is_admin_recommended', isAdminRecommended);

@@ -19,6 +19,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let newSectionFiles = {}; 
     let currentUserRole = null;
+    let allKpiData = [];
+    let selectedKpiIds = new Set();
+    let selectedSdgs = new Set();
 
     async function initializePage() {
         if (!form) {
@@ -26,14 +29,14 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        const permissionResult = await checkAdminPermission(['super_admin', 'content_manager'], true);
+        const permissionResult = await checkAdminPermission(['super_admin', 'vice_super_admin', 'content_manager'], true);
         if (!permissionResult.hasPermission) {
             form.innerHTML = '<h2>접근 권한이 없습니다.</h2>';
             return;
         }
         currentUserRole = permissionResult.user.role;
 
-        if (currentUserRole === 'super_admin') {
+        if (currentUserRole === 'super_admin' || currentUserRole === 'vice_super_admin') {
             const authorContainer = document.getElementById('author-select-container');
             if (authorContainer) {
                 authorContainer.style.display = 'block';
@@ -41,7 +44,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
+        await loadKpiData(); 
         attachEventListeners();
+
+        // 생성 페이지이므로, 기본 섹션들을 1개씩 추가해줍니다.
         addSectionRow(); 
         addEffectRow(); 
         addOrganizationRow(); 
@@ -67,7 +73,17 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) {
             console.error("콘텐츠 매니저 목록 로딩 실패:", error);
         }
-    }    
+    }   
+
+    async function loadKpiData() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/admin/k-esg-indicators`, { headers: { 'Authorization': `Bearer ${token}` } });
+            const result = await response.json();
+            if (result.success) {
+                allKpiData = result.indicators;
+            }
+        } catch (error) { console.error("K-ESG 지표 로딩 실패:", error); }
+    }
 
     function addSectionRow() {
         const sectionId = 'section-' + Date.now() + Math.random().toString(36).substr(2, 9);
@@ -232,6 +248,124 @@ document.addEventListener('DOMContentLoaded', function() {
         return element ? element.value : '';
     }
 
+    function openSdgsModal() {
+        const modalId = 'sdgs-selection-modal';
+        document.getElementById(modalId)?.remove();
+
+        const modalHtml = `
+            <div id="${modalId}" class="modal" style="display: block;">
+                <div class="modal-content large">
+                    <div class="modal-header">
+                        <h2>연관 SDGs 목표 선택</h2>
+                        <span class="close-button">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <div class="sdg-modal-grid">
+                            ${Array.from({ length: 17 }, (_, i) => i + 1).map(num => `
+                                <div class="sdg-goal-item ${selectedSdgs.has(num) ? 'selected' : ''}" data-sdg-id="${num}">
+                                    <img src="/images/sdgs/SDG${num}.png" alt="SDG ${num}">
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="button-primary" id="confirmSdgsSelection">선택 완료</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+        const modalEl = document.getElementById(modalId);
+        modalEl.querySelector('.close-button').addEventListener('click', () => modalEl.remove());
+        modalEl.addEventListener('click', e => { if (e.target === modalEl) modalEl.remove(); });
+        
+        modalEl.querySelector('.sdg-modal-grid').addEventListener('click', e => {
+            const item = e.target.closest('.sdg-goal-item');
+            if(item) item.classList.toggle('selected');
+        });
+        
+        modalEl.querySelector('#confirmSdgsSelection').addEventListener('click', () => {
+            selectedSdgs.clear();
+            modalEl.querySelectorAll('.sdg-goal-item.selected').forEach(item => {
+                selectedSdgs.add(parseInt(item.dataset.sdgId));
+            });
+            renderSelectedSdgs();
+            modalEl.remove();
+        });
+    }
+
+    function openKpiModal() {
+        const modalId = 'kpi-selection-modal';
+        document.getElementById(modalId)?.remove();
+
+        const kpiHtml = allKpiData.map(kpi => `
+            <li>
+                <label>
+                    <input type="checkbox" value="${kpi.id}" ${selectedKpiIds.has(kpi.id) ? 'checked' : ''}>
+                    <strong>[${kpi.indicator_code}]</strong> ${kpi.description}
+                </label>
+            </li>
+        `).join('');
+
+        const modalHtml = `
+            <div id="${modalId}" class="modal" style="display: block;">
+                <div class="modal-content large">
+                    <div class="modal-header">
+                        <h2>K-ESG 지표 연계</h2>
+                        <span class="close-button">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <ul class="kpi-modal-list">${kpiHtml}</ul>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="button-primary" id="confirmKpiSelection">선택 완료</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+        const modalEl = document.getElementById(modalId);
+        modalEl.querySelector('.close-button').addEventListener('click', () => modalEl.remove());
+        modalEl.addEventListener('click', e => { if (e.target === modalEl) modalEl.remove(); });
+
+        modalEl.querySelector('#confirmKpiSelection').addEventListener('click', () => {
+            selectedKpiIds.clear();
+            modalEl.querySelectorAll('input[type="checkbox"]:checked').forEach(input => {
+                selectedKpiIds.add(parseInt(input.value));
+            });
+            renderSelectedKpis();
+            modalEl.remove();
+        });
+    }
+
+    // --- 선택된 항목 렌더링 함수 (신규 추가) ---
+    function renderSelectedSdgs() {
+        const container = document.getElementById('selected-sdgs-container');
+        if (!container) return;
+        container.innerHTML = Array.from(selectedSdgs).map(id => `
+            <span class="selected-item-tag">
+                SDG ${id}
+                <span class="remove-tag" data-id="${id}" data-type="sdg">&times;</span>
+            </span>
+        `).join('');
+    }
+    
+    function renderSelectedKpis() {
+        const container = document.getElementById('selected-kpis-container');
+        if (!container) return;
+        container.innerHTML = Array.from(selectedKpiIds).map(id => {
+            const kpi = allKpiData.find(k => k.id === id);
+            return `
+                <span class="selected-item-tag">
+                    ${kpi ? kpi.indicator_code : `ID ${id}`}
+                    <span class="remove-tag" data-id="${id}" data-type="kpi">&times;</span>
+                </span>
+            `;
+        }).join('');
+    }
+
     async function handleProgramSubmit(event) {
         event.preventDefault();
         const submitButton = form.querySelector('button[type="submit"]');
@@ -260,6 +394,19 @@ document.addEventListener('DOMContentLoaded', function() {
             formData.append('potential_s', safeGetValue('potential_s'));
             formData.append('potential_g', safeGetValue('potential_g'));
 
+            formData.append('outcome_description', document.getElementById('outcome_description').value);
+            formData.append('outcome_level', document.getElementById('outcome_level').value);
+            formData.append('outcome_threshold', document.getElementById('outcome_threshold').value);
+            formData.append('stakeholder_type', document.getElementById('stakeholder_type').value);
+            formData.append('scale_value', document.getElementById('scale_value').value);
+            formData.append('scale_unit', document.getElementById('scale_unit').value);
+            formData.append('duration_days', document.getElementById('duration_days').value);
+            formData.append('depth_description', document.getElementById('depth_description').value);
+            formData.append('risk_description', document.getElementById('risk_description').value);
+            
+            formData.append('sdgs_goals', Array.from(selectedSdgs).join(','));
+            formData.append('k_esg_indicator_ids', Array.from(selectedKpiIds).join(','));
+
             const executionType = document.querySelector('input[name="executionType"]:checked')?.value || 'donation';
             formData.append('execution_type', executionType);
             
@@ -275,6 +422,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const partnerOrganizations = Array.from(document.querySelectorAll('#organizations-container .organization-item')).map(item => ({ organization_name: item.querySelector('.organization-name').value, homepage_url: item.querySelector('.homepage-url').value })).filter(item => item.organization_name || item.homepage_url);
             formData.append('related_links', JSON.stringify(partnerOrganizations));
             
+            
+
             const opportunityEffects = [];
             document.querySelectorAll('#opportunity-effects-container .form-fieldset').forEach(row => {
                 const type = row.querySelector('.opportunity-type-select').value;
@@ -322,9 +471,11 @@ document.addEventListener('DOMContentLoaded', function() {
             formData.append('content', JSON.stringify(finalContent));
             
             const url = `${API_BASE_URL}/admin/programs`;
-            const method = 'POST';
-            
-            const response = await fetch(url, { method, headers: { 'Authorization': `Bearer ${token}` }, body: formData });
+            const response = await fetch(url, { 
+                method: 'POST', 
+                headers: { 'Authorization': `Bearer ${token}` }, 
+                body: formData 
+            });
             const result = await response.json();
 
             if (!response.ok) throw new Error(result.message || '저장 중 오류 발생');
@@ -417,9 +568,25 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
 
+        document.getElementById('select-sdgs-btn')?.addEventListener('click', openSdgsModal);
+        document.getElementById('select-kpi-btn')?.addEventListener('click', openKpiModal);
+
+        document.body.addEventListener('click', e => {
+            if (e.target.matches('.remove-tag')) {
+                const id = parseInt(e.target.dataset.id);
+                const type = e.target.dataset.type;
+                if (type === 'sdg') {
+                    selectedSdgs.delete(id);
+                    renderSelectedSdgs();
+                } else if (type === 'kpi') {
+                    selectedKpiIds.delete(id);
+                    renderSelectedKpis();
+                }
+            }
+        });
+        
         form.addEventListener('submit', handleProgramSubmit);
     }
-
-    // --- 6. 페이지 시작 ---
     initializePage();
+
 });

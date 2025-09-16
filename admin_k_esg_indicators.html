@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 - K-ESG 지표 관리</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        .admin-section { max-width: 95%; margin: 40px auto; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;}
+        .button-group { display: flex; gap: 10px; }
+        .modal-body { max-height: 70vh; overflow-y: auto; padding-right: 15px;}
+        .modal-body .form-group-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .modal-body fieldset { border: 1px solid #dee2e6; padding: 15px 20px; margin-bottom: 20px; border-radius: 6px; }
+        .modal-body legend { font-weight: bold; font-size: 1.1em; padding: 0 5px; }
+        .modal-body label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9em; color: #495057;}
+        .modal-body input, .modal-body textarea, .modal-body select { width: 100%; padding: 8px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; }
+        .modal-content.large { max-width: 800px; }
+        /* 테이블의 특정 컬럼에 말줄임표 적용 */
+        #indicatorsTable th.overview-col, #indicatorsTable td.overview-col { max-width: 250px; }
+        #indicatorsTable td.overview-col { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <a href="index.html"><img src="/images/logo_admin.png" alt="ESGlink Admin 로고" class="header-logo-img"></a>
+            </div>
+            <nav class="desktop-nav">
+                <ul>
+                    <li><a href="admin_dashboard.html">관리자 대시보드로 돌아가기</a></li>
+                    <li><a href="index.html">ESGlink로 돌아가기</a></li>
+                </ul>
+            </nav>
+            <div class="header-right-group">
+                <div id="user-menu-container"></div>
+                <button id="mobile-menu-toggle" class="mobile-menu-toggle"><span></span><span></span><span></span></button>
+            </div>
+        </div>
+        <div id="mobile-menu-overlay" class="mobile-menu-overlay"></div>
+        <div id="mobile-menu" class="mobile-menu"></div>
+    </header>
+    <main class="container">
+        <section class="admin-section">
+            <div class="section-header">
+                <div>
+                    <h2>K-ESG 지표 관리</h2>
+                    <p>프로그램과 연계될 K-ESG 평가지표를 관리합니다.</p>
+                </div>
+                <div class="button-group">
+                    <button id="import-btn" class="button-secondary">CSV 가져오기</button>
+                    <input type="file" id="csvFile" accept=".csv" style="display:none;">
+                    <button id="export-btn" class="button-secondary">CSV 내보내기</button>
+                    <button id="add-indicator-btn" class="button-primary">신규 지표 추가</button>
+                </div>
+            </div>
+            <div class="table-container">
+                <table id="indicatorsTable">
+                    <thead>
+                        <tr>
+                            <th>영역</th>
+                            <th>범주</th>
+                            <th>지표코드</th>
+                            <th>진단항목</th>
+                            <th class="overview-col">개요</th>
+                            <th>가중치</th>
+                            <th>총배점</th>
+                            <th style="width: 120px;">관리</th>
+                        </tr>
+                    </thead>
+                    <tbody id="indicators-table-body"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+    <footer id="footer-placeholder"></footer>
+    <div id="form-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title"></h2>
+                <span class="close-button">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="modal-form"></form>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="js/auth.js" defer></script>
+    <script type="module" src="js/admin_k_esg_indicators.js" defer></script>
+</body>
+</html>
