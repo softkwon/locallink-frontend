@@ -1,6 +1,34 @@
 import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
 import { getCompanySizeName } from './admin_common.js'; 
 
+function renderMajorCompanyPrograms(programsData) {
+    const container = document.getElementById('majorCompanyProgramsContent');
+    if (!container) return;
+
+    if (programsData && programsData.selected && programsData.selected.company_name) {
+        let html = `<h4>✔ ${programsData.selected.company_name}의 대표 프로그램</h4>`;
+        
+        if (programsData.selected.programs && programsData.selected.programs.length > 0) {
+            html += '<ul class="program-list-simple">';
+            programsData.selected.programs.forEach(prog => {
+                html += `
+                    <li>
+                        <strong>${prog.program_name}</strong>
+                        <p>${prog.program_description || ''}</p>
+                        ${prog.link_url ? `<a href="${prog.link_url}" target="_blank">자세히 보기 &raquo;</a>` : ''}
+                    </li>
+                `;
+            });
+            html += '</ul>';
+        } else {
+            html += '<p>등록된 대표 프로그램이 없습니다.</p>';
+        }
+        container.innerHTML = html;
+    } else {
+        container.innerHTML = '<p>진단 1단계에서 벤치마킹할 대기업을 선택하지 않았습니다.</p>';
+    }
+}
+
 document.addEventListener('DOMContentLoaded', async function() {
     
     const diagnosisId = new URLSearchParams(window.location.search).get('diagId');
@@ -106,7 +134,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         renderTasksAndAnalysis(data.priorityRecommendedPrograms, data.engineRecommendedPrograms, data.allSolutionCategories);
         renderRegionalMapAndIssues(data.userDiagnosis, data.regionalIssues); 
         renderCompanySizeIssues(data.companySizeIssue, data.userDiagnosis.company_size);
-
+        renderMajorCompanyPrograms(data.majorCompanyPrograms);
+        
         if(loadingEl) loadingEl.style.display = 'none';
         if(contentEl) contentEl.classList.remove('hidden');
         

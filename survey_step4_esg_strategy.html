@@ -268,8 +268,6 @@
         .category-detail-item:first-child { border-top: none; }
         .category-detail-item strong { color: #0056b3; font-size: 1.05em; }
         .category-detail-item p { font-size: 0.95em; color: #495057; margin-top: 5px; line-height: 1.6; }
-
-
     </style>
 </head>
 <body>
@@ -325,9 +323,11 @@
                     <ul class="tab-nav">
                         <li class="tab-link active" data-tab="tab-benchmark">동종업계 성과 비교</li>
                         <li class="tab-link" data-tab="tab-timeline">규제 타임라인</li>
+                        <li class="tab-link" data-tab="tab-major-company">대기업 사례</li>
                         <li class="tab-link" data-tab="tab-industry-issues">산업군 주요이슈</li>
                         <li class="tab-link" data-tab="tab-size-issues">기업규모별 주요이슈</li>
                         <li class="tab-link" data-tab="tab-regional-issues">지역 주요이슈</li>
+
                     </ul>
 
                     <div class="tab-content">
@@ -355,6 +355,15 @@
                                     </div>
                             </div>
                         </div>
+                        <div id="tab-major-company" class="tab-pane">
+                            <div id="majorCompanyProgramsSection" class="strategy-section">
+                                <p class="tab-pane-description">
+                                    벤치마킹 대상으로 선택하신 기업의 대표적인 사회공헌 활동 사례입니다.
+                                </p>
+                                <div id="majorCompanyProgramsContent">
+                                    </div>
+                            </div>
+                        </div>
                         <div id="tab-industry-issues" class="tab-pane">
                             <div id="industryEsgIssuesSection" class="strategy-section">
                                 <p class="tab-pane-description">우리 회사가 속한 산업군의 특성에 따른 주요 ESG 이슈와 기회/위기 요인을 확인합니다.</p>
@@ -373,6 +382,7 @@
                                     </div>
                             </div>
                         </div>
+                        
                     </div>
                 </div>
 
