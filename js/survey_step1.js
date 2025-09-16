@@ -1,15 +1,13 @@
-import { API_BASE_URL} from './config.js';
+import { API_BASE_URL } from './config.js';
 import { initializeIndustryModal } from './components/industry_modal.js';
 
-let selectedMajorCompany = null; 
-let allMajorCompanies = [];
+// --- 전역 범위에 변수 선언 ---
 let selectedIndustryCodes = []; 
 let allIndustries = [];
+let selectedMajorCompany = null;
+let allMajorCompanies = [];
 
-window.handleIndustryCodeSelectionForSurveyStep1 = function(items) {
-    selectedIndustryCodes = items;
-    renderSelectedCodes();
-};
+// --- 함수 정의 ---
 
 function renderSelectedCodes() {
     const container = document.getElementById('selectedIndustryCodesContainerSurveyStep1');
@@ -41,8 +39,11 @@ function renderSelectedCodes() {
 }
 
 function initializeMajorCompanyModal() {
+    document.querySelector('.modal-overlay')?.remove();
+
     const modalOverlay = document.createElement('div');
     modalOverlay.className = 'modal-overlay';
+    modalOverlay.style.display = 'flex';
     
     modalOverlay.innerHTML = `
         <div class="modal-content">
@@ -52,8 +53,7 @@ function initializeMajorCompanyModal() {
             </div>
             <div class="modal-body">
                 <input type="text" id="majorCompanySearchInput" class="form-control" placeholder="기업명으로 검색하세요..." style="margin-bottom: 15px;">
-                <ul class="industry-list-container" id="majorCompanyListContainer" style="max-height: 300px; overflow-y: auto;">
-                    </ul>
+                <ul class="industry-list-container" id="majorCompanyListContainer" style="max-height: 300px; overflow-y: auto;"></ul>
             </div>
             <div class="modal-footer">
                 <p class="modal-footnote">목록에서 벤치마킹할 기업을 1개 선택해주세요.</p>
@@ -100,13 +100,13 @@ function initializeMajorCompanyModal() {
                 company_name: selectedLi.dataset.companyName
             };
         } else {
-            selectedMajorCompany = null; 
+            selectedMajorCompany = null;
         }
         renderSelectedMajorCompany();
         closeModal();
     });
 
-    renderList(); 
+    renderList();
 }
 
 function renderSelectedMajorCompany() {
@@ -158,7 +158,6 @@ async function saveAndProceed() {
         companySize: document.querySelector('input[name="companySize"]:checked')?.value,
         mainBusinessRegion: Array.from(document.querySelectorAll('input[name="businessRegions"]:checked')).map(cb => cb.value).join(','),
         selected_major_company_id: selectedMajorCompany ? selectedMajorCompany.id : null
-
     };
 
     const token = localStorage.getItem('locallink-token');
@@ -202,8 +201,7 @@ function populateForm(data) {
         const el = document.querySelector(`input[name="exportPercentage"][value="${data.export_percentage}"]`);
         if (el) el.checked = true;
     }
-
-    if (data.is_listed !== undefined && data.is_listed !== null) {
+    if (data.is_listed !== undefined) {
         const el = document.querySelector(`input[name="listingStatus"][value="${data.is_listed ? 'listed' : 'unlisted'}"]`);
         if(el) el.checked = true;
     }
@@ -219,9 +217,8 @@ function populateForm(data) {
         });
     }
     
-    const industryCodesToPrefill = data.industry_codes || [];
-    if (industryCodesToPrefill.length > 0 && allIndustries.length > 0) {
-        selectedIndustryCodes = industryCodesToPrefill.map(code => {
+    if (data.industry_codes?.length > 0 && allIndustries.length > 0) {
+        selectedIndustryCodes = data.industry_codes.map(code => {
             const found = allIndustries.find(item => item.code === code);
             return { code: code, name: found ? found.name : '알 수 없음' };
         }).filter(Boolean);
@@ -237,6 +234,7 @@ function populateForm(data) {
     }
 }
 
+// --- 페이지 로드 시 실행될 메인 로직 ---
 document.addEventListener('DOMContentLoaded', async function() {
     
     const token = localStorage.getItem('locallink-token');
@@ -249,33 +247,36 @@ document.addEventListener('DOMContentLoaded', async function() {
     try {
         const [industryResponse, majorCompanyResponse] = await Promise.all([
             fetch(`${API_BASE_URL}/industries`, { headers: { 'Authorization': `Bearer ${token}` } }),
-            fetch(`${API_BASE_URL}/admin/major-companies-public`) 
-        ]);        
+            fetch(`${API_BASE_URL}/admin/major-companies-public`)
+        ]);
+
         const industryResult = await industryResponse.json();
         if (industryResult.success) {
             allIndustries = industryResult.industries;
         } else {
             console.error("산업코드 목록 로딩 실패:", industryResult.message);
         }
-    } catch (e) { 
-        console.error("산업코드 목록 API 호출 실패:", e);
-    }
 
+        const majorCompanyResult = await majorCompanyResponse.json();
+        if (majorCompanyResult.success) {
+            allMajorCompanies = majorCompanyResult.companies;
+        } else {
+            console.error("대기업 목록 로딩 실패:", majorCompanyResult.message);
+        }
+    } catch (e) { 
+        console.error("초기 데이터 로딩 실패:", e);
+    }
     
     document.getElementById('industryCodeInfoIconSurveyStep1')?.addEventListener('click', function() {
-        if (typeof initializeIndustryModal === 'function') {
-            initializeIndustryModal({
-                initialSelection: selectedIndustryCodes,
-                onConfirm: (confirmedSelection) => {
-                    window.handleIndustryCodeSelectionForSurveyStep1(confirmedSelection);
-                }
-            });
-        } else {
-            console.error('initializeIndustryModal 함수를 찾을 수 없습니다. common_modal.js 파일이 올바르게 로드되었는지 확인하세요.');
-            alert('산업분류표를 여는 데 실패했습니다. 페이지를 새로고침하거나 관리자에게 문의하세요.');
-        }
+        initializeIndustryModal({
+            initialSelection: selectedIndustryCodes,
+            onConfirm: (confirmedSelection) => {
+                selectedIndustryCodes = confirmedSelection;
+                renderSelectedCodes();
+            }
+        });
     });
-
+    
     document.getElementById('majorCompanyInfoIcon')?.addEventListener('click', function() {
         initializeMajorCompanyModal();
     });
@@ -294,7 +295,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         
         const initialData = diagnosisId ? result.diagnosis : result.user;
         populateForm(initialData);
-
     } catch(error) {
         localStorage.removeItem('locallink-token');
         sessionStorage.removeItem('currentDiagnosisId');
