@@ -338,7 +338,7 @@ function renderAiAnalysis(analysisData, userDiagnosis, industryAverages) {
         const diff = analysisData.percentageDiff;
         const signedDiff = diff > 0 ? `+${diff.toFixed(1)}` : diff.toFixed(1);
         
-        const comparisonText = `업계 평균과 <strong>비슷한 수준입니다.</strong> <span style="font-size:0.9em; color:#555;">(업계 평균 대비 <strong>${signedDiff}%</strong>)</span>`;
+        const comparisonText = `업계 평균과 <strong>비슷한 수준입니다.</strong> <span style="font-size:0.9em; color:#555;"></span>`;
         
         const categories = analysisData.recommendedCategories || [];
         const categoryText = categories.length > 0 
