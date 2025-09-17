@@ -128,8 +128,9 @@ document.addEventListener('DOMContentLoaded', async function() {
             document.getElementById('regulation-timeline-container').innerHTML = '<p>규제 정보를 불러오는 데 실패했습니다.</p>';
         }
 
-        renderAiAnalysis(data.aiAnalysis); 
-        renderBenchmarkCharts(data.userDiagnosis, data.benchmarkScores, data.userAnswers, data.allQuestions);
+        const industryAverageScores = renderBenchmarkCharts(data.userDiagnosis, data.benchmarkScores, data.userAnswers, data.allQuestions);
+        renderAiAnalysis(data.aiAnalysis, data.userDiagnosis, industryAverageScores); 
+        
         renderIndustryIssues(data.industryIssues, data.userDiagnosis);
         renderTasksAndAnalysis(data.priorityRecommendedPrograms, data.engineRecommendedPrograms, data.allSolutionCategories);
         renderRegionalMapAndIssues(data.userDiagnosis, data.regionalIssues); 
@@ -165,14 +166,18 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 
 function renderBenchmarkCharts(diagnosis, benchmarkScores, userAnswers, allQuestions) {
-    if (typeof Chart === 'undefined') { console.error("Chart.js is not loaded."); return; }
+    if (typeof Chart === 'undefined') { 
+        console.error("Chart.js is not loaded."); 
+        return { e: 50, s: 50, g: 50 }; // Chart.js가 없으면 기본값 반환
+    }
 
     const catChartCanvas = document.getElementById('categoryBenchmarkChart');
     const qChartCanvas = document.getElementById('questionBenchmarkChart');
-
     const benchmarkInfoEl = document.getElementById('benchmarkIndustryInfo');
 
-    if (!catChartCanvas || !qChartCanvas || !diagnosis) return;
+    if (!catChartCanvas || !qChartCanvas || !diagnosis) {
+        return { e: 50, s: 50, g: 50 }; // 필수 요소가 없으면 기본값 반환
+    }
 
     if (benchmarkInfoEl && diagnosis.industry_codes && diagnosis.industry_codes.length > 0) {
         benchmarkInfoEl.innerHTML = `<strong>적용 산업분류:</strong> [${diagnosis.industry_codes[0]}] ${diagnosis.industry_name || ''}`;
@@ -196,14 +201,17 @@ function renderBenchmarkCharts(diagnosis, benchmarkScores, userAnswers, allQuest
         g: categoryQuestionCounts.g > 0 ? categoryTotalScores.g / categoryQuestionCounts.g : 50
     };
     
+    const datasets = [];
+    if (diagnosis.diagnosis_type !== 'simple') {
+        datasets.push({ label: '우리 회사', data: [diagnosis.e_score, diagnosis.s_score, diagnosis.g_score], backgroundColor: 'rgba(54, 162, 235, 0.7)' });
+    }
+    datasets.push({ label: '업계 평균', data: [industryAverageScores.e, industryAverageScores.s, industryAverageScores.g], backgroundColor: 'rgba(201, 203, 207, 0.7)' });
+
     new Chart(catChartCanvas, {
         type: 'bar',
         data: {
             labels: ['환경(E)', '사회(S)', '지배구조(G)'],
-            datasets: [
-                { label: '우리 회사', data: [diagnosis.e_score, diagnosis.s_score, diagnosis.g_score], backgroundColor: 'rgba(54, 162, 235, 0.7)' },
-                { label: '업계 평균', data: [industryAverageScores.e, industryAverageScores.s, industryAverageScores.g], backgroundColor: 'rgba(201, 203, 207, 0.7)' } 
-            ]
+            datasets: datasets
         },
         options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } } }
     });
@@ -241,17 +249,19 @@ function renderBenchmarkCharts(diagnosis, benchmarkScores, userAnswers, allQuest
     if (labels.length === 0) {
         const container = qChartCanvas.parentElement;
         if(container) container.innerHTML = '<h4>항목별 성과 비교</h4><p>비교할 벤치마크 데이터가 없습니다.</p>';
-        return;
+        return industryAverageScores; 
+    }
+
+    const lineChartDatasets = [{ label: '업계 평균', data: industryScores, borderColor: 'rgba(255, 99, 132, 1)', borderDash: [5, 5], tension: 0.1 }];
+    if (diagnosis.diagnosis_type !== 'simple') {
+        lineChartDatasets.unshift({ label: '우리 회사', data: userScores, borderColor: 'rgba(54, 162, 235, 1)', tension: 0.1 });
     }
 
     new Chart(qChartCanvas, {
         type: 'line',
         data: { 
             labels: labels, 
-            datasets: [
-                { label: '우리 회사', data: userScores, borderColor: 'rgba(54, 162, 235, 1)', tension: 0.1 },
-                { label: '업계 평균', data: industryScores, borderColor: 'rgba(255, 99, 132, 1)', borderDash: [5, 5], tension: 0.1 }
-            ]
+            datasets: lineChartDatasets
         },
         options: { 
             responsive: true, 
@@ -276,16 +286,53 @@ function renderBenchmarkCharts(diagnosis, benchmarkScores, userAnswers, allQuest
             }
         }
     });
+    
+    return industryAverageScores;
 }
 
-function renderAiAnalysis(analysisData) {
+function renderAiAnalysis(analysisData, userDiagnosis, industryAverages) {
     const container = document.getElementById('aiAnalysisContent');
-    if (!container || !analysisData) return;
+    if (!container) return;
+
+    if (userDiagnosis && userDiagnosis.diagnosis_type === 'simple') {
+        if (!industryAverages) {
+            container.innerHTML = '<p>산업 평균 데이터를 분석할 수 없습니다.</p>';
+            return;
+        }
+
+        const scores = [
+            { cat: 'e', name: '환경', score: industryAverages.e },
+            { cat: 's', name: '사회', score: industryAverages.s },
+            { cat: 'g', name: '지배구조', score: industryAverages.g }
+        ];
+
+        const weakest = scores.sort((a, b) => a.score - b.score)[0];
+        const totalAverage = (scores.reduce((sum, item) => sum + item.score, 0) / scores.length).toFixed(1);
+
+        const recommendations = {
+            e: "에너지 사용량 관리, 폐기물 재활용 시스템 구축 등 <strong>'친환경 경영'</strong> 분야에 대한 개선을 우선적으로 고려해야 합니다.",
+            s: "안전한 작업 환경 조성, 공급망 인권 실사 등 <strong>'협력사 상생 및 인권'</strong> 분야에 대한 개선이 필요합니다.",
+            g: "이사회 내 투명한 의사결정 구조 확립, 윤리경영 강화 등 <strong>'지배구조 개선'</strong> 분야에 대한 노력이 중요합니다."
+        };
+
+        const comparisonText = `동종 업계의 ESG 경영 수준은 평균 <strong>${totalAverage}점</strong>이며, 특히 <strong>'${weakest.name}(${weakest.cat.toUpperCase()})'</strong> 분야가 상대적으로 취약한 것으로 분석됩니다.`;
+        const adviceText = recommendations[weakest.cat];
+
+        container.innerHTML = `
+            <p>${comparisonText}</p>
+            <p>${adviceText}</p>
+        `;
+        return;
+    }
+
+    if (!analysisData) {
+        container.innerHTML = '<p>AI 분석 데이터를 불러올 수 없습니다.</p>';
+        return;
+    }
 
     const diff = analysisData.percentageDiff;
     let comparisonText = '';
     let adviceText = '';
-
     const categories = analysisData.recommendedCategories || [];
     const categoryText = categories.length > 0 
         ? `특히 <strong>${categories.map(cat => `'${cat}'`).join(', ')}</strong> 분야에서` 
@@ -312,7 +359,6 @@ function renderAiAnalysis(analysisData) {
         <p>${adviceText}</p>
     `;
 }
-
 
 function renderIndustryIssues(issues, diagnosis) {
     const container = document.getElementById('industryIssuesContent');
@@ -439,26 +485,6 @@ function renderRegionalMapAndIssues(diagnosis, regionalIssues) {
     `;
 }
 
-function equalizeSectionHeights() {
-    const industrySection = document.getElementById('industryEsgIssuesSection');
-    const mapSection = document.getElementById('regionalMapSection');
-
-    if (!industrySection || !mapSection) return;
-
-    industrySection.style.height = 'auto';
-    mapSection.style.height = 'auto';
-
-    setTimeout(() => {
-        const industryHeight = industrySection.offsetHeight;
-        const mapHeight = mapSection.offsetHeight;
-        
-        const maxHeight = Math.max(industryHeight, mapHeight);
-
-        industrySection.style.height = `${maxHeight}px`;
-        mapSection.style.height = `${maxHeight}px`;
-    }, 100); 
-}
-
 function renderTasksAndAnalysis(priorityPrograms, enginePrograms, allSolutionCategories) {
     const priorityContainer = document.getElementById('priorityTaskContainer');
     const engineContainer = document.getElementById('taskAnalysisContainer');
@@ -489,10 +515,10 @@ function renderTasksAndAnalysis(priorityPrograms, enginePrograms, allSolutionCat
         priorityHtml += `</div></div>`;
         priorityContainer.innerHTML = priorityHtml;
     } else {
-        priorityContainer.innerHTML = ''; // 우선 추천 프로그램이 없으면 아무것도 표시하지 않음
+        priorityContainer.innerHTML = ''; 
     }
 
-    // --- 2. 엔진 추천 프로그램 렌더링 (기존 로직 활용) ---
+    // --- 2. 엔진 추천 프로그램 렌더링 ---
     if (!enginePrograms || enginePrograms.length === 0) {
         engineContainer.innerHTML = '<div class="solution-card" style="text-align: center;"><h4 class="solution-category-title">👍 훌륭합니다!</h4><p>현재 진단 결과, AI가 추천하는 시급한 개선 과제는 없습니다.</p></div>';
         return;
@@ -537,61 +563,6 @@ function renderTasksAndAnalysis(priorityPrograms, enginePrograms, allSolutionCat
         `;
     }
     engineContainer.innerHTML = engineHtml;
-}
-
-function getFinancialImpactText(program, industryAverageData) {
-    const risk = {
-        summary: program.risk_text || '분석 데이터 없음',
-        details: program.risk_description || ''
-    };
-    
-    let opportunities = [];
-
-    if (program.opportunity_effects && program.opportunity_effects.length > 0) {
-        program.opportunity_effects.forEach(effect => {
-            if (effect.type === 'text' && effect.value) {
-                opportunities.push({ 
-                    summary: effect.value, 
-                    details: '' 
-                });
-            } 
-            else if (effect.type === 'calculation') {
-                const rule = effect.rule;
-                const economicEffects = program.economic_effects;
-                let summaryText = `[계산 불가]`; 
-                let detailsText = '';
-
-                if (rule && rule.params && rule.params.avgDataKey && industryAverageData && economicEffects && economicEffects.length > 0) {
-                    const params = rule.params;
-                    const avgValue = industryAverageData[params.avgDataKey];
-                    const ecoEffect = economicEffects[0];
-                    const correctionFactor = params.correctionFactor || 1.0;
-                    const numericAvgValue = parseFloat(avgValue);
-                    const numericEffectValue = ecoEffect ? parseFloat(ecoEffect.value) : NaN;
-
-                    if (!isNaN(numericAvgValue) && !isNaN(numericEffectValue)) {
-                        const calculatedValue = numericAvgValue * numericEffectValue * correctionFactor;
-                        
-                        summaryText = `<b>${calculatedValue.toLocaleString()}</b> 원`;
-
-                        const descriptionTemplate = effect.description || "{value}의 개선 효과";
-                        detailsText = descriptionTemplate.replace('{value}', `<b>${calculatedValue.toLocaleString()}</b>`) + "<br><br><em>= (산업평균값으로 추정한 기대값)</em>";
-
-                    } else {
-                        summaryText = `[계산 보류]`;
-                        detailsText = `계산에 필요한 데이터(산업 평균 또는 기대 효과 값)가 유효하지 않습니다.`;
-                    }
-                }
-                opportunities.push({ summary: summaryText, details: detailsText });
-            }
-        });
-    }
-
-    if (opportunities.length === 0) {
-        opportunities.push({ summary: '경쟁력 강화', details: '' });
-    }
-
-    return { risk, opportunities };
 }
 
 function renderRegulationTimeline(regulations) {
