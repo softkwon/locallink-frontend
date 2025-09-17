@@ -1,5 +1,51 @@
 import { API_BASE_URL } from './config.js';
 
+function generateAndPrintReport(programData) {
+    const { program_title, expected_impact, achieved_impact, timeline } = programData;
+    
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write('<html><head><title>임팩트 리포트 - ' + program_title + '</title>');
+    printWindow.document.write('<style> body { font-family: sans-serif; } table { width: 100%; border-collapse: collapse; } th, td { border: 1px solid #ddd; padding: 8px; text-align: left;} th { background-color: #f2f2f2; } h1, h2 { color: #0056b3; } </style>');
+    printWindow.document.write('</head><body>');
+
+    printWindow.document.write(`<h1>${program_title} - 임팩트 리포트</h1>`);
+    
+    // 1. 임팩트 요약
+    printWindow.document.write('<h2>임팩트 요약</h2>');
+    printWindow.document.write('<table><thead><tr><th>항목</th><th>예상</th><th>달성</th></tr></thead><tbody>');
+    printWindow.document.write(`<tr><td>주요 대상</td><td>${expected_impact?.stakeholder_type || '-'}</td><td>-</td></tr>`);
+    printWindow.document.write(`<tr><td>규모 (단위: ${expected_impact?.scale_unit || '명'})</td><td>${expected_impact?.scale_value || 0}</td><td>${achieved_impact?.achieved_scale_value || 0}</td></tr>`);
+    printWindow.document.write(`<tr><td>기간 (일)</td><td>${expected_impact?.duration_days || '-'}</td><td>-</td></tr>`);
+    printWindow.document.write('</tbody></table>');
+
+    // 2. SDGs 기여도
+    if (expected_impact?.sdgs_goals?.length > 0) {
+        printWindow.document.write('<h2>연관 SDGs 목표</h2>');
+        expected_impact.sdgs_goals.forEach(goal => {
+            printWindow.document.write(`<img src="/images/sdgs/SDG${goal}.png" style="width:80px; margin-right: 10px;">`);
+        });
+    }
+
+    // 3. 마일스톤 진행 현황
+    printWindow.document.write('<h2>마일스톤 진행 현황</h2>');
+    printWindow.document.write('<table><thead><tr><th>마일스톤</th><th>상태</th></tr></thead><tbody>');
+    (timeline || []).forEach(m => {
+        printWindow.document.write(`<tr><td>${m.milestone_name}</td><td>${m.is_completed ? '완료' : '진행중'}</td></tr>`);
+    });
+    printWindow.document.write('</tbody></table>');
+
+    // 4. 관리자 메모
+    if (achieved_impact?.notes) {
+        printWindow.document.write('<h2>담당자 기록</h2>');
+        printWindow.document.write(`<p>${achieved_impact.notes.replace(/\n/g, '<br>')}</p>`);
+    }
+
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => { printWindow.print(); }, 500); // 렌더링 시간 확보 후 인쇄
+}
+
 document.addEventListener('DOMContentLoaded', async function() {
     const token = localStorage.getItem('locallink-token');
     if (!token) {
@@ -199,56 +245,60 @@ function renderProgramCards(programs) {
         return;
     }
 
-    programs.forEach(program => {
+    programs.forEach((program, programIndex) => {
         const steps = ['신청', '접수', '진행', '완료'];
         const currentStepIndex = steps.indexOf(program.status);
         const stepperHtml = steps.map((label, i) => `<div class="step ${i <= currentStepIndex ? 'completed' : ''}"><div class="step-icon">${i + 1}</div><div class="step-label">${label}</div></div>`).join('<div class="step-line"></div>');
+        
+        let impactHtml = '';
+        const expected = program.expected_impact;
+        const achieved = program.achieved_impact;
 
-        let milestonesHtml = '';
-        if ((program.status === '진행' || program.status === '완료') && program.timeline && program.timeline.length > 0) {
-            // [수정] 마일스톤을 박스 형태로 렌더링
-            milestonesHtml = `
-                <h5 class="milestone-section-title">세부 진행 내용</h5>
-                <div class="milestones-wrapper">
-                    ${program.timeline.map((milestone, index) => `
-                        <div class="milestone-box ${milestone.is_completed ? 'completed' : ''}">
-                            <div class="milestone-preview-image" style="background-image: url('${milestone.image_url || 'placeholder.jpg'}')"></div>
-                            <div class="milestone-preview-content">
-                                <span class="milestone-title">${milestone.milestone_name}</span>
-                                <p class="milestone-summary">${(milestone.content || '').substring(0, 40)}...</p>
-                                <div class="milestone-actions">
-                                    ${milestone.attachment_url ? `<a href="${milestone.attachment_url}" target="_blank" download class="button-sm">자료 다운로드</a>` : ''}
-                                    <button class="button-sm button-primary open-milestone-modal" data-program-index="${programs.indexOf(program)}" data-milestone-index="${index}">자세히 보기</button>
-                                </div>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>`;
+        if (expected && expected.scale_value) {
+            const expectedScale = expected.scale_value || 0;
+            const achievedScale = achieved?.achieved_scale_value || 0;
+            const achievementRate = expectedScale > 0 ? (achievedScale / expectedScale) * 100 : 0;
+            
+            impactHtml = `
+                <div class="impact-summary-container">
+                    <h5>임팩트 현황</h5>
+                    <div class="impact-item">
+                        <span class="label">${expected.stakeholder_type || '주요 대상'} 달성률</span>
+                        <span class="value">${achievementRate.toFixed(1)}%</span>
+                    </div>
+                    <div class="impact-progress">
+                        <div class="progress-bar" style="width: ${achievementRate.toFixed(1)}%;"></div>
+                    </div>
+                    <small>${achievedScale.toLocaleString()} / ${expectedScale.toLocaleString()} ${expected.scale_unit || '명'} 달성</small>
+                </div>
+            `;
         }
         
-        // ... (improvementHtml 로직은 기존과 동일) ...
-        const improvement = program.potentialImprovement;
-        let improvementHtml = '';
-        if (improvement && improvement.total > 0) {
-            const e_imp = improvement.e > 0 ? `<span class="imp-e" title="환경 점수 ${improvement.e.toFixed(1)}점 개선">+${improvement.e.toFixed(1)}</span>` : '';
-            const s_imp = improvement.s > 0 ? `<span class="imp-s" title="사회 점수 ${improvement.s.toFixed(1)}점 개선">+${improvement.s.toFixed(1)}</span>` : '';
-            const g_imp = improvement.g > 0 ? `<span class="imp-g" title="지배구조 점수 ${improvement.g.toFixed(1)}점 개선">+${improvement.g.toFixed(1)}</span>` : '';
-            improvementHtml = `<div class="improvement-preview"><strong>완료 시 개선 예상:</strong> ${e_imp} ${s_imp} ${g_imp}</div>`;
-        }
-
-
         const card = document.createElement('div');
         card.className = 'program-status-card';
         card.innerHTML = `
-            <div class="card-header"><h4>${program.program_title}</h4>${improvementHtml}</div>
+            <div class="card-header">
+                <h4>${program.program_title}</h4>
+                <div class="button-group">
+                    <button class="button-secondary button-sm report-btn" data-program-index="${programIndex}">임팩트 리포트</button>
+                </div>
+            </div>
             <div class="card-body">
                 ${program.admin_message ? `<div class="admin-message"><strong>담당자 메시지:</strong> ${program.admin_message}</div>` : ''}
                 <h5>전체 진행 상태</h5>
                 <div class="status-stepper">${stepperHtml}</div>
-                ${milestonesHtml}
+                ${impactHtml}
+                <!-- 마일스톤 부분은 간결성을 위해 우선 제거. 필요시 추가 가능 -->
             </div>
         `;
         container.appendChild(card);
+    });
+
+    container.addEventListener('click', e => {
+        if (e.target.classList.contains('report-btn')) {
+            const programIndex = e.target.dataset.programIndex;
+            generateAndPrintReport(programs[programIndex]);
+        }
     });
 }
 
