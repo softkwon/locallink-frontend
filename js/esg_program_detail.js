@@ -134,6 +134,7 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
     // 이벤트 리스너 연결
     attachActionEventListeners(program);
     attachShareEventListeners(program, firstImage);
+    attachNonUserApplicationModalEvents();
     if (program.service_costs && program.service_costs.length > 0) {
         attachServiceCostModalEvents(program);
     }
@@ -149,32 +150,38 @@ function attachActionEventListeners(program) {
         const action = targetButton.dataset.action;
         const token = localStorage.getItem('locallink-token');
 
+        // '신청하기' 버튼 (모든 경우)
+        if (action === 'apply' || action === 'apply_prompt') {
+            if (token) { // 1. 로그인 상태: 기존처럼 신청 로직 실행
+                if(confirm(`'${program.title}' 프로그램을 신청하시겠습니까?`)){
+                    try {
+                        const response = await fetch(`${API_BASE_URL}/applications/me`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                            body: JSON.stringify({ programId: program.id })
+                        });
+                        const result = await response.json();
+                        alert(result.message);
+                    } catch (error) { alert('신청 처리 중 오류가 발생했습니다.'); }
+                }
+            } else { // 2. 비로그인 상태: 문의/신청 모달 열기
+                document.getElementById('inquiry-program-id').value = program.id;
+                document.getElementById('inquiry-program-title').value = program.title;
+                document.getElementById('non-user-application-modal').style.display = 'flex';
+            }
+            return;
+        }
+        
+        // --- 이하 기타 버튼 로직 (기존과 유사) ---
         if (action === 'prompt_go_to_step5') {
             alert("다음단계인 'ESG 프로그램 제안'(Step5)에서 신청해 주세요.");
             return;
         }
-        if (action === 'apply_prompt') {
-            alert("먼저 간이 진단을 진행하세요.");
-            return;
-        }
-        if (!token) {
-            alert("로그인이 필요한 기능입니다.");
-            return window.location.href = 'main_login.html';
-        }
-        if (action === 'apply') {
-            if(confirm(`'${program.title}' 프로그램을 신청하시겠습니까?`)){
-                try {
-                    const response = await fetch(`${API_BASE_URL}/applications/me`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                        body: JSON.stringify({ programId: program.id })
-                    });
-                    const result = await response.json();
-                    alert(result.message);
-                } catch (error) { alert('신청 처리 중 오류가 발생했습니다.'); }
+        if (action === 'add_plan') {
+            if (!token) {
+                alert("로그인이 필요한 기능입니다.");
+                return window.location.href = 'main_login.html';
             }
-        } 
-        else if (action === 'add_plan') {
             let myPlan = JSON.parse(localStorage.getItem('esgMyPlan')) || [];
             if (myPlan.some(p => p.id === program.id)) {
                 alert('이미 플랜에 추가된 프로그램입니다.');
@@ -183,6 +190,45 @@ function attachActionEventListeners(program) {
             myPlan.push({ id: program.id, title: program.title });
             localStorage.setItem('esgMyPlan', JSON.stringify(myPlan));
             alert(`'${program.title}' 프로그램이 내 플랜에 추가되었습니다.`);
+        }
+    });
+}
+
+// [추가] 비회원 신청/문의 모달 이벤트 처리 함수
+function attachNonUserApplicationModalEvents() {
+    const modal = document.getElementById('non-user-application-modal');
+    const form = document.getElementById('non-user-application-form');
+    const closeBtn = modal.querySelector('.close-btn');
+
+    closeBtn.addEventListener('click', () => modal.style.display = 'none');
+    window.addEventListener('click', (e) => {
+        if (e.target === modal) modal.style.display = 'none';
+    });
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+        
+        try {
+            // ※ 중요: 이 부분은 백엔드에 비회원 문의를 저장하는 API가 준비되어야 합니다.
+            //    엔드포인트는 예시이며, 실제 API 주소로 변경해야 합니다.
+            const response = await fetch(`${API_BASE_URL}/inquiries`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+
+            if (response.ok) {
+                alert('문의가 성공적으로 접수되었습니다. 담당자가 확인 후 연락드리겠습니다.');
+                form.reset();
+                modal.style.display = 'none';
+            } else {
+                throw new Error(result.message || '문의 접수 중 오류가 발생했습니다.');
+            }
+        } catch (error) {
+            alert(error.message);
         }
     });
 }
