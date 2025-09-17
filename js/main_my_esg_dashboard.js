@@ -1,51 +1,5 @@
 import { API_BASE_URL } from './config.js';
 
-function generateAndPrintReport(programData) {
-    const { program_title, expected_impact, achieved_impact, timeline } = programData;
-    
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write('<html><head><title>임팩트 리포트 - ' + program_title + '</title>');
-    printWindow.document.write('<style> body { font-family: sans-serif; } table { width: 100%; border-collapse: collapse; } th, td { border: 1px solid #ddd; padding: 8px; text-align: left;} th { background-color: #f2f2f2; } h1, h2 { color: #0056b3; } </style>');
-    printWindow.document.write('</head><body>');
-
-    printWindow.document.write(`<h1>${program_title} - 임팩트 리포트</h1>`);
-    
-    // 1. 임팩트 요약
-    printWindow.document.write('<h2>임팩트 요약</h2>');
-    printWindow.document.write('<table><thead><tr><th>항목</th><th>예상</th><th>달성</th></tr></thead><tbody>');
-    printWindow.document.write(`<tr><td>주요 대상</td><td>${expected_impact?.stakeholder_type || '-'}</td><td>-</td></tr>`);
-    printWindow.document.write(`<tr><td>규모 (단위: ${expected_impact?.scale_unit || '명'})</td><td>${expected_impact?.scale_value || 0}</td><td>${achieved_impact?.achieved_scale_value || 0}</td></tr>`);
-    printWindow.document.write(`<tr><td>기간 (일)</td><td>${expected_impact?.duration_days || '-'}</td><td>-</td></tr>`);
-    printWindow.document.write('</tbody></table>');
-
-    // 2. SDGs 기여도
-    if (expected_impact?.sdgs_goals?.length > 0) {
-        printWindow.document.write('<h2>연관 SDGs 목표</h2>');
-        expected_impact.sdgs_goals.forEach(goal => {
-            printWindow.document.write(`<img src="/images/sdgs/SDG${goal}.png" style="width:80px; margin-right: 10px;">`);
-        });
-    }
-
-    // 3. 마일스톤 진행 현황
-    printWindow.document.write('<h2>마일스톤 진행 현황</h2>');
-    printWindow.document.write('<table><thead><tr><th>마일스톤</th><th>상태</th></tr></thead><tbody>');
-    (timeline || []).forEach(m => {
-        printWindow.document.write(`<tr><td>${m.milestone_name}</td><td>${m.is_completed ? '완료' : '진행중'}</td></tr>`);
-    });
-    printWindow.document.write('</tbody></table>');
-
-    // 4. 관리자 메모
-    if (achieved_impact?.notes) {
-        printWindow.document.write('<h2>담당자 기록</h2>');
-        printWindow.document.write(`<p>${achieved_impact.notes.replace(/\n/g, '<br>')}</p>`);
-    }
-
-    printWindow.document.write('</body></html>');
-    printWindow.document.close();
-    printWindow.focus();
-    setTimeout(() => { printWindow.print(); }, 500); // 렌더링 시간 확보 후 인쇄
-}
-
 document.addEventListener('DOMContentLoaded', async function() {
     const token = localStorage.getItem('locallink-token');
     if (!token) {
@@ -54,33 +8,31 @@ document.addEventListener('DOMContentLoaded', async function() {
         return;
     }
 
+    const container = document.getElementById('dashboard-container');
+
     try {
-        // 대시보드 정보와 규제 정보를 동시에 요청합니다.
         const [dashboardRes, regulationsRes] = await Promise.all([
             fetch(`${API_BASE_URL}/users/me/dashboard`, { headers: { 'Authorization': `Bearer ${token}` } }),
-            // ✅ [핵심 수정] API 주소에 '/admin'을 추가합니다.
             fetch(`${API_BASE_URL}/admin/regulations`, { headers: { 'Authorization': `Bearer ${token}` } })
         ]);
 
-        // 1. 대시보드 데이터 처리
         const dashboardResult = await dashboardRes.json();
         if (!dashboardResult.success) {
-            document.getElementById('dashboard-container').innerHTML = `<h2>진행 중인 프로그램</h2><p>${dashboardResult.message || '데이터를 불러오는 데 실패했습니다.'}</p>`;
+            container.innerHTML = `<h2>진행 중인 프로그램</h2><p>${dashboardResult.message || '데이터를 불러오는 데 실패했습니다.'}</p>`;
         } else {
             const dashboardData = dashboardResult.dashboard;
             renderScoreSection(dashboardData);
             renderProgramCards(dashboardData.programs);
 
-            // 모달 제어 로직
+            // 모달 이벤트 리스너 설정
             const modal = document.getElementById('milestone-modal');
             const modalContent = document.getElementById('modal-details-content');
-            const closeModalBtn = document.querySelector('.modal-close-btn');
+            const closeModalBtn = modal.querySelector('.modal-close-btn');
             if (modal) {
                 closeModalBtn.addEventListener('click', () => modal.style.display = 'none');
                 window.addEventListener('click', (e) => {
                     if (e.target == modal) modal.style.display = 'none';
                 });
-                const container = document.getElementById('dashboard-container');
                 container.addEventListener('click', function(e) {
                     if (e.target.classList.contains('open-milestone-modal')) {
                         const progIdx = e.target.dataset.programIndex;
@@ -89,7 +41,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                         modalContent.innerHTML = `
                             <h2>${milestone.milestone_name}</h2>
                             ${milestone.image_url ? `<img src="${milestone.image_url}" alt="${milestone.milestone_name}" class="modal-image">` : ''}
-                            <p>${milestone.content || '상세 내용이 없습니다.'}</p>
+                            <p>${(milestone.content || '상세 내용이 없습니다.').replace(/\n/g, '<br>')}</p>
                             ${milestone.attachment_url ? `<a href="${milestone.attachment_url}" target="_blank" download class="button button-primary">첨부 문서 다운로드</a>` : ''}
                         `;
                         modal.style.display = 'block';
@@ -98,7 +50,6 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
         }
 
-        // 2. 규제 타임라인 데이터 처리
         const regulationsResult = await regulationsRes.json();
         if (regulationsResult.success) {
             renderRegulationTimeline(regulationsResult.regulations);
@@ -107,8 +58,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
 
     } catch (error) {
-        // 네트워크 오류 등 Promise.all 자체의 실패 처리
-        const container = document.getElementById('dashboard-container');
         if(container) container.innerHTML = `<h3>오류 발생</h3><p>데이터를 불러오는 중 문제가 발생했습니다. 페이지를 새로고침 해주세요.</p>`;
         console.error("데이터 로딩 중 심각한 오류:", error);
     }
@@ -249,6 +198,33 @@ function renderProgramCards(programs) {
         const steps = ['신청', '접수', '진행', '완료'];
         const currentStepIndex = steps.indexOf(program.status);
         const stepperHtml = steps.map((label, i) => `<div class="step ${i <= currentStepIndex ? 'completed' : ''}"><div class="step-icon">${i + 1}</div><div class="step-label">${label}</div></div>`).join('<div class="step-line"></div>');
+
+        // ★★★ 1. 마일스톤 카드 UI 생성 로직 복원 ★★★
+        let milestonesHtml = '';
+        if ((program.status === '진행' || program.status === '완료') && program.timeline && program.timeline.length > 0) {
+            milestonesHtml = `
+                <h5 class="milestone-section-title">세부 진행 내용</h5>
+                <div class="milestones-wrapper">
+                    ${program.timeline.map((milestone, index) => `
+                        <div class="milestone-box ${milestone.is_completed ? 'completed' : ''}">
+                            <div class="milestone-preview-image" style="background-image: url('${milestone.image_url || '/images/default_program.png'}')"></div>
+                            <div class="milestone-preview-content">
+                                <span class="milestone-title">${milestone.milestone_name}</span>
+                                <p class="milestone-summary">${(milestone.content || '').substring(0, 40)}...</p>
+                                <div class="milestone-actions">
+                                    ${milestone.attachment_url ? `<a href="${milestone.attachment_url}" target="_blank" download class="button-sm">자료 다운로드</a>` : ''}
+                                    <button class="button-sm button-primary open-milestone-modal" data-program-index="${programIndex}" data-milestone-index="${index}">자세히 보기</button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>`;
+        }
+
+        // ★★★ 3. 프로그램 상태에 따라 '임팩트 리포트' 버튼을 조건부로 표시 ★★★
+        const reportButtonHtml = ['진행', '완료'].includes(program.status)
+            ? `<button class="button-secondary button-sm report-btn" data-program-index="${programIndex}">임팩트 리포트</button>`
+            : '';
         
         let impactHtml = '';
         const expected = program.expected_impact;
@@ -280,7 +256,7 @@ function renderProgramCards(programs) {
             <div class="card-header">
                 <h4>${program.program_title}</h4>
                 <div class="button-group">
-                    <button class="button-secondary button-sm report-btn" data-program-index="${programIndex}">임팩트 리포트</button>
+                    ${reportButtonHtml}
                 </div>
             </div>
             <div class="card-body">
@@ -288,7 +264,7 @@ function renderProgramCards(programs) {
                 <h5>전체 진행 상태</h5>
                 <div class="status-stepper">${stepperHtml}</div>
                 ${impactHtml}
-                <!-- 마일스톤 부분은 간결성을 위해 우선 제거. 필요시 추가 가능 -->
+                ${milestonesHtml}
             </div>
         `;
         container.appendChild(card);
@@ -300,6 +276,88 @@ function renderProgramCards(programs) {
             generateAndPrintReport(programs[programIndex]);
         }
     });
+}
+
+function generateAndPrintReport(programData) {
+    const { program_title, expected_impact, achieved_impact, timeline } = programData;
+    
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write('<html><head><title>임팩트 리포트 - ' + program_title + '</title>');
+    printWindow.document.write(`
+        <style> 
+            body { font-family: sans-serif; margin: 20px; } 
+            table { width: 100%; border-collapse: collapse; margin-bottom: 20px; } 
+            th, td { border: 1px solid #ddd; padding: 12px; text-align: left;} 
+            th { background-color: #f2f2f2; } 
+            h1, h2 { color: #0056b3; border-bottom: 1px solid #ccc; padding-bottom: 10px;} 
+            .sdg-image { width:80px; margin-right: 10px; vertical-align: middle; }
+            .print-button { display: block; margin: 20px 0; padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+            @media print { .print-button { display: none; } }
+            /* 마일스톤 카드 스타일 */
+            .milestones-wrapper { margin-top: 1rem; }
+            .milestone-box { border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; margin-bottom: 15px; page-break-inside: avoid; }
+            .milestone-box.completed { border-left: 5px solid #28a745; }
+            .milestone-preview-image { width: 100%; height: 150px; background-size: cover; background-position: center; background-color: #f0f0f0; }
+            .milestone-preview-content { padding: 1rem; }
+            .milestone-title { font-weight: bold; font-size: 1.1rem; }
+            .milestone-summary { font-size: 0.9rem; color: #666; margin: 0.5rem 0; white-space: pre-wrap; }
+        </style>
+    `);
+    printWindow.document.write('</head><body>');
+
+    printWindow.document.write(`<button class="print-button" onclick="window.print()">이 리포트 인쇄하기</button>`);
+    printWindow.document.write(`<h1>${program_title} - 임팩트 리포트</h1>`);
+    
+    // 임팩트 요약
+    printWindow.document.write('<h2>임팩트 요약</h2>');
+    printWindow.document.write('<table><thead><tr><th>항목</th><th>예상</th><th>달성</th></tr></thead><tbody>');
+    printWindow.document.write(`<tr><td>주요 대상</td><td>${expected_impact?.stakeholder_type || '-'}</td><td>-</td></tr>`);
+    printWindow.document.write(`<tr><td>규모 (단위: ${expected_impact?.scale_unit || '명'})</td><td>${expected_impact?.scale_value || 0}</td><td>${achieved_impact?.achieved_scale_value || 0}</td></tr>`);
+    printWindow.document.write(`<tr><td>기간 (일)</td><td>${expected_impact?.duration_days || '-'}</td><td>-</td></tr>`);
+    printWindow.document.write('</tbody></table>');
+
+    // SDGs 기여도
+    if (expected_impact?.sdgs_goals?.length > 0) {
+        printWindow.document.write('<h2>연관 SDGs 목표</h2><div>');
+        expected_impact.sdgs_goals.forEach(goal => {
+            printWindow.document.write(`<img src="/images/sdgs/SDG${goal}.png" class="sdg-image" alt="SDG ${goal}">`);
+        });
+        printWindow.document.write('</div>');
+    }
+
+    // ★★★ 마일스톤 진행 현황을 카드 박스 형태로 복원 ★★★
+    printWindow.document.write('<h2>마일스톤 진행 현황</h2>');
+    if (timeline && timeline.length > 0) {
+        const milestonesHtml = `
+            <div class="milestones-wrapper">
+                ${timeline.map(milestone => `
+                    <div class="milestone-box ${milestone.is_completed ? 'completed' : ''}">
+                        ${milestone.image_url ? `<div class="milestone-preview-image" style="background-image: url('${milestone.image_url}')"></div>` : ''}
+                        <div class="milestone-preview-content">
+                            <span class="milestone-title">${milestone.milestone_name}</span>
+                            <p class="milestone-summary">${(milestone.content || '').replace(/\n/g, '<br>')}</p>
+                            ${milestone.attachment_url ? `<p><a href="${milestone.attachment_url}" target="_blank">첨부 자료 보기</a></p>` : ''}
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+        printWindow.document.write(milestonesHtml);
+    } else {
+        printWindow.document.write('<p>설정된 세부 진행 내용이 없습니다.</p>');
+    }
+
+    // 관리자 메모
+    if (achieved_impact?.notes) {
+        printWindow.document.write('<h2>담당자 기록</h2>');
+        printWindow.document.write(`<p style="white-space: pre-wrap;">${achieved_impact.notes}</p>`);
+    }
+
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+    printWindow.focus(); 
+    // ★★★ 자동 인쇄 기능 제거 ★★★
+    // setTimeout(() => { printWindow.print(); }, 500); 
 }
 
 function renderRegulationTimeline(regulations) {
