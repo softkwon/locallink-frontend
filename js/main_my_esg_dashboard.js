@@ -24,7 +24,6 @@ document.addEventListener('DOMContentLoaded', async function() {
             renderScoreSection(dashboardData);
             renderProgramCards(dashboardData.programs);
 
-            // 모달 이벤트 리스너 설정
             const modal = document.getElementById('milestone-modal');
             const modalContent = document.getElementById('modal-details-content');
             const closeModalBtn = modal.querySelector('.modal-close-btn');
@@ -198,8 +197,7 @@ function renderProgramCards(programs) {
         const steps = ['신청', '접수', '진행', '완료'];
         const currentStepIndex = steps.indexOf(program.status);
         const stepperHtml = steps.map((label, i) => `<div class="step ${i <= currentStepIndex ? 'completed' : ''}"><div class="step-icon">${i + 1}</div><div class="step-label">${label}</div></div>`).join('<div class="step-line"></div>');
-
-        // ★★★ 1. 마일스톤 카드 UI 생성 로직 복원 ★★★
+        
         let milestonesHtml = '';
         if ((program.status === '진행' || program.status === '완료') && program.timeline && program.timeline.length > 0) {
             milestonesHtml = `
@@ -221,7 +219,6 @@ function renderProgramCards(programs) {
                 </div>`;
         }
 
-        // ★★★ 3. 프로그램 상태에 따라 '임팩트 리포트' 버튼을 조건부로 표시 ★★★
         const reportButtonHtml = ['진행', '완료'].includes(program.status)
             ? `<button class="button-secondary button-sm report-btn" data-program-index="${programIndex}">임팩트 리포트</button>`
             : '';
@@ -283,6 +280,7 @@ function generateAndPrintReport(programData) {
     
     const printWindow = window.open('', '_blank');
     printWindow.document.write('<html><head><title>임팩트 리포트 - ' + program_title + '</title>');
+    // ★★★ 2-1. 리포트용 스타일 개선 및 인쇄 버튼 스타일 추가 ★★★
     printWindow.document.write(`
         <style> 
             body { font-family: sans-serif; margin: 20px; } 
@@ -293,18 +291,32 @@ function generateAndPrintReport(programData) {
             .sdg-image { width:80px; margin-right: 10px; vertical-align: middle; }
             .print-button { display: block; margin: 20px 0; padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
             @media print { .print-button { display: none; } }
-            /* 마일스톤 카드 스타일 */
-            .milestones-wrapper { margin-top: 1rem; }
-            .milestone-box { border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; margin-bottom: 15px; page-break-inside: avoid; }
+            
+            /* --- 마일스톤 카드 스타일 (Grid 적용) --- */
+            .milestones-wrapper { 
+                margin-top: 1rem;
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 20px;
+            }
+            .milestone-box { 
+                border: 1px solid #e0e0e0; 
+                border-radius: 8px; 
+                overflow: hidden; 
+                page-break-inside: avoid; 
+                display: flex;
+                flex-direction: column;
+            }
             .milestone-box.completed { border-left: 5px solid #28a745; }
             .milestone-preview-image { width: 100%; height: 150px; background-size: cover; background-position: center; background-color: #f0f0f0; }
-            .milestone-preview-content { padding: 1rem; }
+            .milestone-preview-content { padding: 1rem; flex-grow: 1; }
             .milestone-title { font-weight: bold; font-size: 1.1rem; }
             .milestone-summary { font-size: 0.9rem; color: #666; margin: 0.5rem 0; white-space: pre-wrap; }
         </style>
     `);
     printWindow.document.write('</head><body>');
 
+    // ★★★ 2-2. 자동 인쇄 대신, 클릭 시 인쇄되는 버튼 추가 ★★★
     printWindow.document.write(`<button class="print-button" onclick="window.print()">이 리포트 인쇄하기</button>`);
     printWindow.document.write(`<h1>${program_title} - 임팩트 리포트</h1>`);
     
@@ -325,7 +337,7 @@ function generateAndPrintReport(programData) {
         printWindow.document.write('</div>');
     }
 
-    // ★★★ 마일스톤 진행 현황을 카드 박스 형태로 복원 ★★★
+    // ★★★ 1. 마일스톤 진행 현황을 카드 박스 형태로 복원 ★★★
     printWindow.document.write('<h2>마일스톤 진행 현황</h2>');
     if (timeline && timeline.length > 0) {
         const milestonesHtml = `
@@ -349,15 +361,13 @@ function generateAndPrintReport(programData) {
 
     // 관리자 메모
     if (achieved_impact?.notes) {
-        printWindow.document.write('<h2>담당자 기록</h2>');
+        printWindow.document.write('<h2>임펙트 요약</h2>');
         printWindow.document.write(`<p style="white-space: pre-wrap;">${achieved_impact.notes}</p>`);
     }
 
     printWindow.document.write('</body></html>');
     printWindow.document.close();
     printWindow.focus(); 
-    // ★★★ 자동 인쇄 기능 제거 ★★★
-    // setTimeout(() => { printWindow.print(); }, 500); 
 }
 
 function renderRegulationTimeline(regulations) {
