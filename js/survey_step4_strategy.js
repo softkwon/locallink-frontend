@@ -32,6 +32,10 @@ function renderMajorCompanyPrograms(programsData) {
 document.addEventListener('DOMContentLoaded', async function() {
     
     const diagnosisId = new URLSearchParams(window.location.search).get('diagId');
+    if (diagnosisId) {
+        sessionStorage.setItem('currentDiagnosisId', diagnosisId);
+    }
+    
     const token = localStorage.getItem('locallink-token');
     const loadingEl = document.getElementById('loadingMessage');
     const contentEl = document.getElementById('strategyContent');

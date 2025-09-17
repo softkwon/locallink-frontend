@@ -3,7 +3,10 @@ import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
 document.addEventListener('DOMContentLoaded', function() {
     
     const token = localStorage.getItem('locallink-token');
-    const diagId = new URLSearchParams(window.location.search).get('diagId');
+    let diagId = new URLSearchParams(window.location.search).get('diagId');
+    if (!diagId) {
+        diagId = sessionStorage.getItem('currentDiagnosisId');
+    }
     const mainContainer = document.querySelector('main.container');
     
     let allProgramsCache = [];
@@ -147,7 +150,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function initializePage() {
         document.getElementById('categories-modal').style.display = 'none';
-        
+
         if (!mainContainer || !diagId || !token) {
             mainContainer.innerHTML = '<h2>잘못된 접근입니다.</h2><p>Step4 페이지를 통해 접근해주세요.</p>';
             return;
