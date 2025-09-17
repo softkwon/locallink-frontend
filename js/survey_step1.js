@@ -234,6 +234,82 @@ function populateForm(data) {
     }
 }
 
+function openQuickDiagnosisModal() {
+    document.querySelector('.modal-overlay')?.remove();
+
+    const modalOverlay = document.createElement('div');
+    modalOverlay.className = 'modal-overlay';
+    modalOverlay.style.display = 'flex';
+    
+    modalOverlay.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>간편 진단</h3>
+                <button class="modal-close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>가상 진단 결과를 확인하기 위해, 귀사의 산업분류와 기업규모를 선택해주세요.</p>
+                <div class="form-group">
+                    <label for="quick-industry-select">1. 주요 산업분류 선택*</label>
+                    <select id="quick-industry-select" class="form-control" required>
+                        <option value="">-- 산업분류를 선택하세요 --</option>
+                        ${allIndustries.map(ind => `<option value="${ind.code}">${ind.name} (${ind.code})</option>`).join('')}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="quick-size-select">2. 기업규모 선택*</label>
+                    <select id="quick-size-select" class="form-control" required>
+                        <option value="">-- 기업규모를 선택하세요 --</option>
+                        <option value="large">대기업</option>
+                        <option value="medium">중견기업</option>
+                        <option value="small_medium">중소기업</option>
+                        <option value="small_micro">소기업/소상공인</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="start-quick-diagnosis" class="button-primary">결과 보기</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modalOverlay);
+
+    const closeModal = () => modalOverlay.remove();
+    modalOverlay.querySelector('.modal-close-btn').addEventListener('click', closeModal);
+    modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) closeModal(); });
+
+    document.getElementById('start-quick-diagnosis').addEventListener('click', async (e) => {
+        const industryCode = document.getElementById('quick-industry-select').value;
+        const companySize = document.getElementById('quick-size-select').value;
+        
+        if (!industryCode || !companySize) {
+            return alert('산업분류와 기업규모를 모두 선택해주세요.');
+        }
+
+        const btn = e.target;
+        btn.disabled = true;
+        btn.textContent = '분석 중...';
+
+        try {
+            const token = localStorage.getItem('locallink-token');
+            const response = await fetch(`${API_BASE_URL}/diagnoses/quick-start`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ industryCode, companySize })
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.message);
+            
+            window.location.href = `survey_step4_esg_strategy.html?diagId=${result.diagnosisId}`;
+
+        } catch (error) {
+            alert(`간편 진단 중 오류가 발생했습니다: ${error.message}`);
+            btn.disabled = false;
+            btn.textContent = '결과 보기';
+        }
+    });
+}
+
 // --- 페이지 로드 시 실행될 메인 로직 ---
 document.addEventListener('DOMContentLoaded', async function() {
     
@@ -281,6 +357,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         initializeMajorCompanyModal();
     });
 
+    document.getElementById('quick-diagnosis-btn')?.addEventListener('click', openQuickDiagnosisModal);
+    
     document.querySelector('.form-actions .button-primary')?.addEventListener('click', saveAndProceed);
 
     const diagnosisId = sessionStorage.getItem('currentDiagnosisId');
