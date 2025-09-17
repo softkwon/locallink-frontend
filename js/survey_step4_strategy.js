@@ -140,6 +140,22 @@ document.addEventListener('DOMContentLoaded', async function() {
         if(loadingEl) loadingEl.style.display = 'none';
         if(contentEl) contentEl.classList.remove('hidden');
         
+        if (data.userDiagnosis.diagnosis_type === 'simple') {
+        // "AI기반 ESG 전략 수립" 제목 아래 설명 <p> 태그를 찾습니다.
+        const introParagraph = document.querySelector('.strategy-intro p'); // 실제 p태그를 가리키는 CSS 선택자로 수정이 필요할 수 있습니다.
+        
+        if (introParagraph) {
+            const noticeElement = document.createElement('p');
+            noticeElement.className = 'simple-diagnosis-notice';
+            noticeElement.style.color = '#e85a4f'; // 눈에 띄는 색상
+            noticeElement.style.fontWeight = 'bold';
+            noticeElement.style.marginTop = '10px';
+            noticeElement.textContent = '※ 아래 분석은 간이진단을 통해 나온 결과입니다.';
+            
+            // 기존 설명 문단 바로 다음에 안내 문구를 삽입합니다.
+            introParagraph.parentNode.insertBefore(noticeElement, introParagraph.nextSibling);
+        }
+    }
 
     } catch (error) {
         if(loadingEl) loadingEl.innerHTML = `<h2>오류 발생</h2><p>${error.message}</p>`;
@@ -294,37 +310,32 @@ function renderAiAnalysis(analysisData, userDiagnosis, industryAverages) {
     const container = document.getElementById('aiAnalysisContent');
     if (!container) return;
 
+    // --- 1. '간이진단'일 경우, '비슷한 수준' 기준으로 텍스트 생성 ---
     if (userDiagnosis && userDiagnosis.diagnosis_type === 'simple') {
-        if (!industryAverages) {
-            container.innerHTML = '<p>산업 평균 데이터를 분석할 수 없습니다.</p>';
+        if (!analysisData) {
+            container.innerHTML = '<p>AI 분석 데이터를 불러올 수 없습니다.</p>';
             return;
         }
+        const diff = analysisData.percentageDiff;
+        const signedDiff = diff > 0 ? `+${diff.toFixed(1)}` : diff.toFixed(1);
+        
+        const comparisonText = `업계 평균과 <strong>비슷한 수준입니다.</strong> <span style="font-size:0.9em; color:#555;">(업계 평균 대비 <strong>${signedDiff}%</strong>)</span>`;
+        
+        const categories = analysisData.recommendedCategories || [];
+        const categoryText = categories.length > 0 
+            ? `진단 결과에 따르면 <strong>${categories.map(cat => `'${cat}'`).join(', ')}</strong> 관련 분야에` 
+            : '진단 결과에 따르면';
 
-        const scores = [
-            { cat: 'e', name: '환경', score: industryAverages.e },
-            { cat: 's', name: '사회', score: industryAverages.s },
-            { cat: 'g', name: '지배구조', score: industryAverages.g }
-        ];
-
-        const weakest = scores.sort((a, b) => a.score - b.score)[0];
-        const totalAverage = (scores.reduce((sum, item) => sum + item.score, 0) / scores.length).toFixed(1);
-
-        const recommendations = {
-            e: "에너지 사용량 관리, 폐기물 재활용 시스템 구축 등 <strong>'친환경 경영'</strong> 분야에 대한 개선을 우선적으로 고려해야 합니다.",
-            s: "안전한 작업 환경 조성, 공급망 인권 실사 등 <strong>'협력사 상생 및 인권'</strong> 분야에 대한 개선이 필요합니다.",
-            g: "이사회 내 투명한 의사결정 구조 확립, 윤리경영 강화 등 <strong>'지배구조 개선'</strong> 분야에 대한 노력이 중요합니다."
-        };
-
-        const comparisonText = `동종 업계의 ESG 경영 수준은 평균 <strong>${totalAverage}점</strong>이며, 특히 <strong>'${weakest.name}(${weakest.cat.toUpperCase()})'</strong> 분야가 상대적으로 취약한 것으로 분석됩니다.`;
-        const adviceText = recommendations[weakest.cat];
+        const adviceText = `현재 산업군 및 지역의 핵심 이슈는 <strong>'${analysisData.industryMainIssue || '(분석 정보 없음)'}'</strong> 입니다. ${categoryText} 조금 더 집중하신다면, 경쟁사보다 앞서 나갈 수 있는 좋은 기회가 될 것입니다.`;
 
         container.innerHTML = `
-            <p>${comparisonText}</p>
+            <p>${analysisData.userName}님의 ESG 경영 수준은 ${comparisonText}</p>
             <p>${adviceText}</p>
         `;
-        return;
+        return; // 간이진단 로직 종료
     }
 
+    // --- 2. '정밀 진단'일 경우, 기존 분석 로직 수행 ---
     if (!analysisData) {
         container.innerHTML = '<p>AI 분석 데이터를 불러올 수 없습니다.</p>';
         return;
@@ -344,12 +355,13 @@ function renderAiAnalysis(analysisData, userDiagnosis, industryAverages) {
             adviceText = `현재 속하신 산업군에서는 <strong>'${analysisData.industryMainIssue}'</strong>, 주요 활동 지역에서는 <strong>'${analysisData.regionMainIssue}'</strong>(이)가 중요하게 다뤄지고 있습니다. 진단 결과, ${categoryText} 강점을 보이고 계십니다. 이러한 강점을 바탕으로 ESG 규제에 선제적으로 대응하여, 지속가능한 비즈니스 성장 기회를 적극적으로 모색해 보시길 바랍니다.`;
             break;
         case '부족':
-            comparisonText = `업계 평균에 비해 약 <strong>${Math.abs(diff).toFixed(1)}% 부족한 상태입니다.</strong>`;
+            const signedDiffForLacking = diff > 0 ? `+${diff.toFixed(1)}` : diff.toFixed(1);
+            comparisonText = `업계 평균과 <strong>비슷한 수준입니다.</strong> <span style="font-size:0.9em; color:#555;">(업계 평균 대비 <strong>${signedDiffForLacking}%</strong>)</span>`;
             adviceText = `현재 속하신 산업군에서는 <strong>'${analysisData.industryMainIssue}'</strong>, 주요 활동 지역에서는 <strong>'${analysisData.regionMainIssue}'</strong>(이)가 중요하게 다뤄지고 있으니 주의가 필요합니다. 진단 결과, ${categoryText} 개선이 필요하며, 부족한 부분을 중심으로 규제 리스크를 줄이고 새로운 사업 기회를 발굴하는 전략을 추천합니다.`;
             break;
-        default: 
-            const signedDiff = diff > 0 ? `+${diff.toFixed(1)}` : diff.toFixed(1);
-            comparisonText = `업계 평균과 <strong>비슷한 수준입니다.</strong> <span style="font-size:0.9em; color:#555;">(업계 평균 대비 <strong>${signedDiff}%</strong>)</span>`;
+        default: // '보통'
+            const signedDiffForSimilar = diff > 0 ? `+${diff.toFixed(1)}` : diff.toFixed(1);
+            comparisonText = `업계 평균과 <strong>비슷한 수준입니다.</strong> <span style="font-size:0.9em; color:#555;">(업계 평균 대비 <strong>${signedDiffForSimilar}%</strong>)</span>`;
             adviceText = `현재 산업군 및 지역의 핵심 이슈는 <strong>'${analysisData.industryMainIssue}'</strong> 입니다. 진단 결과에 따르면 ${categoryText} 관련 분야에 조금 더 집중하신다면, 경쟁사보다 앞서 나갈 수 있는 좋은 기회가 될 것입니다.`;
             break;
     }
