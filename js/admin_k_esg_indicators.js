@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             const overviewCell = row.insertCell();
             overviewCell.textContent = ind.overview || '-';
             overviewCell.className = 'overview-col';
-            overviewCell.title = ind.overview || ''; // 마우스를 올리면 전체 내용이 보이도록
+            overviewCell.title = ind.overview || '';
             row.insertCell().textContent = ind.weight || '-';
             row.insertCell().textContent = ind.max_score || '-';
             row.insertCell().innerHTML = `
@@ -83,15 +83,15 @@ document.addEventListener('DOMContentLoaded', async function() {
                     </div>
                     <div class="form-group">
                         <label for="category">범주*</label>
-                        <input type="text" id="category" name="category" value="${isEdit ? indicator.category : ''}" required>
+                        <input type="text" id="category" name="category" value="${isEdit ? indicator.category || '' : ''}" required>
                     </div>
                     <div class="form-group">
                         <label for="indicator_code">지표 코드*</label>
-                        <input type="text" id="indicator_code" name="indicator_code" value="${isEdit ? indicator.indicator_code : ''}" required>
+                        <input type="text" id="indicator_code" name="indicator_code" value="${isEdit ? indicator.indicator_code || '' : ''}" required>
                     </div>
                     <div class="form-group">
                         <label for="indicator_name">진단항목*</label>
-                        <input type="text" id="indicator_name" name="indicator_name" value="${isEdit ? indicator.indicator_name : ''}" required>
+                        <input type="text" id="indicator_name" name="indicator_name" value="${isEdit ? indicator.indicator_name || '' : ''}" required>
                     </div>
                 </div>
             </fieldset>
@@ -160,7 +160,8 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     async function handleAddSubmit(e) {
         e.preventDefault();
-        const data = Object.fromEntries(new FormData(this).entries());
+        const data = Object.fromEntries(new FormData(e.target).entries());
+        console.log('Submitting data for new indicator:', data); // 디버깅용 로그
         try {
             const response = await fetch(`${API_BASE_URL}/admin/k-esg-indicators`, {
                 method: 'POST',
@@ -177,7 +178,8 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     async function handleEditSubmit(e) {
         e.preventDefault();
-        const data = Object.fromEntries(new FormData(this).entries());
+        const data = Object.fromEntries(new FormData(e.target).entries());
+        console.log('Submitting data for update:', data); // 디버깅용 로그
         try {
             const response = await fetch(`${API_BASE_URL}/admin/k-esg-indicators/${data.id}`, {
                 method: 'PUT',
@@ -194,8 +196,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     async function handleDelete(indicatorId) {
         const indicator = indicatorsCache.find(i => i.id === indicatorId);
-        if (!indicator) return;
-        if (!confirm(`'${indicator.indicator_code}' 지표를 삭제하시겠습니까?`)) return;
+        if (!indicator || !confirm(`'${indicator.indicator_code}' 지표를 삭제하시겠습니까?`)) return;
         try {
             const response = await fetch(`${API_BASE_URL}/admin/k-esg-indicators/${indicatorId}`, {
                 method: 'DELETE',
