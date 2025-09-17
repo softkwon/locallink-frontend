@@ -160,6 +160,11 @@ document.addEventListener('DOMContentLoaded', function() {
         renderAllSections();
         renderCategoriesModal(strategyData.allSolutionCategories);
         attachEventListeners();
+
+        const viewAllProgramsLink = document.getElementById('view-all-programs-link');
+        if (viewAllProgramsLink && diagId) {
+            viewAllProgramsLink.href = `esg_programs_list.html?from=step5&diagId=${diagId}`;
+        }
     }
 
     function renderCategoriesModal(allSolutionCategories) {
@@ -412,6 +417,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // --- 페이지 실행 ---
+    window.addEventListener('pageshow', function(event) {
+        if (event.persisted) {
+            console.log('페이지가 캐시에서 로드됨. 시뮬레이터를 업데이트합니다.');
+            updateSimulator(); 
+        }
+    });
+    
     initializePage();
 });

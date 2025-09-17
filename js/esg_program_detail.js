@@ -2,12 +2,16 @@ import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
 
 function formatTextWithBreaks(text = '') {
     if (!text) return '';
-    return text
-        .replace(/\n/g, '<br>')         
-        .replace(/  /g, ' &nbsp;');   
+    return text.replace(/\n/g, '<br>').replace(/  /g, ' &nbsp;'); 
 }
 
 document.addEventListener('DOMContentLoaded', async function() {
+    // ★★★ [수정] 페이지 로드 시 비회원 신청 모달을 무조건 숨깁니다. ★★★
+    const nonUserModal = document.getElementById('non-user-application-modal');
+    if (nonUserModal) {
+        nonUserModal.style.display = 'none';
+    }
+
     const urlParams = new URLSearchParams(window.location.search);
     const programId = urlParams.get('id');
     const diagId = urlParams.get('diagId');
@@ -72,18 +76,11 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
         actionButtons.push(serviceCostButton);
         actionButtons.push(`<button class="button-primary action-btn" data-action="prompt_go_to_step5">신청하기</button>`);
     } else {
-        if (hasCompletedDiagnosis) {
-            actionButtons.push(`<button class="button-secondary action-btn" data-action="add_plan">내 플랜에 담기</button>`);
-            actionButtons.push(serviceCostButton);
-            actionButtons.push(`<button class="button-primary action-btn" data-action="apply">신청하기</button>`);
-        } else {
-            actionButtons.push(serviceCostButton);
-            actionButtons.push(`<button class="button-primary action-btn" data-action="apply_prompt">신청하기</button>`);
-        }
+        actionButtons.push(serviceCostButton);
+        actionButtons.push(`<button class="button-primary action-btn" data-action="apply">신청하기</button>`);
     }
     const actionsHtml = actionButtons.filter(Boolean).join(' ');
 
-    // 상세 내용(content) 렌더링 시 formatTextWithBreaks 함수 사용
     const contentHtml = contentSections.map(section => {
         const layoutClass = section.layout || 'img-top';
         const imagesHtml = (section.images || []).map(imgUrl => `<img src="${imgUrl}" alt="프로그램 상세 이미지">`).join('');
@@ -103,7 +100,7 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
         <div class="program-detail-wrapper">
             <header class="program-header category-${(program.esg_category || 'e').toLowerCase()}">
                 <h1>${program.title}</h1>
-                <p>${formatTextWithBreaks(program.program_overview)}</p> <!-- 프로그램 개요에도 적용 -->
+                <p>${formatTextWithBreaks(program.program_overview)}</p>
                 <div class="share-container">
                     <button class="share-button" id="shareBtn" title="공유하기">🔗</button>
                     <div class="share-dropdown" id="shareDropdown">
@@ -117,7 +114,7 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
                 <section class="detail-section"><h4>서비스 지역</h4><p>${program.service_regions?.join(', ') || '전국'}</p></section>
                 <section class="detail-section"><h4>프로그램 상세 내용</h4>${contentHtml || '<p>상세 내용이 없습니다.</p>'}</section>
                 <section class="detail-section"><h4>연계 단체</h4><ul>${orgsHtml}</ul></section>
-                <section class="detail-section"><h4>방치 시 리스크</h4><p>${formatTextWithBreaks(program.risk_text)}</p></section> <!-- 리스크 텍스트에도 적용 -->
+                <section class="detail-section"><h4>방치 시 리스크</h4><p>${formatTextWithBreaks(program.risk_text)}</p></section>
                 <section class="detail-section"><h4>개선 시 기대효과</h4><ul>${oppsHtml}</ul></section>
                 <section class="program-actions-section">
                     <a href="esg_programs_list.html" class="button-secondary">목록으로</a>
@@ -134,7 +131,7 @@ function renderProgramDetails(program, hasCompletedDiagnosis, source, companyNam
     // 이벤트 리스너 연결
     attachActionEventListeners(program);
     attachShareEventListeners(program, firstImage);
-    attachNonUserApplicationModalEvents();
+    attachNonUserApplicationModalEvents(); // 비회원 신청 모달 이벤트
     if (program.service_costs && program.service_costs.length > 0) {
         attachServiceCostModalEvents(program);
     }
@@ -150,9 +147,8 @@ function attachActionEventListeners(program) {
         const action = targetButton.dataset.action;
         const token = localStorage.getItem('locallink-token');
 
-        // '신청하기' 버튼 (모든 경우)
         if (action === 'apply' || action === 'apply_prompt') {
-            if (token) { // 1. 로그인 상태: 기존처럼 신청 로직 실행
+            if (token) {
                 if(confirm(`'${program.title}' 프로그램을 신청하시겠습니까?`)){
                     try {
                         const response = await fetch(`${API_BASE_URL}/applications/me`, {
@@ -164,7 +160,7 @@ function attachActionEventListeners(program) {
                         alert(result.message);
                     } catch (error) { alert('신청 처리 중 오류가 발생했습니다.'); }
                 }
-            } else { // 2. 비로그인 상태: 문의/신청 모달 열기
+            } else {
                 document.getElementById('inquiry-program-id').value = program.id;
                 document.getElementById('inquiry-program-title').value = program.title;
                 document.getElementById('non-user-application-modal').style.display = 'flex';
@@ -172,11 +168,11 @@ function attachActionEventListeners(program) {
             return;
         }
         
-        // --- 이하 기타 버튼 로직 (기존과 유사) ---
         if (action === 'prompt_go_to_step5') {
             alert("다음단계인 'ESG 프로그램 제안'(Step5)에서 신청해 주세요.");
             return;
         }
+        
         if (action === 'add_plan') {
             if (!token) {
                 alert("로그인이 필요한 기능입니다.");
@@ -194,9 +190,10 @@ function attachActionEventListeners(program) {
     });
 }
 
-// [추가] 비회원 신청/문의 모달 이벤트 처리 함수
 function attachNonUserApplicationModalEvents() {
     const modal = document.getElementById('non-user-application-modal');
+    if(!modal) return;
+    
     const form = document.getElementById('non-user-application-form');
     const closeBtn = modal.querySelector('.close-btn');
 
@@ -209,14 +206,32 @@ function attachNonUserApplicationModalEvents() {
         e.preventDefault();
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
+
+        const originalContent = data.content || "별도 문의 내용 없음";
+        data.content = `
+--- 프로그램 신청 문의 ---
+- 프로그램명: ${data.programTitle}
+- 프로그램 ID: ${data.programId}
+--------------------------
+
+${originalContent}
+        `;
+
+        // 프론트엔드 필드명을 백엔드 필드명으로 매핑
+        const backendData = {
+            company_name: data.companyName,
+            manager_name: data.contactPerson,
+            phone: data.phone,
+            email: data.email,
+            inquiry_type: '프로그램 신청 문의', // 타입 고정
+            content: data.content
+        };
         
         try {
-            // ※ 중요: 이 부분은 백엔드에 비회원 문의를 저장하는 API가 준비되어야 합니다.
-            //    엔드포인트는 예시이며, 실제 API 주소로 변경해야 합니다.
             const response = await fetch(`${API_BASE_URL}/inquiries`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
+                body: JSON.stringify(backendData)
             });
             const result = await response.json();
 

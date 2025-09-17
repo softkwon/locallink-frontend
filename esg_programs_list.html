@@ -95,9 +95,53 @@
 </head>
 <body>
     <header>
-        </header>
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">
+                    <img id="headerLogoImg" src="/images/logo.png" alt="LocalLink 로고" class="header-logo-img">
+                </a>
+            </div>
+            
+            <nav class="desktop-nav">
+                <ul id="mainNavLinks"> 
+                    <li class="dropdown">
+                        <a href="#" class="dropbtn">소식</a>
+                        <ul class="dropdown-content">
+                            <li><a href="news_list.html?category=locallink">ESGlink 소식</a></li>
+                            <li><a href="news_list.html?category=trends">ESG market</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropbtn">ESG 진단하기</a>
+                        <ul class="dropdown-content">
+                            <li><a href="survey_step1.html" id="startSimpleDiagnosisLink">간이진단</a></li>
+                            <li><a href="#" id="startAdvancedDiagnosisLink">심화진단</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="header-right-group">
+                <div id="user-menu-container">
+                    </div>
+        
+                <button id="mobile-menu-toggle" class="mobile-menu-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+
+        <div id="mobile-menu-overlay" class="mobile-menu-overlay"></div>
+        
+        <div id="mobile-menu" class="mobile-menu">
+            </div>
+    </header>
 
     <main class="container">
+        <div id="navigation-actions" style="margin-bottom: 20px;"></div>
+
         <div class="page-header">
             <h1>ESGlink ESG 프로그램</h1>
             <p>우리 기업에 필요한 ESG 활동을 탐색하고 지속가능한 성장을 계획하세요.</p> 

@@ -15,6 +15,17 @@ document.addEventListener('DOMContentLoaded', function() {
     async function initializePage() {
         if (!mainTabNav || !cardsContainer) return;
         
+        const urlParams = new URLSearchParams(window.location.search);
+        const source = urlParams.get('from');
+        const diagId = urlParams.get('diagId');
+
+        if (source === 'step5' && diagId) {
+            const navContainer = document.getElementById('navigation-actions');
+            if (navContainer) {
+                navContainer.innerHTML = `<a href="survey_step5_program_proposal.html?diagId=${diagId}" class="button-secondary">⬅️ 프로그램 신청현황으로 돌아가기</a>`;
+            }
+        }
+        
         updateMyPlan();
 
         try {
@@ -87,17 +98,42 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
+        // ★★★ [추가] 로그인 상태와 접속 경로를 확인하는 변수 ★★★
+        const token = localStorage.getItem('locallink-token');
+        const source = new URLSearchParams(window.location.search).get('from');
+        const showPlanButtons = token && source === 'step5'; // Step5에서 온 로그인 사용자일 경우에만 true
+
         const cardsHtml = programs.map(program => {
-            const isInPlan = myPlanIds.has(program.id);
+            let footerHtml = '';
+
+            // ★★★ [수정] 조건에 따라 다른 버튼을 표시 ★★★
+            if (showPlanButtons) {
+                // 1. Step5에서 온 로그인 사용자: '플랜 담기'와 '자세히 보기' 버튼 표시
+                const isInPlan = myPlanIds.has(program.id);
+                footerHtml = `
+                    <button type="button" class="${isInPlan ? 'button-danger' : 'button-secondary'} button-sm add-to-plan-btn" data-program-id="${program.id}">${isInPlan ? '플랜에서 제거' : '내 플랜에 담기'}</button>
+                    <a href="esg_program_detail.html?id=${program.id}" target="_blank" class="button-primary button-sm">자세히 보기</a>
+                `;
+            } else {
+                // 2. 그 외 모든 경우: '자세히 보기 및 신청' 버튼만 표시
+                footerHtml = `
+                    <a href="esg_program_detail.html?id=${program.id}" target="_blank" class="button-primary button-sm">자세히 보기 및 신청</a>
+                `;
+            }
+            
+            // program-card-${parentCategory} 클래스를 동적으로 추가하기 위해 parentCategory 정보가 필요합니다.
+            // allCategories 배열에서 현재 categoryName에 해당하는 parent_category를 찾습니다.
+            const categoryInfo = allCategories.find(cat => cat.category_name === categoryName);
+            const parentCategory = categoryInfo ? categoryInfo.parent_category : 'E'; // 기본값
+
             return `
-                <div class="program-card">
+                <div class="program-card program-card-${parentCategory}">
                     <div class="program-card-content">
                         <h3>${program.title}</h3>
                         <p>${program.program_overview || '프로그램 개요'}</p>
                     </div>
                     <div class="program-card-footer">
-                        <button type="button" class="${isInPlan ? 'button-danger' : 'button-secondary'} button-sm add-to-plan-btn" data-program-id="${program.id}">${isInPlan ? '플랜에서 제거' : '내 플랜에 담기'}</button>
-                        <a href="esg_program_detail.html?id=${program.id}" target="_blank" class="button-primary button-sm">자세히 보기</a>
+                        ${footerHtml}
                     </div>
                 </div>
             `;
