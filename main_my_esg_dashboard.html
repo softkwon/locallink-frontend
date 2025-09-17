@@ -172,6 +172,21 @@
     }
     .modal-close-btn { color: #aaa; position: absolute; top: 15px; right: 25px; font-size: 28px; font-weight: bold; cursor: pointer; }
     .modal-image { width: 100%; max-height: 300px; object-fit: cover; border-radius: 8px; margin-bottom: 1rem; }
+
+    /* ★★★ 아래 스타일들을 추가해주세요 ★★★ */
+        .card-header .button-group { display: flex; gap: 10px; }
+        .impact-summary-container {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+        }
+        .impact-summary-container h5 { font-size: 1.1em; color: #343a40; margin-bottom: 15px; }
+        .impact-item { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+        .impact-item .label { font-weight: 500; }
+        .impact-item .value { font-weight: bold; font-size: 1.2em; color: #007bff; }
+        .impact-progress { width: 100%; background-color: #e9ecef; border-radius: 5px; height: 10px; margin-top: 5px; overflow: hidden; }
+        .progress-bar { height: 100%; width: 0%; background-color: #28a745; transition: width 0.5s ease; }
+
 </style>
 </head>
 <body>
