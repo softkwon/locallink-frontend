@@ -353,6 +353,146 @@
                 grid-template-columns: 1fr; 
             }
         }
+
+        .solution-card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            padding: 25px;
+            border-top: 5px solid #ccc;
+        }
+        .solution-card.category-E { border-top-color: #28a745; } 
+        .solution-card.category-S { border-top-color: #ffc107; } 
+        .solution-card.category-G { border-top-color: #6f42c1; } 
+
+        .solution-card-content h5 {
+            font-size: 1.1em;
+            margin: 15px 0 10px 0;
+            padding-top: 15px;
+            border-top: 1px solid #e9ecef;
+        }
+        .solution-card-content ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .solution-program-list a {
+            text-decoration: none;
+            color: #007bff;
+            font-weight: 500;
+        }
+
+        /* --- 카테고리 모달 (아코디언 스타일) --- */
+        .accordion-item { border-bottom: 1px solid #dee2e6; }
+        .accordion-item:last-child { border-bottom: none; }
+        .accordion-header {
+            background-color: #f8f9fa;
+            padding: 15px 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.2em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s ease;
+        }
+        .accordion-header:hover { background-color: #e9ecef; }
+        .accordion-header::after {
+            content: '▼';
+            font-size: 0.7em;
+            transition: transform 0.3s ease;
+        }
+        .accordion-header.active::after { transform: rotate(180deg); }
+        .accordion-panel {
+            padding: 0 20px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+            background-color: #fff;
+        }
+        .category-detail-item {
+            margin: 15px 0;
+            padding: 15px 0;
+            border-top: 1px solid #f1f1f1;
+        }
+        .category-detail-item:first-child { border-top: none; }
+        .category-detail-item strong { color: #0056b3; font-size: 1.05em; }
+        .category-detail-item p {
+            font-size: 0.95em;
+            color: #495057;
+            margin-top: 5px;
+            line-height: 1.6;
+        }
+        /* 모달 전체 배경 */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            /* display: flex를 추가하여 자식 요소를 화면 중앙에 배치합니다. */
+            display: flex; 
+            justify-content: center;
+            align-items: center;
+            padding: 20px; /* 화면이 작을 때를 위한 여백 */
+            box-sizing: border-box;
+        }
+
+        /* 모달 흰색 콘텐츠 박스 */
+        .modal-content {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+            width: 100%; 
+            max-width: 800px;
+            
+            /* ★★★ 핵심 수정 부분 1 ★★★ */
+            max-height: 90vh; /* 화면 높이의 90%를 넘지 않도록 제한 */
+            display: flex; /* 내부 컨텐츠(header, body, footer) 배치를 위해 flex 사용 */
+            flex-direction: column; /* 자식 요소들을 세로로 쌓음 */
+        }
+
+        /* 모달의 헤더(제목)와 바디(내용)를 구분합니다. */
+        .modal-header, .modal-body {
+            padding: 20px 25px;
+        }
+        .modal-header {
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        /* ★★★ 핵심 수정 부분 2 ★★★ */
+        .modal-body {
+            overflow-y: auto; /* 내용이 max-height를 넘어가면 여기서 스크롤바 생성 */
+        }
+
+        /* 닫기 버튼은 헤더 안으로 이동하는 것이 좋습니다. */
+        .modal-header .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+        }
+        .modal-header .close-btn:hover {
+            color: #333;
+        }
+
+        .simulator-action-area {
+            text-align: right;
+            margin-top: 15px;
+        }
+        .simulator-description {
+            font-size: 0.9em;
+            color: #6c757d;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
     </style>
     <header>
         <div class="container">
@@ -391,7 +531,7 @@
     
     <main class="container">
         <h1>맞춤 솔루션 제안</h1>        
-        <p>진단 결과를 바탕으로 ESG 목표 달성을 위한 맞춤형 프로그램을 제안합니다.</p>
+        <p>진단 결과를 바탕으로 ESG 목표 달성을 위한 맞춤형 프로그램을 제안합니다. </p><br>
         
         <section id="simulator-section" class="strategy-section">
             <h3>기대효과 시뮬레이터</h3>
@@ -400,8 +540,11 @@
                 <div class="table-and-button-wrapper">
                     <div class="score-details-table" id="score-simulator-table"></div>
                     <div class="simulator-action-area">
+                        <p class="simulator-description">
+                            아래 프로그램 목록에서 '내 플랜에 담기'를 클릭하면 예상 점수가 실시간으로 업데이트됩니다.
+                            <br>ESGLink의 프로그램은 기부금으로 이용할 수 있습니다.</p>                        
                         <button type="button" id="openSimulatorBtn" class="button-secondary button-sm">
-                            ESG예산편성 시뮬레이터(기부금) ⚙️
+                            ESG예산편성 시뮬레이터⚙️
                         </button>
                     </div>
                 </div>
@@ -409,8 +552,8 @@
         </section>
 
         <section id="priority-programs-section" class="strategy-section">
-            <h3>최우선 추천 프로그램</h3>
-            <p class="section-description">ESGlink 제휴 단체 및 관리자가 우선적으로 추천하는 프로그램입니다.</p>
+            <h3>추천 프로그램</h3>
+            <p class="section-description">분석결과를 기반으로 ESGlink가 우선적으로 추천하는 프로그램입니다.</p><br>
             <div class="program-proposal-grid" id="priority-programs-container"></div>
         </section>
 
@@ -419,7 +562,7 @@
                 <h3>AI 분석 기반 맞춤 프로그램</h3>
                 <button id="viewCategoriesBtn" class="button-secondary button-sm">ESG 대응 세부분야 전체보기</button>
             </div>
-            <p class="section-description">AI 진단 결과, 개선이 필요한 분야의 맞춤 프로그램입니다.</p>
+            <p class="section-description">AI 진단 결과, 개선이 필요한 분야의 맞춤 프로그램입니다.</p><br>
             <div id="ai-recommended-programs-container">
                 </div>
         </section>
@@ -434,9 +577,14 @@
     </main>
     <div id="categories-modal" class="modal">
         <div class="modal-content large">
-            <span class="close-btn">&times;</span>
-            <h2>ESG 대응 세부분야</h2>
-            <div id="categories-accordion"></div>
+            <div class="modal-header">
+                <h2>ESG 대응 세부분야</h2>
+                <span class="close-btn">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="categories-accordion">
+                    </div>
+            </div>
         </div>
     </div>
 

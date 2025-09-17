@@ -169,21 +169,16 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // 카테고리를 부모 카테고리(E, S, G)별로 그룹화합니다.
         const grouped = allSolutionCategories.reduce((acc, cat) => {
             const parent = cat.parent_category;
-            if (!acc[parent]) {
-                acc[parent] = [];
-            }
+            if (!acc[parent]) acc[parent] = [];
             acc[parent].push(cat);
             return acc;
         }, {});
 
         let accordionHtml = '';
-
         const parentCategoryNames = { E: '환경', S: '사회', G: '지배구조' };
 
-        // E, S, G 순서로 아코디언 메뉴를 생성합니다.
         for (const parent of ['E', 'S', 'G']) {
             if (grouped[parent]) {
                 accordionHtml += `
@@ -203,21 +198,24 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         accordionContainer.innerHTML = accordionHtml;
 
-        // 아코디언 클릭 이벤트 추가
-        accordionContainer.addEventListener('click', function(e) {
-            const header = e.target.closest('.accordion-header');
-            if (!header) return;
-            
-            header.classList.toggle('active');
-            const panel = header.nextElementSibling;
-            if (panel.style.maxHeight) {
-                panel.style.maxHeight = null;
-                panel.style.padding = '0 20px';
-            } else {
-                panel.style.padding = '15px 20px';
-                panel.style.maxHeight = panel.scrollHeight + "px";
-            }
-        });
+        // 아코디언 클릭 이벤트는 한 번만 추가
+        if (!accordionContainer.dataset.listenerAttached) {
+            accordionContainer.addEventListener('click', function(e) {
+                const header = e.target.closest('.accordion-header');
+                if (!header) return;
+                
+                header.classList.toggle('active');
+                const panel = header.nextElementSibling;
+                if (panel.style.maxHeight) {
+                    panel.style.maxHeight = null;
+                    panel.style.padding = '0 20px';
+                } else {
+                    panel.style.padding = '15px 20px';
+                    panel.style.maxHeight = panel.scrollHeight + "px";
+                }
+            });
+            accordionContainer.dataset.listenerAttached = 'true';
+        }
     }
 
     async function loadData() {
@@ -274,7 +272,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const recommendedCategories = strategyData.aiAnalysis.recommendedCategories || [];
         const enginePrograms = strategyData.engineRecommendedPrograms || [];
         const allCategories = strategyData.allSolutionCategories || [];
-        const categoryDescriptionMap = new Map(allCategories.map(cat => [cat.category_name, cat.description]));
+        
+        // 세부분야 이름으로 부모 카테고리(E,S,G)와 설명을 빠르게 찾기 위한 Map 생성
+        const categoryInfoMap = new Map(allCategories.map(cat => [cat.category_name, {
+            parent: cat.parent_category,
+            description: cat.description
+        }]));
 
         if (recommendedCategories.length === 0 || enginePrograms.length === 0) {
             container.innerHTML = '<p style="text-align:center; color:#666; padding: 20px 0;">AI가 추천하는 맞춤 개선 분야가 없습니다.</p>';
@@ -290,19 +293,22 @@ document.addEventListener('DOMContentLoaded', function() {
             );
 
             if (programsForCategory.length > 0) {
-                const description = categoryDescriptionMap.get(categoryName) || `${categoryName} 관련 개선이 필요합니다.`;
+                const categoryInfo = categoryInfoMap.get(categoryName) || {};
+                const parentCategory = categoryInfo.parent || 'E'; // 기본값 E
+                const description = categoryInfo.description || `${categoryName} 관련 개선이 필요합니다.`;
                 const programLinks = programsForCategory.map(p => 
                     `<li><a href="esg_program_detail.html?id=${p.id}&diagId=${diagId}" target="_blank">${p.title}</a></li>`
                 ).join('');
 
                 const card = document.createElement('div');
-                card.className = 'solution-card-simple'; // 새로운 CSS 클래스
+                // category-E, category-S, category-G 클래스를 동적으로 추가
+                card.className = `solution-card category-${parentCategory}`; 
                 card.innerHTML = `
-                    <h4>${categoryName}</h4>
-                    <p class="description">${description}</p>
-                    <div class="recommended-programs">
+                    <h4 class="solution-category-title">${categoryName}</h4>
+                    <p class="solution-category-description">${description}</p>
+                    <div class="solution-card-content">
                         <h5>추천 프로그램</h5>
-                        <ul>${programLinks}</ul>
+                        <ul class="solution-program-list">${programLinks}</ul>
                     </div>
                 `;
                 grid.appendChild(card);
