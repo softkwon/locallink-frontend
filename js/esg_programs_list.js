@@ -24,6 +24,11 @@ document.addEventListener('DOMContentLoaded', function() {
             if (navContainer) {
                 navContainer.innerHTML = `<a href="survey_step5_program_proposal.html?diagId=${diagId}" class="button-secondary">⬅️ 프로그램 신청현황으로 돌아가기</a>`;
             }
+            
+            const header = document.querySelector('header');
+            if (header) {
+                header.style.display = 'none';
+            }
         }
         
         updateMyPlan();
