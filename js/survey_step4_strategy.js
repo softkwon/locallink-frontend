@@ -141,38 +141,41 @@ document.addEventListener('DOMContentLoaded', async function() {
         if(contentEl) contentEl.classList.remove('hidden');
         
         if (data.userDiagnosis.diagnosis_type === 'simple') {
-        // 페이지 내의 모든 <h3> 태그를 찾습니다.
-        const allH3s = document.querySelectorAll('h3');
-        let targetH3 = null;
+            // 페이지 내의 모든 <h2> 태그를 찾습니다.
+            const allH2s = document.querySelectorAll('h2');
+            let targetH2 = null;
 
-        // "AI기반 ESG 전략 수립" 텍스트를 가진 <h3>를 찾습니다.
-        for (const h3 of allH3s) {
-            if (h3.textContent.trim() === 'AI기반 ESG 전략 수립') {
-                targetH3 = h3;
-                break;
+            // "AI기반 ESG 전략 수립" 텍스트를 가진 <h2>를 찾습니다.
+            for (const h2 of allH2s) {
+                if (h2.textContent.trim() === 'AI기반 ESG 전략 수립') {
+                    targetH2 = h2;
+                    break;
+                }
+            }
+
+            // 해당 <h2>를 찾았고, 그 바로 다음에 <p> 태그가 있는지 확인합니다.
+            if (targetH2 && targetH2.nextElementSibling && targetH2.nextElementSibling.tagName === 'P') {
+                const introParagraph = targetH2.nextElementSibling;
+
+                // 기존에 noticeElement가 있다면 중복 추가 방지
+                if (!document.querySelector('.simple-diagnosis-notice')) {
+                    const noticeElement = document.createElement('p');
+                    noticeElement.className = 'simple-diagnosis-notice';
+                    noticeElement.style.color = '#e85a4f'; // 눈에 띄는 색상
+                    noticeElement.style.fontWeight = 'bold';
+                    noticeElement.style.marginTop = '-15px'; // 위쪽 <p> 태그와의 간격 조정
+                    noticeElement.style.marginBottom = '30px';
+                    noticeElement.style.fontSize = '0.9em';
+                    
+                    noticeElement.textContent = '※ 아래 분석은 간이진단을 통해 나온 결과입니다.';
+                    
+                    // 찾은 <p> 태그 바로 다음에 안내 문구를 삽입합니다.
+                    introParagraph.parentNode.insertBefore(noticeElement, introParagraph.nextSibling);
+                }
+            } else {
+                console.error("안내 문구를 삽입할 위치를 찾지 못했습니다. HTML의 'AI기반 ESG 전략 수립' 제목 구조를 확인해주세요.");
             }
         }
-
-        // 해당 <h3>를 찾았고, 그 바로 다음에 <p> 태그가 있는지 확인합니다.
-        if (targetH3 && targetH3.nextElementSibling && targetH3.nextElementSibling.tagName === 'P') {
-            const introParagraph = targetH3.nextElementSibling;
-
-            // 기존에 noticeElement가 있다면 중복 추가 방지
-            if (!document.querySelector('.simple-diagnosis-notice')) {
-                const noticeElement = document.createElement('p');
-                noticeElement.className = 'simple-diagnosis-notice';
-                noticeElement.style.color = '#e85a4f'; // 눈에 띄는 색상
-                noticeElement.style.fontWeight = 'bold';
-                noticeElement.style.marginTop = '10px';
-                noticeElement.textContent = '※ 아래 분석은 간이진단을 통해 나온 결과입니다.';
-                
-                // 찾은 <p> 태그 바로 다음에 안내 문구를 삽입합니다.
-                introParagraph.parentNode.insertBefore(noticeElement, introParagraph.nextSibling);
-            }
-        } else {
-            console.error("안내 문구를 삽입할 위치를 찾지 못했습니다. HTML의 'AI기반 ESG 전략 수립' 제목 구조를 확인해주세요.");
-        }
-    }
 
     } catch (error) {
         if(loadingEl) loadingEl.innerHTML = `<h2>오류 발생</h2><p>${error.message}</p>`;
