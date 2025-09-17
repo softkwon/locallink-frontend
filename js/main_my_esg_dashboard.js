@@ -69,16 +69,18 @@ function getRiskLevelInfo(score) {
     return { level: '미흡', description: 'ESG 관련 규제 및 시장 요구에 대응하기 위한 적극적인 개선이 시급합니다.'};
 }
 
-// ★★★ [핵심 수정] 점수 섹션 전체를 그리는 함수 (전면 개편) ★★★
+// ★★★ [핵심 수정] 점수 섹션 전체를 그리는 함수 (계산 로직 변경) ★★★
 function renderScoreSection(data) {
     const gaugeElement = document.getElementById('realtime-score-gauge');
     const tableContainer = document.getElementById('score-details-table');
     if (!gaugeElement || !tableContainer) return;
 
-    // 백엔드가 미리 계산해준 점수들을 직접 사용합니다.
+    // 백엔드에서 받은 원본 점수를 사용합니다.
     const currentScores = data.realtimeScores || { e: 0, s: 0, g: 0, total: 0 };
-    const improvementScores = data.improvementScores || { e: 0, s: 0, g: 0 };
-    const expectedScores = data.expectedScores || { e: 0, s: 0, g: 0 };
+    const rawImprovementScores = data.improvementScores || { e: 0, s: 0, g: 0 };
+    
+    // ★★★ [수정 1] 점수 계산을 위한 질문 수(나누기 값)를 정의합니다. ★★★
+    const divisors = { e: 4, s: 6, g: 6 };
     
     // 테이블에 표시할 프로그램 목록을 준비합니다.
     const activeProgramsForTable = [];
@@ -104,14 +106,24 @@ function renderScoreSection(data) {
     `;
     for (const cat in categories) {
         const programsForCategory = activeProgramsForTable.filter(p => p.category === cat).map(p => `<li>${p.title}</li>`).join('');
+        
+        // ★★★ [수정 2] 개선 점수와 예상 점수를 새로 계산합니다. ★★★
+        const currentScore = currentScores[cat] || 0;
+        const rawImprovement = rawImprovementScores[cat] || 0;
+
+        // 1. 개선 점수 계산 (총점 / 질문 수)
+        const calculatedImprovement = rawImprovement / divisors[cat];
+        
+        // 2. 예상 점수 계산 (현재 점수 + 계산된 개선 점수)
+        const calculatedExpected = currentScore + calculatedImprovement;
 
         tableHtml += `
             <tr>
                 <td class="category-header">${categories[cat]}</td>
-                <td><strong>${(currentScores[cat] || 0).toFixed(1)}점</strong></td>
+                <td><strong>${currentScore.toFixed(1)}점</strong></td>
                 <td><ul class="program-list">${programsForCategory.length > 0 ? programsForCategory : '<li>-</li>'}</ul></td>
-                <td><span class="imp-score">+${(improvementScores[cat] || 0).toFixed(1)}점</span></td>
-                <td><strong>${(expectedScores[cat] || 0).toFixed(1)}점</strong><span class="expected-grade">(${getRiskLevelInfo(expectedScores[cat] || 0).level} 등급)</span></td>
+                <td><span class="imp-score">+${calculatedImprovement.toFixed(1)}점</span></td>
+                <td><strong>${calculatedExpected.toFixed(1)}점</strong><span class="expected-grade">(${getRiskLevelInfo(calculatedExpected).level} 등급)</span></td>
             </tr>
         `;
     }
@@ -242,7 +254,6 @@ function generateAndPrintReport(programData) {
     
     const printWindow = window.open('', '_blank');
     printWindow.document.write('<html><head><title>임팩트 리포트 - ' + program_title + '</title>');
-    // ★★★ 2-1. 리포트용 스타일 개선 및 인쇄 버튼 스타일 추가 ★★★
     printWindow.document.write(`
         <style> 
             body { font-family: sans-serif; margin: 20px; } 
@@ -254,7 +265,6 @@ function generateAndPrintReport(programData) {
             .print-button { display: block; margin: 20px 0; padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
             @media print { .print-button { display: none; } }
             
-            /* --- 마일스톤 카드 스타일 (Grid 적용) --- */
             .milestones-wrapper { 
                 margin-top: 1rem;
                 display: grid;
@@ -278,7 +288,6 @@ function generateAndPrintReport(programData) {
     `);
     printWindow.document.write('</head><body>');
 
-    // ★★★ 2-2. 자동 인쇄 대신, 클릭 시 인쇄되는 버튼 추가 ★★★
     printWindow.document.write(`<button class="print-button" onclick="window.print()">이 리포트 인쇄하기</button>`);
     printWindow.document.write(`<h1>${program_title} - 임팩트 리포트</h1>`);
     
@@ -299,7 +308,6 @@ function generateAndPrintReport(programData) {
         printWindow.document.write('</div>');
     }
 
-    // ★★★ 1. 마일스톤 진행 현황을 카드 박스 형태로 복원 ★★★
     printWindow.document.write('<h2>마일스톤 진행 현황</h2>');
     if (timeline && timeline.length > 0) {
         const milestonesHtml = `
@@ -321,7 +329,6 @@ function generateAndPrintReport(programData) {
         printWindow.document.write('<p>설정된 세부 진행 내용이 없습니다.</p>');
     }
 
-    // 관리자 메모
     if (achieved_impact?.notes) {
         printWindow.document.write('<h2>임펙트 요약</h2>');
         printWindow.document.write(`<p style="white-space: pre-wrap;">${achieved_impact.notes}</p>`);
@@ -343,7 +350,6 @@ function renderRegulationTimeline(regulations) {
         return;
     }
 
-    // --- 1. 각 아이템의 이상적인 위치 계산 ---
     const dates = regulations.map(reg => new Date(reg.effective_date).getTime());
     const minDate = Math.min(...dates);
     const maxDate = Math.max(...dates);
@@ -357,11 +363,9 @@ function renderRegulationTimeline(regulations) {
         } else {
             idealPosition = ((currentDate - minDate) / totalDuration) * 100;
         }
-        // [수정] 불필요한 placement 속성 제거
         return { ...reg, idealPosition, finalPosition: idealPosition };
     });
 
-    // --- 2. 위치 보정 로직 (겹침 방지) ---
     const MIN_GAP_PERCENT = 12;
     items.sort((a, b) => a.idealPosition - b.idealPosition);
 
@@ -380,14 +384,12 @@ function renderRegulationTimeline(regulations) {
         items.forEach(item => item.finalPosition *= scaleFactor);
     }
 
-    // --- 3. 최종 계산된 위치로 HTML 렌더링 ---
     const sizeMap = { 'large': '대기업', 'medium': '중견기업', 'small_medium': '중소기업', 'small_micro': '소기업/소상공인' };
     let timelineHtml = '';
 
     items.forEach(item => {
         const targetSizesKorean = (item.target_sizes || []).map(size => sizeMap[size] || size).join(', ');
 
-        // [수정] 불필요한 placement 클래스 제거
         timelineHtml += `
             <div class="timeline-node" style="left: ${item.finalPosition}%;">
                 <div class="timeline-dot"></div>
