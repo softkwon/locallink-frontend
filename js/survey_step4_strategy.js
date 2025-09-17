@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         if(loadingEl) loadingEl.style.display = 'none';
         if(contentEl) contentEl.classList.remove('hidden');
         
-        if (data.userDiagnosis.diagnosis_type === 'simple') {
+        if (data.userDiagnosis.diagnosis_type === 'quick') {
             // 페이지 내의 모든 <h2> 태그를 찾습니다.
             const allH2s = document.querySelectorAll('h2');
             let targetH2 = null;
@@ -161,15 +161,13 @@ document.addEventListener('DOMContentLoaded', async function() {
                 if (!document.querySelector('.simple-diagnosis-notice')) {
                     const noticeElement = document.createElement('p');
                     noticeElement.className = 'simple-diagnosis-notice';
-                    noticeElement.style.color = '#e85a4f'; // 눈에 띄는 색상
+                    noticeElement.style.color = '#e85a4f';
                     noticeElement.style.fontWeight = 'bold';
-                    noticeElement.style.marginTop = '-15px'; // 위쪽 <p> 태그와의 간격 조정
+                    noticeElement.style.marginTop = '-15px';
                     noticeElement.style.marginBottom = '30px';
                     noticeElement.style.fontSize = '0.9em';
-                    
                     noticeElement.textContent = '※ 아래 분석은 간이진단을 통해 나온 결과입니다.';
                     
-                    // 찾은 <p> 태그 바로 다음에 안내 문구를 삽입합니다.
                     introParagraph.parentNode.insertBefore(noticeElement, introParagraph.nextSibling);
                 }
             } else {
@@ -331,7 +329,8 @@ function renderAiAnalysis(analysisData, userDiagnosis, industryAverages) {
     if (!container) return;
 
     // --- 1. '간이진단'일 경우, '비슷한 수준' 기준으로 텍스트 생성 ---
-    if (userDiagnosis && userDiagnosis.diagnosis_type === 'simple') {
+    // ★★★ [수정] 'simple'을 'quick'으로 변경 ★★★
+    if (userDiagnosis && userDiagnosis.diagnosis_type === 'quick') {
         if (!analysisData) {
             container.innerHTML = '<p>AI 분석 데이터를 불러올 수 없습니다.</p>';
             return;
