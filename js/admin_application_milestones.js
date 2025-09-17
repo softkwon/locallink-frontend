@@ -14,11 +14,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     const milestoneList = document.getElementById('milestone-list');
     const addMilestoneBtn = document.getElementById('add-milestone-btn');
     const saveAllBtn = document.getElementById('save-all-btn');
+    const achievedScaleValueInput = document.getElementById('achieved_scale_value');
+    const impactNotesInput = document.getElementById('impact_notes');
 
     let currentApplicationId = null;
     let allQuestionsCache = [];
 
-    // --- 2. 초기화: 내가 만든 프로그램 목록과 "전체 질문 목록" 불러오기 ---
+    // --- 2. 초기화 ---
     try {
         const [programsRes, questionsRes] = await Promise.all([
             fetch(`${API_BASE_URL}/admin/my-programs`, { headers: { 'Authorization': `Bearer ${token}` } }),
@@ -31,17 +33,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 programSelect.innerHTML += `<option value="${p.id}">${p.title}</option>`;
             });
         }
-
         const questionsResult = await questionsRes.json();
         if (questionsResult.success) {
             allQuestionsCache = questionsResult.questions;
         }
-
     } catch (e) { console.error("초기 데이터 로딩 실패:", e); }
 
     // --- 3. 이벤트 리스너 설정 ---
-
-    // [이벤트] 1. 프로그램을 선택했을 때
     programSelect.addEventListener('change', async (e) => {
         const programId = e.target.value;
         applicationSelect.innerHTML = '<option value="">-- 이 프로그램을 신청한 사용자를 선택하세요 --</option>';
@@ -60,7 +58,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // [이벤트] 2. 사용자를 선택했을 때
     applicationSelect.addEventListener('change', async (e) => {
         currentApplicationId = e.target.value;
         if (!currentApplicationId) {
@@ -70,70 +67,31 @@ document.addEventListener('DOMContentLoaded', async () => {
         const programName = programSelect.options[programSelect.selectedIndex].text;
         const userName = e.target.options[e.target.selectedIndex].text;
         editorTitle.textContent = `[${userName}]님의 [${programName}] 프로그램 마일스톤`;
-        await loadMilestones(currentApplicationId);
+        
+        await Promise.all([
+            loadMilestones(currentApplicationId),
+            loadAchievedImpact(currentApplicationId)
+        ]);
+        
         milestonesEditor.classList.remove('hidden');
     });
 
-    // [이벤트] 3. '새 마일스톤 추가' 버튼 클릭
     addMilestoneBtn.addEventListener('click', () => createMilestoneCard());
 
-    // [이벤트] 4. '모든 변경사항 저장' 버튼 클릭
     saveAllBtn.addEventListener('click', async () => {
         if (!currentApplicationId) return;
         saveAllBtn.disabled = true;
         saveAllBtn.textContent = '저장 중...';
 
         try {
-            const formData = new FormData();
-            const milestonesData = [];
-            let fileCounter = 0;
-
-            document.querySelectorAll('#milestone-list .milestone-card').forEach(card => {
-                const milestone = {
-                    id: card.dataset.id,
-                    milestone_name: card.querySelector('.milestone-name').value,
-                    score_value: parseInt(card.querySelector('.milestone-score').value, 10) || 0,
-                    improvement_category: card.querySelector('.improvement-category').value,
-                    content: card.querySelector('.milestone-content').value,
-                    display_order: parseInt(card.querySelector('.milestone-order').value, 10) || 0,
-                    // 기존 파일 URL도 함께 전송
-                    image_url: card.querySelector('a[href*="'+ (card.querySelector('.milestone-image')?.nextElementSibling?.querySelector('a')?.href || 'none') +'"]')?.href || null,
-                    attachment_url: card.querySelector('a[href*="'+ (card.querySelector('.milestone-attachment')?.nextElementSibling?.querySelector('a')?.href || 'none') +'"]')?.href || null
-                };
-
-                // 👇 1. 이미지 파일 처리
-                const imageInput = card.querySelector('.milestone-image');
-                if (imageInput.files[0]) {
-                    const imagePlaceholder = `image_${fileCounter}`;
-                    formData.append(imagePlaceholder, imageInput.files[0]);
-                    milestone.imagePlaceholder = imagePlaceholder;
-                }
-
-                // 👇 2. 첨부 문서 파일 처리
-                const attachmentInput = card.querySelector('.milestone-attachment');
-                if (attachmentInput.files[0]) {
-                    const attachmentPlaceholder = `attachment_${fileCounter}`;
-                    formData.append(attachmentPlaceholder, attachmentInput.files[0]);
-                    milestone.attachmentPlaceholder = attachmentPlaceholder;
-                }
-                
-                fileCounter++;
-                milestonesData.push(milestone);
-            });
-
-            formData.append('milestonesData', JSON.stringify(milestonesData));
-
-            const res = await fetch(`${API_BASE_URL}/admin/applications/${currentApplicationId}/milestones/batch-update`, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}` },
-                body: formData
-            });
-
-            const result = await res.json();
-            if (!res.ok) throw new Error(result.message);
-            alert(result.message);
+            const milestonesPromise = saveMilestones();
+            const impactPromise = saveAchievedImpact();
+            
+            await Promise.all([milestonesPromise, impactPromise]);
+            
+            alert('모든 변경사항이 성공적으로 저장되었습니다.');
             await loadMilestones(currentApplicationId);
-
+            await loadAchievedImpact(currentApplicationId);
         } catch (error) {
             alert(`저장 실패: ${error.message}`);
         } finally {
@@ -142,7 +100,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
     
-    // [이벤트] 5. 개별 마일스톤 삭제 버튼
     milestoneList.addEventListener('click', (e) => {
         if(e.target.classList.contains('remove-milestone-btn')) {
             if(confirm('이 마일스톤을 삭제하시겠습니까?')) {
@@ -151,7 +108,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // --- 4. 동적 UI 및 데이터 로딩 함수 ---
+    // --- 4. 동적 UI 및 데이터 로딩/저장 함수 ---
     
     async function loadMilestones(applicationId) {
         const res = await fetch(`${API_BASE_URL}/admin/applications/${applicationId}/milestones`, { headers: { 'Authorization': `Bearer ${token}` } });
@@ -161,13 +118,90 @@ document.addEventListener('DOMContentLoaded', async () => {
             result.milestones.forEach(createMilestoneCard);
         }
     }
+    
+    async function loadAchievedImpact(applicationId) {
+        try {
+            const res = await fetch(`${API_BASE_URL}/admin/applications/${applicationId}/achieved-impact`, { headers: { 'Authorization': `Bearer ${token}` } });
+            const result = await res.json();
+            if (result.success && result.impactData) {
+                achievedScaleValueInput.value = result.impactData.achieved_scale_value || '';
+                impactNotesInput.value = result.impactData.notes || '';
+            }
+        } catch (error) {
+            console.error('달성 성과 로딩 실패:', error);
+            achievedScaleValueInput.value = '';
+            impactNotesInput.value = '';
+        }
+    }
+
+    async function saveAchievedImpact() {
+        const data = {
+            achieved_scale_value: parseInt(achievedScaleValueInput.value, 10) || null,
+            notes: impactNotesInput.value
+        };
+        const res = await fetch(`${API_BASE_URL}/admin/applications/${currentApplicationId}/achieved-impact`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.message || '달성 성과 저장에 실패했습니다.');
+    }
+
+    async function saveMilestones() {
+        const formData = new FormData();
+        const milestonesData = [];
+        let fileCounter = 0;
+
+        document.querySelectorAll('#milestone-list .milestone-card').forEach(card => {
+            const milestone = {
+                id: card.dataset.id,
+                milestone_name: card.querySelector('.milestone-name').value,
+                score_value: parseInt(card.querySelector('.milestone-score').value, 10) || 0,
+                improvement_category: card.querySelector('.improvement-category').value,
+                content: card.querySelector('.milestone-content').value,
+                display_order: parseInt(card.querySelector('.milestone-order').value, 10) || 0,
+                image_url: card.querySelector('.current-file-link[data-type="image"]')?.href || null,
+                attachment_url: card.querySelector('.current-file-link[data-type="attachment"]')?.href || null
+            };
+
+            const imageInput = card.querySelector('.milestone-image');
+            if (imageInput.files[0]) {
+                const imagePlaceholder = `image_${fileCounter}`;
+                formData.append(imagePlaceholder, imageInput.files[0]);
+                milestone.imagePlaceholder = imagePlaceholder;
+            }
+
+            const attachmentInput = card.querySelector('.milestone-attachment');
+            if (attachmentInput.files[0]) {
+                const attachmentPlaceholder = `attachment_${fileCounter}`;
+                formData.append(attachmentPlaceholder, attachmentInput.files[0]);
+                milestone.attachmentPlaceholder = attachmentPlaceholder;
+            }
+            
+            fileCounter++;
+            milestonesData.push(milestone);
+        });
+
+        formData.append('milestonesData', JSON.stringify(milestonesData));
+
+        const res = await fetch(`${API_BASE_URL}/admin/applications/${currentApplicationId}/milestones/batch-update`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` },
+            body: formData
+        });
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.message || '마일스톤 저장에 실패했습니다.');
+    }
 
     function createMilestoneCard(milestone = {}) {
         const card = document.createElement('div');
         card.className = 'milestone-card';
         card.dataset.id = milestone.id || 'new';
 
-        // [수정] '이미지 첨부'와 '파일 첨부' UI를 추가하고 순서를 정리합니다.
+        const imageUrlHtml = milestone.image_url ? `<p class="current-file">현재 이미지: <a class="current-file-link" data-type="image" href="${milestone.image_url}" target="_blank">${milestone.image_url.split('/').pop()}</a></p>` : '';
+        const attachmentUrlHtml = milestone.attachment_url ? `<p class="current-file">현재 파일: <a class="current-file-link" data-type="attachment" href="${milestone.attachment_url}" target="_blank">${milestone.attachment_url.split('/').pop()}</a></p>` : '';
+
         card.innerHTML = `
             <div class="milestone-header">
                 <strong>마일스톤 상세 설정</strong>
@@ -192,22 +226,19 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <input type="number" class="form-control milestone-score" value="${milestone.score_value || 0}">
                 </div>
             </div>
-
             <div class="form-group">
                 <label>이미지 첨부 (사용자에게 보일 대표 이미지)</label>
                 <input type="file" class="form-control milestone-image" accept="image/*">
-                ${milestone.image_url ? `<p>현재 이미지: <a href="${milestone.image_url}" target="_blank">${milestone.image_url.split('/').pop()}</a></p>` : ''}
+                ${imageUrlHtml}
             </div>
-
             <div class="form-group">
                 <label>상세 내용 (사용자에게 보임)</label>
                 <textarea class="form-control milestone-content" rows="3">${milestone.content || ''}</textarea>
             </div>
-
             <div class="form-group">
                 <label>문서 첨부 (다운로드용 파일)</label>
                 <input type="file" class="form-control milestone-attachment">
-                ${milestone.attachment_url ? `<p>현재 파일: <a href="${milestone.attachment_url}" target="_blank">${milestone.attachment_url.split('/').pop()}</a></p>` : ''}
+                ${attachmentUrlHtml}
             </div>
             <div class="form-group">
                 <label>표시 순서</label>
@@ -216,4 +247,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         `;
         milestoneList.appendChild(card);
     }
+    
+    initializePage();
 });

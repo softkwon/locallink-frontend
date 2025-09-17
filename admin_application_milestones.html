@@ -69,6 +69,21 @@
         <!-- 3단계: 마일스톤 편집기 -->
         <div id="milestones-editor" class="hidden">
             <h3 id="editor-title"></h3>
+
+            <div class="strategy-section" style="margin-bottom: 20px; background-color: #f0f6ff;">
+                <h4>달성 성과 종합 기록</h4>
+                <div id="achieved-impact-form">
+                    <div class="form-group">
+                        <label for="achieved_scale_value">달성된 규모 (수혜자 수 등)</label>
+                        <input type="number" id="achieved_scale_value" class="form-control" placeholder="숫자로 입력">
+                    </div>
+                    <div class="form-group">
+                        <label for="impact_notes">성과 관련 메모</label>
+                        <textarea id="impact_notes" class="form-control" rows="3" placeholder="내부 관리용 메모를 입력하세요."></textarea>
+                    </div>
+                </div>
+            </div>
+            
             <div id="milestone-list">
             </div>
             <button id="add-milestone-btn" class="button-secondary">새 마일스톤 추가</button>
