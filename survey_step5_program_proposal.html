@@ -390,51 +390,16 @@
     </header>
     
     <main class="container">
-        <h1>ESG 프로그램 제안</h1>        
+        <h1>맞춤 솔루션 제안</h1>        
         <p>진단 결과를 바탕으로 ESG 목표 달성을 위한 맞춤형 프로그램을 제안합니다.</p>
-        <section class="info-banner">
-            <div class="info-grid">
-                <div class="info-box">
-                    <h2>ESG 프로그램 신청</h2>
-                    <ul>
-                        <li><span class="icon">1️⃣</span> 관심있는 추천 프로그램을 '내 플랜에 담기'</li>
-                        <li><span class="icon">2️⃣</span> 시뮬레이터를 실행하여 기대효과 측정</li>
-                        <li><span class="icon">3️⃣</span> 기부를 통한 예산 편성으로 ESG 과제 해결</li>
-                    </ul>
-                </div>
-
-                <div class="info-arrow">
-                    <span>➔</span>
-                </div>
-
-                <div class="info-box">
-                    <h2>ESG 활동 개선의 기대 효과</h2>
-                    <ul>
-                        <li><span class="icon">💰</span>국내외 규제 대응 및 비용 절감</li>
-                        <li><span class="icon">📈</span>새로운 사업 기회 및 기대 수익 발생</li>
-                        <li><span class="icon">🤝</span>투자 유치 및 금융 비용 절감</li>
-                        <li><span class="icon">👥</span>우수 인재 확보 및 임직원 만족도 향상</li>
-                        <li><span class="icon">🏆</span>경쟁 우위 확보 및 브랜드 가치 향상</li>
-                    </ul>
-                </div>                
-            </div>
-        </section>
+        
         <section id="simulator-section" class="strategy-section">
-            <h3>프로그램 이용 시 기대효과</h3>
+            <h3>기대효과 시뮬레이터</h3>
             <div class="simulator-layout-grid">
-                <div class="gauge-container" id="score-simulator-gauge">
-                    </div>
-
+                <div class="gauge-container" id="score-simulator-gauge"></div>
                 <div class="table-and-button-wrapper">
-                    <div class="score-details-table" id="score-simulator-table">
-                        </div>
-                    
-                    <div class="simulator-action-area tooltip-container">
-                        <div class="tooltip-text">
-                            "내 플랜에 담기"를 눌러 프로그램을 추가하고 예상점수르 확인하세요.
-                            플랜 신청으로 발생하는 비용에 따른 기대 수익, 기대 ESG경영개선 효과를 "시뮬레이터"에서 확인할 수 있습니다.
-                        </div>
-                        <br>
+                    <div class="score-details-table" id="score-simulator-table"></div>
+                    <div class="simulator-action-area">
                         <button type="button" id="openSimulatorBtn" class="button-secondary button-sm">
                             ESG예산편성 시뮬레이터(기부금) ⚙️
                         </button>
@@ -442,32 +407,39 @@
                 </div>
             </div>
         </section>
+
         <section id="priority-programs-section" class="strategy-section">
-            <h3>⭐ 추천 단체 제안 프로그램</h3>
-            <div class="program-proposal-grid" id="priority-programs-container">
-                <!-- JS를 통해 채워집니다. -->
-            </div>
-        </section>        
-        <section class="strategy-section">
-            <h3>진단을 통해 추천된 프로그램</h3>
-            <div class="program-proposal-grid" id="recommended-programs-container">
-                <p>추천 프로그램을 불러오는 중입니다...</p>
-            </div>
+            <h3>최우선 추천 프로그램</h3>
+            <p class="section-description">ESGlink 제휴 단체 및 관리자가 우선적으로 추천하는 프로그램입니다.</p>
+            <div class="program-proposal-grid" id="priority-programs-container"></div>
         </section>
-        <section class="strategy-section">
-            <h3>우리 회사 지역 맞춤 프로그램</h3>
-            <div class="program-proposal-grid" id="regional-programs-container">
-                <p>지역 맞춤 프로그램을 불러오는 중입니다...</p>
+
+        <section id="ai-recommended-programs-section" class="strategy-section">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3>AI 분석 기반 맞춤 프로그램</h3>
+                <button id="viewCategoriesBtn" class="button-secondary button-sm">ESG 대응 세부분야 전체보기</button>
             </div>
-        </section>        
+            <p class="section-description">AI 진단 결과, 개선이 필요한 분야의 맞춤 프로그램입니다.</p>
+            <div id="ai-recommended-programs-container">
+                </div>
+        </section>
+        
         <section class="strategy-section" style="background-color: #f0f6ff; border: 1px solid #cce0ff; text-align: center;">
-             <h3>더 많은 프로그램 둘러보기</h3>
+            <h3>더 많은 프로그램 둘러보기</h3>
             <p style="margin-bottom: 25px; color: #555;">진단 결과 외에도 ESGlink가 제공하는 다양한 프로그램을 확인해보세요.</p>
             <div class="form-actions" style="text-align: center; margin-top: 0;">
                 <a href="esg_programs_list.html" class="button-primary">전체 프로그램 더보기</a>
-             </div>
+            </div>
         </section>
     </main>
+    <div id="categories-modal" class="modal">
+        <div class="modal-content large">
+            <span class="close-btn">&times;</span>
+            <h2>ESG 대응 세부분야</h2>
+            <div id="categories-accordion"></div>
+        </div>
+    </div>
+
     <footer id="footer-placeholder"></footer>
 
     <script type="module" src="js/auth.js" defer></script>

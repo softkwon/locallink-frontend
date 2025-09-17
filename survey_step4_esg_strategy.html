@@ -316,96 +316,61 @@
                 <h2>AI기반 ESG 전략 수립</h2>
                 <p>진단 결과를 바탕으로 맞춤형 ESG 전략을 수립하고 기업의 지속가능한 성장을 계획하세요.</p>
                 
+                <div id="aiAnalysisSection" class="strategy-section">
+                    <h3>AI 분석 평가</h3>
+                    <div id="aiAnalysisContent"></div>
+                </div>
+
                 <h2 id="marketStatusTitle" class="section-title"></h2>
                 <p id="marketStatusDescription" class="section-description"></p>
 
-                <div class="tab-container">
-                    <ul class="tab-nav">
-                        <li class="tab-link active" data-tab="tab-benchmark">동종업계 성과 비교</li>
-                        <li class="tab-link" data-tab="tab-timeline">규제 타임라인</li>
-                        <li class="tab-link" data-tab="tab-major-company">대기업 사례</li>
-                        <li class="tab-link" data-tab="tab-industry-issues">산업군 주요이슈</li>
-                        <li class="tab-link" data-tab="tab-size-issues">기업규모별 주요이슈</li>
-                        <li class="tab-link" data-tab="tab-regional-issues">지역 주요이슈</li>
-
-                    </ul>
-
-                    <div class="tab-content">
-                        <div id="tab-benchmark" class="tab-pane active">
-                            <div id="benchmarkSection" class="strategy-section">
-                                <p class="tab-pane-description">통계청 데이터를 기반으로 동종업계와 우리 회사의 ESG 성과를 비교 분석합니다.</p>
-                                <div id="benchmarkIndustryInfo" style="text-align: center; font-size: 0.9em; color: #555; margin-bottom: 15px;">
-                                </div>
-                                <div class="benchmark-charts-grid">
-                                    <div class="chart-wrapper">
-                                        <h4>항목별 성과 비교</h4>
-                                        <canvas id="questionBenchmarkChart"></canvas>
-                                    </div>
-                                    <div class="chart-wrapper">
-                                        <h4>영역별 종합 성과 비교</h4>
-                                        <canvas id="categoryBenchmarkChart"></canvas>
-                                    </div>
-                                </div>
-                            </div>
+                <div id="benchmarkSection" class="strategy-section">
+                    <h3>동종업계 성과 비교</h3>
+                    <p class="tab-pane-description">통계청 데이터를 기반으로 동종업계와 우리 회사의 ESG 성과를 비교 분석합니다.</p>
+                    <div id="benchmarkIndustryInfo" style="text-align: center; font-size: 0.9em; color: #555; margin-bottom: 15px;"></div>
+                    <div class="benchmark-charts-grid">
+                        <div class="chart-wrapper">
+                            <h4>항목별 성과 비교</h4>
+                            <canvas id="questionBenchmarkChart"></canvas>
                         </div>
-                        <div id="tab-timeline" class="tab-pane">
-                            <div id="regulationTimelineSection" class="strategy-section">
-                                <p class="tab-pane-description">시행 예정인 주요 ESG 관련 규제를 확인하고 기업의 리스크에 대비하세요.</p>
-                                <div id="regulation-timeline-container">
-                                    </div>
-                            </div>
+                        <div class="chart-wrapper">
+                            <h4>영역별 종합 성과 비교</h4>
+                            <canvas id="categoryBenchmarkChart"></canvas>
                         </div>
-                        <div id="tab-major-company" class="tab-pane">
-                            <div id="majorCompanyProgramsSection" class="strategy-section">
-                                <p class="tab-pane-description">
-                                    벤치마킹 대상으로 선택하신 기업의 대표적인 사회공헌 활동 사례입니다.
-                                </p>
-                                <div id="majorCompanyProgramsContent">
-                                    </div>
-                            </div>
-                        </div>
-                        <div id="tab-industry-issues" class="tab-pane">
-                            <div id="industryEsgIssuesSection" class="strategy-section">
-                                <p class="tab-pane-description">우리 회사가 속한 산업군의 특성에 따른 주요 ESG 이슈와 기회/위기 요인을 확인합니다.</p>
-                                <p id="currentIndustryInfo"></p>
-                                <div id="industryIssuesContent"><p><em>산업코드 기반 ESG 이슈를 불러오는 중입니다...</em></p></div>
-                            </div>
-                        </div>
-                        <div id="tab-size-issues" class="tab-pane">
-                            <div id="companySizeIssuesSection" class="strategy-section">
-                                </div>
-                        </div>
-                        <div id="tab-regional-issues" class="tab-pane">
-                            <div id="regionalMapSection" class="strategy-section">
-                                <p class="tab-pane-description">주요 사업장이 위치한 지역의 고유한 ESG 현안과 이슈를 지도를 통해 확인합니다.</p>
-                                <div id="regionalIssuesContent">
-                                    </div>
-                            </div>
-                        </div>
-                        
                     </div>
                 </div>
 
-                <div id="aiAnalysisSection" class="strategy-section">
-                    <h3>AI 분석 평가</h3>
-                    <div id="aiAnalysisContent">
-                    </div>
+                <div id="regulationTimelineSection" class="strategy-section">
+                    <h3>규제 타임라인</h3>
+                    <p class="tab-pane-description">시행 예정인 주요 ESG 관련 규제를 확인하고 기업의 리스크에 대비하세요.</p>
+                    <div id="regulation-timeline-container"></div>
                 </div>
 
-                <h2 id="customStrategyTitle" class="section-title"></h2>
-                <p id="customStrategyDescription" class="section-description"></p>
-                <div style="text-align: left; margin-bottom: 40px;">
-                    <button id="viewCategoriesBtn" class="button-secondary">ESG 대응 세부분야 전체보기</button>
+                <div id="industryEsgIssuesSection" class="strategy-section">
+                    <h3>산업군 주요이슈</h3>
+                    <p class="tab-pane-description">우리 회사가 속한 산업군의 특성에 따른 주요 ESG 이슈와 기회/위기 요인을 확인합니다.</p>
+                    <div id="industryIssuesContent"></div>
                 </div>
-                
-                <div id="priorityTaskContainer">
-                    <!-- JS를 통해 '추천 단체 제안 프로그램'이 여기에 채워집니다. -->
+
+                <div id="regionalMapSection" class="strategy-section">
+                    <h3>지역 주요이슈</h3>
+                    <p class="tab-pane-description">주요 사업장이 위치한 지역의 고유한 ESG 현안과 이슈를 확인합니다.</p>
+                    <div id="regionalIssuesContent"></div>
                 </div>
-                
-                <div class="strategy-section" id="task-section-wrapper">
-                    <div id="taskAnalysisContainer">
-                        <p><em>진단 결과를 바탕으로 맞춤 과제와 기대효과를 분석 중입니다...</em></p>
-                    </div>
+
+                <div id="companySizeIssuesSection" class="strategy-section">
+                    <h3>기업규모별 주요이슈</h3>
+                    <div id="companySizeIssuesContent"></div>
+                </div>
+
+                <div id="majorCompanyProgramsSection" class="strategy-section">
+                    <h3>대기업 사례</h3>
+                    <p class="tab-pane-description">벤치마킹 대상으로 선택하신 기업의 대표적인 사회공헌 활동 사례입니다.</p>
+                    <div id="majorCompanyProgramsContent"></div>
+                </div>
+
+                <div class="form-actions" style="text-align: center; margin-top: 40px;">
+                    <a id="goToStep5Button" href="#" class="button-primary">맞춤 솔루션 제안 보기</a>
                 </div>
             </section>
         </div>

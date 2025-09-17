@@ -36,14 +36,10 @@ document.addEventListener('DOMContentLoaded', async function() {
     const loadingEl = document.getElementById('loadingMessage');
     const contentEl = document.getElementById('strategyContent');
 
-    const resultPageLink = document.getElementById('resultPageLink');
-    if(resultPageLink && diagnosisId) {
-        resultPageLink.href = `survey_step3_esg_result.html?diagId=${diagnosisId}`;
-    }
-
-    const navProposalLink = document.getElementById('navProposalLink');
-    if (navProposalLink && diagnosisId) {
-        navProposalLink.href = `survey_step5_program_proposal.html?diagId=${diagnosisId}`;
+    // Step 5로 가는 버튼 링크 설정
+    const goToStep5Button = document.getElementById('goToStep5Button');
+    if (goToStep5Button && diagnosisId) {
+        goToStep5Button.href = `survey_step5_program_proposal.html?diagId=${diagnosisId}`;
     }
     
     if (!diagnosisId || !token) {
@@ -57,70 +53,32 @@ document.addEventListener('DOMContentLoaded', async function() {
             fetch(`${API_BASE_URL}/admin/regulations`, { headers: { 'Authorization': `Bearer ${token}` } })
         ]);
 
-        if (!strategyRes.ok) {
-            const errorResult = await strategyRes.json().catch(() => ({ message: '전략 데이터를 불러오는 중 서버에 문제가 발생했습니다.' }));
-            throw new Error(errorResult.message);
-        }
+        if (!strategyRes.ok) throw new Error('전략 데이터를 불러오는 데 실패했습니다.');
         const strategyResult = await strategyRes.json();
-        if (!strategyResult.success) {
-            throw new Error(strategyResult.message);
-        }
+        if (!strategyResult.success) throw new Error(strategyResult.message);
         const data = strategyResult.strategyData;
 
+        // --- 사용자 정보 기반 UI 업데이트 ---
         const userName = data.userDiagnosis.company_name || '고객';
-        
         document.getElementById('marketStatusTitle').textContent = `${userName}님이 속한 시장현황`;
         document.getElementById('marketStatusDescription').innerHTML = `설문결과를 기반하여 <strong>${userName}님</strong>의 동종업계 대비 현황, 현재 확정된 ESG 규제 타임라인을 분석하여 대응방안을 분석합니다.`;
-        document.getElementById('customStrategyTitle').textContent = `${userName}님의 맞춤 ESG 대응`;
-        document.getElementById('customStrategyDescription').innerHTML = `설문결과를 기반하여 <strong>${userName}님</strong>의 ESG경영 개선을 도와 ESG 투자비용절감, 신규수익창출 및 국내외 ESG규제에 효과적으로 대응하기 위한 맞춤형 프로그램 분야를 제안합니다. <다음단계:ESG프로그램제안>에서 신청할 수 있습니다.`;
 
-        const taskContainer = document.getElementById('taskAnalysisContainer');
-        if (taskContainer) {
-            taskContainer.addEventListener('click', e => {
-                if (e.target.classList.contains('program-proposal-btn')) {
-                    const programId = e.target.dataset.programId;
-                    const diagId = new URLSearchParams(window.location.search).get('diagId');
-                    const url = `esg_program_detail.html?id=${programId}&from=strategy&diagId=${diagId}`;
-                    const windowFeatures = 'width=1024,height=768,scrollbars=yes,resizable=yes';
-                    window.open(url, 'programDetailWindow', windowFeatures);
+        // --- '간이진단' 안내 문구 추가 ---
+        if (data.userDiagnosis.diagnosis_type === 'quick') {
+            const h2 = document.querySelector('h2'); // 첫번째 h2를 찾음
+            if (h2 && h2.textContent.includes('AI기반 ESG 전략 수립')) {
+                const p = h2.nextElementSibling;
+                if(p && p.tagName === 'P' && !document.querySelector('.simple-diagnosis-notice')) {
+                    const notice = document.createElement('p');
+                    notice.className = 'simple-diagnosis-notice';
+                    notice.style.cssText = 'color: #e85a4f; font-weight: bold; margin-top: -15px; margin-bottom: 30px; font-size: 0.9em;';
+                    notice.textContent = '※ 아래 분석은 간이진단을 통해 나온 결과입니다.';
+                    p.parentNode.insertBefore(notice, p.nextSibling);
                 }
-            });
+            }
         }
 
-        const viewCategoriesBtn = document.getElementById('viewCategoriesBtn');
-        const categoriesModal = document.getElementById('categories-modal');
-        
-        if (viewCategoriesBtn && categoriesModal) {
-            renderCategoriesModal(data.allSolutionCategories);
-
-            const closeBtn = categoriesModal.querySelector('.close-btn');
-            const accordionContainer = document.getElementById('categories-accordion');
-
-            viewCategoriesBtn.addEventListener('click', () => {
-                categoriesModal.style.display = 'block';
-            });
-
-            closeBtn.addEventListener('click', () => categoriesModal.style.display = 'none');
-            window.addEventListener('click', (e) => {
-                if (e.target == categoriesModal) categoriesModal.style.display = 'none';
-            });
-
-            accordionContainer.addEventListener('click', function(e) {
-                const header = e.target.closest('.accordion-header');
-                if (!header) return;
-                
-                header.classList.toggle('active');
-                const panel = header.nextElementSibling;
-                if (panel.style.maxHeight) {
-                    panel.style.maxHeight = null;
-                    panel.style.padding = '0 20px';
-                } else {
-                    panel.style.padding = '15px 20px';
-                    panel.style.maxHeight = panel.scrollHeight + "px";
-                }
-            });
-        }
-
+        // --- 규제 정보 렌더링 ---
         const regulationsResult = await regulationsRes.json();
         if (regulationsResult.success) {
             renderRegulationTimeline(regulationsResult.regulations);
@@ -128,76 +86,22 @@ document.addEventListener('DOMContentLoaded', async function() {
             document.getElementById('regulation-timeline-container').innerHTML = '<p>규제 정보를 불러오는 데 실패했습니다.</p>';
         }
 
+        // --- 각 섹션 렌더링 ---
         const industryAverageScores = renderBenchmarkCharts(data.userDiagnosis, data.benchmarkScores, data.userAnswers, data.allQuestions);
         renderAiAnalysis(data.aiAnalysis, data.userDiagnosis, industryAverageScores); 
-        
         renderIndustryIssues(data.industryIssues, data.userDiagnosis);
-        renderTasksAndAnalysis(data.priorityRecommendedPrograms, data.engineRecommendedPrograms, data.allSolutionCategories);
-        renderRegionalMapAndIssues(data.userDiagnosis, data.regionalIssues); 
         renderCompanySizeIssues(data.companySizeIssue, data.userDiagnosis.company_size);
+        renderRegionalMapAndIssues(data.userDiagnosis, data.regionalIssues); 
         renderMajorCompanyPrograms(data.majorCompanyPrograms);
-        
+
+        // --- 로딩 완료 처리 ---
         if(loadingEl) loadingEl.style.display = 'none';
         if(contentEl) contentEl.classList.remove('hidden');
         
-        if (data.userDiagnosis.diagnosis_type === 'quick') {
-            // 페이지 내의 모든 <h2> 태그를 찾습니다.
-            const allH2s = document.querySelectorAll('h2');
-            let targetH2 = null;
-
-            // "AI기반 ESG 전략 수립" 텍스트를 가진 <h2>를 찾습니다.
-            for (const h2 of allH2s) {
-                if (h2.textContent.trim() === 'AI기반 ESG 전략 수립') {
-                    targetH2 = h2;
-                    break;
-                }
-            }
-
-            // 해당 <h2>를 찾았고, 그 바로 다음에 <p> 태그가 있는지 확인합니다.
-            if (targetH2 && targetH2.nextElementSibling && targetH2.nextElementSibling.tagName === 'P') {
-                const introParagraph = targetH2.nextElementSibling;
-
-                // 기존에 noticeElement가 있다면 중복 추가 방지
-                if (!document.querySelector('.simple-diagnosis-notice')) {
-                    const noticeElement = document.createElement('p');
-                    noticeElement.className = 'simple-diagnosis-notice';
-                    noticeElement.style.color = '#e85a4f';
-                    noticeElement.style.fontWeight = 'bold';
-                    noticeElement.style.marginTop = '-15px';
-                    noticeElement.style.marginBottom = '30px';
-                    noticeElement.style.fontSize = '0.9em';
-                    noticeElement.textContent = '※ 아래 분석은 간이진단을 통해 나온 결과입니다.';
-                    
-                    introParagraph.parentNode.insertBefore(noticeElement, introParagraph.nextSibling);
-                }
-            } else {
-                console.error("안내 문구를 삽입할 위치를 찾지 못했습니다. HTML의 'AI기반 ESG 전략 수립' 제목 구조를 확인해주세요.");
-            }
-        }
-
     } catch (error) {
         if(loadingEl) loadingEl.innerHTML = `<h2>오류 발생</h2><p>${error.message}</p>`;
     }
-
-    const tabContainer = document.querySelector('.tab-container');
-    if(tabContainer) {
-        const tabLinks = tabContainer.querySelectorAll('.tab-link');
-        const tabPanes = tabContainer.querySelectorAll('.tab-pane');
-
-        tabLinks.forEach(link => {
-            link.addEventListener('click', () => {
-                const tabId = link.dataset.tab;
-                
-                tabLinks.forEach(l => l.classList.remove('active'));
-                tabPanes.forEach(p => p.classList.remove('active'));
-
-                link.classList.add('active');
-                document.getElementById(tabId).classList.add('active');
-            });
-        });
-    }
 });
-
 
 function renderBenchmarkCharts(diagnosis, benchmarkScores, userAnswers, allQuestions) {
     if (typeof Chart === 'undefined') { 
