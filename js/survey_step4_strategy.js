@@ -178,13 +178,31 @@ function renderBenchmarkCharts(diagnosis, benchmarkScores, userAnswers, allQuest
         benchmarkInfoEl.innerHTML = `<strong>적용 산업분류:</strong> [${diagnosis.industry_codes[0]}] ${diagnosis.industry_name || ''}`;
     }
 
+    const categoryTotalScores = { e: 0, s: 0, g: 0 };
+    const categoryQuestionCounts = { e: 0, s: 0, g: 0 };
+    const questionsMap = new Map((allQuestions || []).map(q => [q.question_code, q.esg_category]));
+
+    (benchmarkScores || []).forEach(scoreItem => {
+        const category = (questionsMap.get(scoreItem.question_code) || '').toLowerCase();
+        if (category && categoryTotalScores.hasOwnProperty(category)) {
+            categoryTotalScores[category] += parseFloat(scoreItem.average_score) || 0;
+            categoryQuestionCounts[category]++;
+        }
+    });
+
+    const industryAverageScores = {
+        e: categoryQuestionCounts.e > 0 ? categoryTotalScores.e / categoryQuestionCounts.e : 50,
+        s: categoryQuestionCounts.s > 0 ? categoryTotalScores.s / categoryQuestionCounts.s : 50,
+        g: categoryQuestionCounts.g > 0 ? categoryTotalScores.g / categoryQuestionCounts.g : 50
+    };
+    
     new Chart(catChartCanvas, {
         type: 'bar',
         data: {
             labels: ['환경(E)', '사회(S)', '지배구조(G)'],
             datasets: [
                 { label: '우리 회사', data: [diagnosis.e_score, diagnosis.s_score, diagnosis.g_score], backgroundColor: 'rgba(54, 162, 235, 0.7)' },
-                { label: '업계 평균', data: [50, 55, 45], backgroundColor: 'rgba(201, 203, 207, 0.7)' } 
+                { label: '업계 평균', data: [industryAverageScores.e, industryAverageScores.s, industryAverageScores.g], backgroundColor: 'rgba(201, 203, 207, 0.7)' } 
             ]
         },
         options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } } }

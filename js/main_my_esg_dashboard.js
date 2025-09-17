@@ -73,113 +73,75 @@ function getRiskLevelInfo(score) {
 function renderScoreSection(data) {
     const gaugeElement = document.getElementById('realtime-score-gauge');
     const tableContainer = document.getElementById('score-details-table');
+    if (!gaugeElement || !tableContainer) return;
+
+    // 백엔드가 미리 계산해준 점수들을 직접 사용합니다.
+    const currentScores = data.realtimeScores || { e: 0, s: 0, g: 0, total: 0 };
+    const improvementScores = data.improvementScores || { e: 0, s: 0, g: 0 };
+    const expectedScores = data.expectedScores || { e: 0, s: 0, g: 0 };
     
-    if (!gaugeElement || !tableContainer) {
-        console.error("대시보드 UI의 필수 요소(element)를 찾을 수 없습니다. HTML 구조를 확인해주세요.");
-        return;
-    }
-
-    const QUESTION_COUNTS = { e: 4, s: 6, g: 6 };
-    const currentScores = data.realtimeScores;
-    const rawTotalScores = data.rawTotalScores || {
-        e: currentScores.e * QUESTION_COUNTS.e,
-        s: currentScores.s * QUESTION_COUNTS.s,
-        g: currentScores.g * QUESTION_COUNTS.g
-    };
-
-    const potentialByCategory = { e: 0, s: 0, g: 0 };
+    // 테이블에 표시할 프로그램 목록을 준비합니다.
     const activeProgramsForTable = [];
     if (data.programs) {
         const activePrograms = data.programs.filter(p => ['접수', '진행'].includes(p.status));
         activePrograms.forEach(p => {
             const category = (p.esg_category || '').toLowerCase();
-            if (potentialByCategory.hasOwnProperty(category)) {
-                potentialByCategory[category] += p.potentialImprovement[category] || 0;
-                if (!activeProgramsForTable.find(item => item.category === category && item.title === p.program_title)) {
-                    activeProgramsForTable.push({ category, title: p.program_title });
-                }
+            if (!activeProgramsForTable.find(item => item.category === category && item.title === p.program_title)) {
+                activeProgramsForTable.push({ category, title: p.program_title });
             }
         });
     }
 
-    const expectedScoreByCategory = {};
-    const improvementScoreByCategory = {};
-
-    for (const cat in QUESTION_COUNTS) {
-        const futureRawTotal = (rawTotalScores[cat] || 0) + (potentialByCategory[cat] || 0);
-        expectedScoreByCategory[cat] = futureRawTotal / QUESTION_COUNTS[cat];
-        improvementScoreByCategory[cat] = expectedScoreByCategory[cat] - currentScores[cat];
-    }
-    
-    // 점수 분석 테이블 HTML 생성 
     const categories = { e: '환경(E)', s: '사회(S)', g: '지배구조(G)' };
     let tableHtml = `
         <table class="score-table">
             <thead>
                 <tr>
-                    <th>구분</th><th>내 점수</th><th>신청 프로그램 (진행 중)</th><th>개선 점수</th><th>예상 점수</th>
+                    <th>구분</th><th>현재 점수</th><th>신청 프로그램 (진행 중)</th><th>개선 점수</th><th>예상 점수</th>
                 </tr>
             </thead>
             <tbody>
     `;
     for (const cat in categories) {
-        const expectedScore = expectedScoreByCategory[cat];
-        const expectedGrade = getRiskLevelInfo(expectedScore).level;
-        const improvementScore = improvementScoreByCategory[cat];
         const programsForCategory = activeProgramsForTable.filter(p => p.category === cat).map(p => `<li>${p.title}</li>`).join('');
 
         tableHtml += `
             <tr>
                 <td class="category-header">${categories[cat]}</td>
-                <td><strong>${currentScores[cat].toFixed(1)}점</strong></td>
+                <td><strong>${(currentScores[cat] || 0).toFixed(1)}점</strong></td>
                 <td><ul class="program-list">${programsForCategory.length > 0 ? programsForCategory : '<li>-</li>'}</ul></td>
-                <td><span class="imp-score">+${improvementScore.toFixed(1)}점</span></td>
-                <td><strong>${expectedScore.toFixed(1)}점</strong><span class="expected-grade">(${expectedGrade} 등급)</span></td>
+                <td><span class="imp-score">+${(improvementScores[cat] || 0).toFixed(1)}점</span></td>
+                <td><strong>${(expectedScores[cat] || 0).toFixed(1)}점</strong><span class="expected-grade">(${getRiskLevelInfo(expectedScores[cat] || 0).level} 등급)</span></td>
             </tr>
         `;
     }
     tableHtml += `</tbody></table>`;
     tableContainer.innerHTML = tableHtml;
 
-    // ApexCharts 도넛 차트 그리기
+    // ApexCharts 도넛 차트 그리기 (기존과 동일)
     if (typeof ApexCharts !== 'undefined') {
         const options = {
             series: [currentScores.e, currentScores.s, currentScores.g],
             chart: { type: 'donut', height: 280 },
             labels: ['환경(E)', '사회(S)', '지배구조(G)'],
             colors: ['#28a745', '#007bff', '#6f42c1'],
-            // 🚨 [1번 요청] plotOptions를 수정하여 차트의 '%'를 '점'으로 변경
             plotOptions: {
                 pie: {
                     donut: {
                         labels: {
                             show: true,
-                            // value formatter를 추가해 각 항목의 값을 점수로 표시
-                            value: {
-                                show: true,
-                                formatter: function (val) {
-                                    return `${parseFloat(val).toFixed(1)}점`;
-                                }
-                            },
-                            // 중앙의 총점은 기존과 동일하게 표시
-                            total: {
-                                show: true,
-                                label: '총점',
-                                formatter: () => `${currentScores.total.toFixed(1)}점`
-                            }
+                            value: { formatter: (val) => `${parseFloat(val).toFixed(1)}점` },
+                            total: { show: true, label: '현재 총점', formatter: () => `${currentScores.total.toFixed(1)}점` }
                         }
                     }
                 }
             },
             legend: { show: false },
             tooltip: { y: { formatter: (val) => `${val.toFixed(1)}점` } },
-            responsive: [{ breakpoint: 480, options: { chart: { width: 200 } } }]
         };
         gaugeElement.innerHTML = '';
         const chart = new ApexCharts(gaugeElement, options);
         chart.render();
-    } else {
-        console.warn('ApexCharts 라이브러리가 로드되지 않았습니다.');
     }
 }
 

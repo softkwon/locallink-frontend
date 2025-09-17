@@ -1,4 +1,3 @@
-
 import { API_BASE_URL, STATIC_BASE_URL } from './config.js';
 import { checkAdminPermission, getCompanySizeName } from './admin_common.js';
 
@@ -30,37 +29,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function initializePage() {
         if (!form) {
-            console.error('오류: 폼 요소를 찾을 수 없습니다. HTML의 form 태그 id를 확인해주세요.');
+            console.error('오류: 폼 요소를 찾을 수 없습니다.');
             return;
         }
         
-        await loadKpiData();
-        document.getElementById('select-sdgs-btn')?.addEventListener('click', openSdgsModal);
-        document.getElementById('select-kpi-btn')?.addEventListener('click', openKpiModal);
-        
-        const permissionResult = await checkAdminPermission(['super_admin', 'content_manager'], true); 
-        
-        if (!permissionResult.hasPermission) return;
-        
-        currentUserRole = permissionResult.user.role; 
+        const permissionResult = await checkAdminPermission(['super_admin', 'vice_super_admin', 'content_manager'], true);
+        if (!permissionResult.hasPermission) {
+            form.innerHTML = '<h2>접근 권한이 없습니다.</h2>';
+            return;
+        }
+        currentUserRole = permissionResult.user.role;
 
-        if (currentUserRole === 'super_admin') {
+        if (currentUserRole === 'super_admin' || currentUserRole === 'vice_super_admin') {
             const authorContainer = document.getElementById('author-select-container');
             if (authorContainer) {
                 authorContainer.style.display = 'block';
-                await loadContentManagers(); 
+                await loadContentManagers();
             }
         }
-        await loadKpiData();
-        attachEventListeners(); 
+        
+        await loadKpiData(); 
+        attachEventListeners();
 
         if (isEditMode) {
-            await loadAndRenderProgramData(); 
-        } else {
-            addSectionRow(); 
-            addEffectRow(); 
-            addOrganizationRow(); 
-            addOpportunityEffectRow();
+            await loadAndRenderProgramData();
         }
     }
 
@@ -84,20 +76,26 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
+    async function loadKpiData() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/admin/k-esg-indicators`, { headers: { 'Authorization': `Bearer ${token}` } });
+            const result = await response.json();
+            if (result.success) allKpiData = result.indicators;
+        } catch (error) { console.error("K-ESG 지표 로딩 실패:", error); }
+    }
+    
     async function loadAndRenderProgramData() {
         try {
             const response = await fetch(`${API_BASE_URL}/admin/programs/${programId}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            if (!response.ok) {
-                const errorResult = await response.json().catch(() => null);
-                throw new Error(errorResult ? errorResult.message : '프로그램 정보를 불러오는데 실패했습니다.');
-            }
+            if (!response.ok) throw new Error('프로그램 정보를 불러오는데 실패했습니다.');
+            
             const result = await response.json();
             if (result.success) {
                 renderProgramForm(result.program);
                 if(loadingMessage) loadingMessage.style.display = 'none';
-                form.classList.remove('hidden');
+                form.style.display = 'block';
             } else {
                 throw new Error(result.message);
             }
