@@ -143,11 +143,11 @@ function renderBenchmarkCharts(diagnosis, benchmarkScores, userAnswers, allQuest
         g: categoryQuestionCounts.g > 0 ? categoryTotalScores.g / categoryQuestionCounts.g : 50
     };
     
-    const datasets = [];
-    if (diagnosis.diagnosis_type !== 'simple') {
-        datasets.push({ label: '우리 회사', data: [diagnosis.e_score, diagnosis.s_score, diagnosis.g_score], backgroundColor: 'rgba(54, 162, 235, 0.7)' });
-    }
-    datasets.push({ label: '업계 평균', data: [industryAverageScores.e, industryAverageScores.s, industryAverageScores.g], backgroundColor: 'rgba(201, 203, 207, 0.7)' });
+    // ★★★ [수정] '간편진단' 여부와 관계없이 '우리 회사' 점수를 항상 표시하도록 if문 제거 ★★★
+    const datasets = [
+        { label: '우리 회사', data: [diagnosis.e_score, diagnosis.s_score, diagnosis.g_score], backgroundColor: 'rgba(54, 162, 235, 0.7)' },
+        { label: '업계 평균', data: [industryAverageScores.e, industryAverageScores.s, industryAverageScores.g], backgroundColor: 'rgba(201, 203, 207, 0.7)' }
+    ];
 
     new Chart(catChartCanvas, {
         type: 'bar',
@@ -158,6 +158,7 @@ function renderBenchmarkCharts(diagnosis, benchmarkScores, userAnswers, allQuest
         options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } } }
     });
 
+    // --- 항목별 성과 비교 차트 (라인 그래프) ---
     const branchingQuestions = ['S-Q1', 'S-Q2', 'S-Q3', 'S-Q4', 'S-Q5', 'S-Q6', 'S-Q7', 'S-Q8', 'S-Q9', 'S-Q10', 'S-Q11', 'S-Q12', 'S-Q13', 'S-Q14', 'S-Q15', 'S-Q16'];
     const filteredBenchmarkScores = (benchmarkScores || []).filter(item => !branchingQuestions.includes(item.question_code));
     const questionMap = new Map((allQuestions || []).map(q => [q.question_code, q.question_text]));
@@ -184,8 +185,13 @@ function renderBenchmarkCharts(diagnosis, benchmarkScores, userAnswers, allQuest
         labels.push(shortLabelMatch ? shortLabelMatch[1] : item.question_code.replace('S-',''));
 
         industryScores.push(item.average_score);
-        const userAnswer = (userAnswers || []).find(ans => ans.question_code === item.question_code);
-        userScores.push(userAnswer && userAnswer.score != null ? userAnswer.score : 0);
+        // '간편진단'의 경우 userAnswers가 비어있을 수 있으므로, diagnosis 점수를 사용합니다.
+        if (diagnosis.diagnosis_type === 'quick') {
+            userScores.push(industryAverageScores[questionsMap.get(item.question_code)?.toLowerCase()] || 50); // 간편진단 시 '우리회사' 점수는 업계평균 점수로 임시 표시
+        } else {
+            const userAnswer = (userAnswers || []).find(ans => ans.question_code === item.question_code);
+            userScores.push(userAnswer && userAnswer.score != null ? userAnswer.score : 0);
+        }
     });
     
     if (labels.length === 0) {
@@ -194,10 +200,11 @@ function renderBenchmarkCharts(diagnosis, benchmarkScores, userAnswers, allQuest
         return industryAverageScores; 
     }
 
-    const lineChartDatasets = [{ label: '업계 평균', data: industryScores, borderColor: 'rgba(255, 99, 132, 1)', borderDash: [5, 5], tension: 0.1 }];
-    if (diagnosis.diagnosis_type !== 'simple') {
-        lineChartDatasets.unshift({ label: '우리 회사', data: userScores, borderColor: 'rgba(54, 162, 235, 1)', tension: 0.1 });
-    }
+    // ★★★ [수정] '간편진단' 여부와 관계없이 '우리 회사' 라인을 항상 표시하도록 if문 제거 ★★★
+    const lineChartDatasets = [
+        { label: '우리 회사', data: userScores, borderColor: 'rgba(54, 162, 235, 1)', tension: 0.1 },
+        { label: '업계 평균', data: industryScores, borderColor: 'rgba(255, 99, 132, 1)', borderDash: [5, 5], tension: 0.1 }
+    ];
 
     new Chart(qChartCanvas, {
         type: 'line',
